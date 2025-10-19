@@ -1,8 +1,8 @@
 import { View, FlatList, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
-import { ThemedView } from "@/components/themed-view";
-import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { ThemedView } from "@/ui-components/themed-view";
+import { ThemedText } from "@/ui-components/themed-text";
+import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 
 interface WishlistItem {
   id: string;

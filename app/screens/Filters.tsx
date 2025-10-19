@@ -1,7 +1,7 @@
 import { View, TouchableOpacity, ScrollView, Switch } from "react-native";
-import { ThemedView } from "@/components/themed-view";
-import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { ThemedView } from "@/ui-components/themed-view";
+import { ThemedText } from "@/ui-components/themed-text";
+import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { useState } from "react";
 
 type FilterKeys = "hasPool" | "hasFreeWifi" | "hasParking" | "hasRestaurant";

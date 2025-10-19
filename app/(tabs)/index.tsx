@@ -1,27 +1,28 @@
 import { View, ScrollView, TouchableOpacity } from "react-native";
-import { Image } from "expo-image";
-import { ThemedView } from "@/components/themed-view";
-import { ThemedText } from "@/components/themed-text";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { Image, type ImageSource } from "expo-image";
+import { ThemedView } from "@/ui-components/themed-view";
+import { ThemedText } from "@/ui-components/themed-text";
+import { IconSymbol } from "@/ui-components/ui/icon-symbol";
+import { IMAGES } from "../Util_Images";
 
 export default function HomeScreen() {
   const topDestinations = [
     {
       id: "1",
       name: "Đà Lạt",
-      image: "https://placekitten.com/300/200",
+      image: IMAGES.dalat,
       count: "150+ địa điểm",
     },
     {
       id: "2",
       name: "Phú Quốc",
-      image: "https://placekitten.com/300/201",
+      image: IMAGES.phuquoc,
       count: "120+ địa điểm",
     },
     {
       id: "3",
       name: "Hội An",
-      image: "https://placekitten.com/300/202",
+      image: IMAGES.hoian,
       count: "90+ địa điểm",
     },
   ];
@@ -30,7 +31,7 @@ export default function HomeScreen() {
     {
       id: "1",
       name: "Tour Đà Lạt 3N2Đ",
-      image: "https://placekitten.com/400/300",
+      image: IMAGES.dalat2n1d,
       price: "2,500,000đ",
       rating: 4.8,
       reviews: 128,
@@ -108,7 +109,7 @@ export default function HomeScreen() {
             {topDestinations.map((destination) => (
               <TouchableOpacity key={destination.id} className="mr-4 w-40">
                 <Image
-                  source={{ uri: destination.image }}
+                  source={destination.image}
                   className="w-40 h-40 rounded-lg"
                   contentFit="cover"
                 />
@@ -139,7 +140,7 @@ export default function HomeScreen() {
                 className="mr-4 w-72 bg-white rounded-lg shadow"
               >
                 <Image
-                  source={{ uri: tour.image }}
+                  source={tour.image}
                   className="w-72 h-48 rounded-t-lg"
                   contentFit="cover"
                 />
