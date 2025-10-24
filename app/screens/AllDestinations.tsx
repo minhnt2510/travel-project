@@ -8,15 +8,15 @@ import { IMAGES } from "../Util_Images";
 
 export default function AllDestinationsScreen() {
   const allDestinations = [
-    { id: "1", name: "Đà Lạt", image: IMAGES.dalat, count: "150+ địa điểm", description: "Thành phố ngàn hoa với khí hậu mát mẻ quanh năm" },
-    { id: "2", name: "Phú Quốc", image: IMAGES.phuquoc, count: "120+ địa điểm", description: "Đảo ngọc với những bãi biển tuyệt đẹp" },
-    { id: "3", name: "Hội An", image: IMAGES.hoian, count: "90+ địa điểm", description: "Phố cổ cổ kính với kiến trúc độc đáo" },
-    { id: "4", name: "Hạ Long", image: "https://images.unsplash.com/photo-1540979388649-3c0e1210f2ea?w=800", count: "80+ địa điểm", description: "Vịnh biển với những hòn đảo đá vôi hùng vĩ" },
-    { id: "5", name: "Sapa", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800", count: "60+ địa điểm", description: "Thị trấn miền núi với ruộng bậc thang tuyệt đẹp" },
-    { id: "6", name: "Nha Trang", image: "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800", count: "100+ địa điểm", description: "Thành phố biển với những bãi cát trắng mịn" },
-    { id: "7", name: "Huế", image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800", count: "70+ địa điểm", description: "Cố đô với những di tích lịch sử cổ kính" },
-    { id: "8", name: "Đà Nẵng", image: "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800", count: "85+ địa điểm", description: "Thành phố biển hiện đại với nhiều điểm tham quan" },
-  ];
+  { id: '1', name: 'Đà Lạt',   image: IMAGES.dalat,    count: '150+ địa điểm', description: 'Thành phố ngàn hoa với khí hậu mát mẻ quanh năm' },
+  { id: '2', name: 'Phú Quốc', image: IMAGES.phuquoc,  count: '120+ địa điểm', description: 'Đảo ngọc với những bãi biển tuyệt đẹp' },
+  { id: '3', name: 'Hội An',   image: IMAGES.hoian,    count: '90+ địa điểm',  description: 'Phố cổ cổ kính với kiến trúc độc đáo' },
+  { id: '4', name: 'Hạ Long',  image: IMAGES.halong,   count: '80+ địa điểm',  description: 'Vịnh biển với những hòn đảo đá vôi hùng vĩ' },
+  { id: '5', name: 'Sa Pa',    image: IMAGES.sapa,     count: '60+ địa điểm',  description: 'Thị trấn miền núi với ruộng bậc thang tuyệt đẹp' },
+  { id: '6', name: 'Nha Trang',image: IMAGES.nhatrang, count: '100+ địa điểm', description: 'Thành phố biển với những bãi cát trắng mịn' },
+  { id: '7', name: 'Huế',      image: IMAGES.hue,      count: '70+ địa điểm',  description: 'Cố đô với những di tích lịch sử cổ kính' },
+  { id: '8', name: 'Đà Nẵng',  image: IMAGES.danang,   count: '85+ địa điểm',  description: 'Thành phố biển hiện đại với nhiều điểm tham quan' },
+];
 
   const openDetail = (destinationId: string) => {
     router.push({

@@ -66,7 +66,7 @@ const handleBookTrip = async () => {
         {
           text: "Xem chuyến đi",
           onPress: () => {
-            router.push("/(tabs)/bookings"); // CHUYỂN QUA BOOKINGS
+            router.push("/(tabs)/bookings");  
           },
         },
         { text: "Ở lại", style: "cancel" },

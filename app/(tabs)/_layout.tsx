@@ -5,29 +5,29 @@ import { Tabs } from "expo-router";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const t = Colors[colorScheme ?? "light"] as Record<string, string>;
+
+  const activeTint =
+    "tint" in t ? t.tint : ("tabIconSelected" in t ? t.tabIconSelected : t.primary);
+
+  const inactiveTint = "tabIconDefault" in t ? t.tabIconDefault : t.icon;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        tabBarInactiveTintColor: Colors[colorScheme ?? "light"].tabIconDefault,
+        tabBarActiveTintColor: activeTint,
+        tabBarInactiveTintColor: inactiveTint,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Colors[colorScheme ?? "light"].background,
+          backgroundColor: t.background,
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          borderTopColor: "#E5E7EB",
           paddingBottom: 8,
           paddingTop: 8,
           height: 70,
         },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-          marginTop: 4,
-        },
-        tabBarIconStyle: {
-          marginTop: 4,
-        },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: "600", marginTop: 4 },
+        tabBarIconStyle: { marginTop: 4 },
       }}
     >
       <Tabs.Screen

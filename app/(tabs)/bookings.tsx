@@ -7,12 +7,14 @@ import { Image } from "expo-image";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Alert, FlatList, Modal,
+  Alert,
+  FlatList,
+  Modal,
   ScrollView,
   TextInput,
   TouchableOpacity,
   useColorScheme,
-  View
+  View,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -28,7 +30,8 @@ export default function BookingsScreen() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingTrip, setEditingTrip] = useState<Trip | null>(null);
   const [isAddingTrip, setIsAddingTrip] = useState(false);
-  const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
+  const [selectedDestination, setSelectedDestination] =
+    useState<Destination | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [travelers, setTravelers] = useState("");
@@ -45,7 +48,7 @@ export default function BookingsScreen() {
       if (destinations.length === 0) loadDestinations();
     }, [destinations.length])
   );
-  
+
   useEffect(() => {
     fade.value = withTiming(1, { duration: 600 });
     fabScale.value = withSpring(1, { damping: 18 });
@@ -92,7 +95,7 @@ export default function BookingsScreen() {
     setEndDate(trip.endDate);
     setTravelers(trip.travelers.toString());
     // Tìm destination tương ứng
-    const dest = destinations.find(d => d.name === trip.destinationName);
+    const dest = destinations.find((d) => d.name === trip.destinationName);
     setSelectedDestination(dest || null);
     setIsAddingTrip(false);
     setIsModalVisible(true);
@@ -155,31 +158,55 @@ export default function BookingsScreen() {
   const getStatusStyle = (status: string) => {
     const base = "px-3 py-1.5 rounded-full text-xs font-bold";
     if (status === "confirmed")
-      return `${base} ${isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-700"}`;
+      return `${base} ${
+        isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-700"
+      }`;
     if (status === "pending")
-      return `${base} ${isDark ? "bg-yellow-900 text-yellow-300" : "bg-yellow-100 text-yellow-700"}`;
+      return `${base} ${
+        isDark
+          ? "bg-yellow-900 text-yellow-300"
+          : "bg-yellow-100 text-yellow-700"
+      }`;
     if (status === "cancelled")
-      return `${base} ${isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-700"}`;
-    return `${base} ${isDark ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"}`;
+      return `${base} ${
+        isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-700"
+      }`;
+    return `${base} ${
+      isDark ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-700"
+    }`;
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "confirmed": return "Đã xác nhận";
-      case "pending": return "Chờ xác nhận";
-      case "cancelled": return "Đã hủy";
-      default: return status;
+      case "confirmed":
+        return "Đã xác nhận";
+      case "pending":
+        return "Chờ xác nhận";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return status;
     }
   };
 
   const animatedStyle = useAnimatedStyle(() => ({ opacity: fade.value }));
-  const fabStyle = useAnimatedStyle(() => ({ transform: [{ scale: fabScale.value }] }));
+  const fabStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: fabScale.value }],
+  }));
 
   if (loading) {
     return (
-      <ThemedView className={`flex-1 justify-center items-center ${isDark ? "bg-slate-900" : "bg-gray-50"}`}>
+      <ThemedView
+        className={`flex-1 justify-center items-center ${
+          isDark ? "bg-slate-900" : "bg-gray-50"
+        }`}
+      >
         <ActivityIndicator size="large" color="#3b82f6" />
-        <ThemedText className={`mt-4 ${isDark ? "text-gray-300" : "text-gray-600"} font-medium`}>
+        <ThemedText
+          className={`mt-4 ${
+            isDark ? "text-gray-300" : "text-gray-600"
+          } font-medium`}
+        >
           Đang tải...
         </ThemedText>
       </ThemedView>
@@ -199,18 +226,37 @@ export default function BookingsScreen() {
       <Animated.View style={[animatedStyle]} className="flex-1">
         {trips.length === 0 ? (
           <View className="flex-1 justify-center items-center px-8">
-            <View className={`p-8 rounded-3xl ${isDark ? "bg-slate-800" : "bg-white"} shadow-xl`}>
-              <IconSymbol name="calendar" size={64} color={isDark ? "#64748b" : "#9ca3af"} />
-              <ThemedText className={`text-lg font-semibold mt-4 text-center ${isDark ? "text-gray-200" : "text-gray-700"}`}>
+            <View
+              className={`p-8 rounded-3xl ${
+                isDark ? "bg-slate-800" : "bg-white"
+              } shadow-xl`}
+            >
+              <IconSymbol
+                name="calendar"
+                size={64}
+                color={isDark ? "#64748b" : "#9ca3af"}
+              />
+              <ThemedText
+                className={`text-lg font-semibold mt-4 text-center ${
+                  isDark ? "text-gray-200" : "text-gray-700"
+                }`}
+              >
                 Bạn chưa có chuyến đi nào
               </ThemedText>
-              <ThemedText className={`text-sm mt-2 text-center ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+              <ThemedText
+                className={`text-sm mt-2 text-center ${
+                  isDark ? "text-gray-400" : "text-gray-500"
+                }`}
+              >
                 Nhấn nút để thêm chuyến đi đầu tiên
               </ThemedText>
             </View>
           </View>
         ) : (
-          <ScrollView className="flex-1 px-4 pt-4 pb-24" showsVerticalScrollIndicator={false}>
+          <ScrollView
+            className="flex-1 px-4 pt-4 pb-24"
+            showsVerticalScrollIndicator={false}
+          >
             {trips.map((trip) => (
               <TripCard
                 key={trip.id}
@@ -237,15 +283,33 @@ export default function BookingsScreen() {
       </Animated.View>
 
       {/* === MODAL THÊM/SỬA – CÓ CHỌN ĐIỂM ĐẾN === */}
-      <Modal visible={isModalVisible} animationType="slide" presentationStyle="pageSheet">
-        <ThemedView className={`flex-1 ${isDark ? "bg-slate-900" : "bg-gray-50"}`}>
-          <View className={`p-4 border-b ${isDark ? "border-slate-700" : "border-gray-200"}`}>
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <ThemedView
+          className={`flex-1 ${isDark ? "bg-slate-900" : "bg-gray-50"}`}
+        >
+          <View
+            className={`p-4 border-b ${
+              isDark ? "border-slate-700" : "border-gray-200"
+            }`}
+          >
             <View className="flex-row justify-between items-center">
-              <ThemedText className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+              <ThemedText
+                className={`text-xl font-bold ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
                 {isAddingTrip ? "Thêm chuyến đi" : "Chỉnh sửa"}
               </ThemedText>
               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
-                <IconSymbol name="x" size={28} color={isDark ? "#9ca3af" : "#6b7280"} />
+                <IconSymbol
+                  name="x"
+                  size={28}
+                  color={isDark ? "#9ca3af" : "#6b7280"}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -253,7 +317,11 @@ export default function BookingsScreen() {
           <ScrollView className="flex-1 p-6">
             {/* === CHỌN ĐIỂM ĐẾN === */}
             <View className="mb-6">
-              <ThemedText className={`text-base font-semibold mb-3 ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+              <ThemedText
+                className={`text-base font-semibold mb-3 ${
+                  isDark ? "text-gray-200" : "text-gray-800"
+                }`}
+              >
                 Chọn điểm đến
               </ThemedText>
 
@@ -283,7 +351,11 @@ export default function BookingsScreen() {
                         className="w-full h-28"
                         contentFit="cover"
                       />
-                      <View className={`p-3 ${isDark ? "bg-slate-800" : "bg-white"}`}>
+                      <View
+                        className={`p-3 ${
+                          isDark ? "bg-slate-800" : "bg-white"
+                        }`}
+                      >
                         <ThemedText
                           className={`text-sm font-bold text-center ${
                             isDark ? "text-white" : "text-gray-900"
@@ -306,8 +378,20 @@ export default function BookingsScreen() {
             </View>
 
             {/* === FORM === */}
-            <InputField label="Ngày bắt đầu" placeholder="YYYY-MM-DD" value={startDate} onChange={setStartDate} isDark={isDark} />
-            <InputField label="Ngày kết thúc" placeholder="YYYY-MM-DD" value={endDate} onChange={setEndDate} isDark={isDark} />
+            <InputField
+              label="Ngày bắt đầu"
+              placeholder="YYYY-MM-DD"
+              value={startDate}
+              onChange={setStartDate}
+              isDark={isDark}
+            />
+            <InputField
+              label="Ngày kết thúc"
+              placeholder="YYYY-MM-DD"
+              value={endDate}
+              onChange={setEndDate}
+              isDark={isDark}
+            />
             <InputField
               label="Số người"
               placeholder="Nhập số người"
@@ -318,7 +402,11 @@ export default function BookingsScreen() {
             />
           </ScrollView>
 
-          <View className={`p-4 border-t ${isDark ? "border-slate-700" : "border-gray-200"}`}>
+          <View
+            className={`p-4 border-t ${
+              isDark ? "border-slate-700" : "border-gray-200"
+            }`}
+          >
             <TouchableOpacity
               onPress={handleSaveTrip}
               className="bg-blue-600 py-4 rounded-2xl items-center shadow-lg"
@@ -350,49 +438,95 @@ const TripCard = ({
   getStatusStyle: (s: string) => string;
   getStatusText: (s: string) => string;
 }) => (
-  <View className={`mb-6 bg-${isDark ? "slate-800" : "white"} rounded-3xl shadow-2xl overflow-hidden border ${isDark ? "border-slate-700" : "border-gray-200"}`}>
-    <Image source={{ uri: trip.destinationImage }} className="w-full h-56" contentFit="cover" />
+  <View
+    className={`mb-6 ${
+      isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"
+    } rounded-3xl shadow-2xl overflow-hidden border`}
+  >
+    <Image
+      source={{ uri: trip.destinationImage }}
+      className="w-full h-56"
+      contentFit="cover"
+    />
     <View className="p-5">
       <View className="flex-row justify-between items-center mb-3">
-        <ThemedText className={`text-2xl font-extrabold ${isDark ? "text-white" : "text-gray-900"}`}>
+        <ThemedText
+          className={`text-2xl font-extrabold ${
+            isDark ? "text-white" : "text-gray-900"
+          }`}
+        >
           {trip.destinationName}
         </ThemedText>
         <View className={getStatusStyle(trip.status)}>
-          <ThemedText className="text-xs font-bold">{getStatusText(trip.status)}</ThemedText>
+          <ThemedText className="text-xs font-bold">
+            {getStatusText(trip.status)}
+          </ThemedText>
         </View>
       </View>
 
       <View className="space-y-3 mb-4">
         <View className="flex-row items-center">
-          <IconSymbol name="calendar" size={18} color={isDark ? "#94a3b8" : "#6b7280"} />
-          <ThemedText className={`ml-2 ${isDark ? "text-gray-300" : "text-gray-600"} font-medium`}>
+          <IconSymbol
+            name="calendar"
+            size={18}
+            color={isDark ? "#94a3b8" : "#6b7280"}
+          />
+          <ThemedText
+            className={`ml-2 ${
+              isDark ? "text-gray-300" : "text-gray-600"
+            } font-medium`}
+          >
             {trip.startDate} - {trip.endDate}
           </ThemedText>
         </View>
         <View className="flex-row items-center">
-          <IconSymbol name="users" size={18} color={isDark ? "#94a3b8" : "#6b7280"} />
-          <ThemedText className={`ml-2 ${isDark ? "text-gray-300" : "text-gray-600"} font-medium`}>
+          <IconSymbol
+            name="users"
+            size={18}
+            color={isDark ? "#94a3b8" : "#6b7280"}
+          />
+          <ThemedText
+            className={`ml-2 ${
+              isDark ? "text-gray-300" : "text-gray-600"
+            } font-medium`}
+          >
             {trip.travelers} người
           </ThemedText>
         </View>
       </View>
 
       <View className="flex-row justify-between items-center">
-        <ThemedText className={`text-3xl font-extrabold ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+        <ThemedText
+          className={`text-3xl font-extrabold ${
+            isDark ? "text-blue-400" : "text-blue-600"
+          }`}
+        >
           {trip.totalPrice}
         </ThemedText>
         <View className="flex-row space-x-3">
           <TouchableOpacity
             onPress={onEdit}
-            className={`w-12 h-12 rounded-full ${isDark ? "bg-slate-700" : "bg-blue-100"} flex items-center justify-center`}
+            className={`w-12 h-12 rounded-full ${
+              isDark ? "bg-slate-700" : "bg-blue-100"
+            } flex items-center justify-center`}
           >
-            <IconSymbol name="edit" size={20} color={isDark ? "#60a5fa" : "#2563eb"} />
+            <IconSymbol
+              name="edit"
+              size={20}
+              color={isDark ? "#60a5fa" : "#2563eb"}
+            />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onDelete}
-            className={`w-12 h-12 rounded-full ${isDark ? "bg-slate-700" : "bg-red-100"} flex items-center justify-center`}
+            className={`w-12 h-12 rounded-full ${
+              isDark ? "bg-slate-700" : "bg-red-100"
+            } flex items-center justify-center`}
           >
-            <IconSymbol name="trash" size={20} color={isDark ? "#f87171" : "#dc2626"} />
+            <IconSymbol
+              name="trash"
+              size={20}
+              color={isDark ? "#f87171" : "#dc2626"}
+            />
           </TouchableOpacity>
         </View>
       </View>
@@ -417,7 +551,11 @@ const InputField = ({
   isDark: boolean;
 }) => (
   <View className="mb-5">
-    <ThemedText className={`text-base font-semibold mb-2 ${isDark ? "text-gray-200" : "text-gray-800"}`}>
+    <ThemedText
+      className={`text-base font-semibold mb-2 ${
+        isDark ? "text-gray-200" : "text-gray-800"
+      }`}
+    >
       {label}
     </ThemedText>
     <TextInput
