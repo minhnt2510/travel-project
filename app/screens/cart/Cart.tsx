@@ -94,7 +94,7 @@ export default function Cart() {
       Alert.alert("Giỏ hàng trống", "Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán");
       return;
     }
-    router.push("/screens/Checkout");
+    router.push("/screens/cart/Checkout");
   };
 
   const total = cartItems.reduce(

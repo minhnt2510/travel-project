@@ -131,7 +131,7 @@ export default function PaymentResult() {
             <>
               <TouchableOpacity
                 className="bg-blue-600 py-3 px-6 rounded-lg items-center"
-                onPress={() => router.push("/screens/Checkout")}
+                onPress={() => router.push("/screens/cart/Checkout")}
               >
                 <ThemedText className="text-white font-semibold">
                   Thử lại
@@ -139,7 +139,7 @@ export default function PaymentResult() {
               </TouchableOpacity>
               <TouchableOpacity
                 className="py-3 px-6 rounded-lg items-center"
-                onPress={() => router.push("/screens/Chat")}
+                onPress={() => router.push("/screens/chat/Chat")}
               >
                 <ThemedText className="text-blue-600">
                   Liên hệ hỗ trợ

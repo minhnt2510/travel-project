@@ -58,7 +58,7 @@ export default function HomeScreen() {
   // HÀM CHUNG: MỞ CHI TIẾT
   const openDetail = (destinationId: string) => {
     router.push({
-      pathname: "/screens/HotelDetail",
+      pathname: "/screens/destinations/HotelDetail",
       params: { destinationId },
     });
   };
@@ -98,7 +98,7 @@ export default function HomeScreen() {
             <ThemedText className="text-xl font-bold">
               Điểm đến phổ biến
             </ThemedText>
-            <TouchableOpacity onPress={() => router.push("/screens/AllDestinations")}>
+            <TouchableOpacity onPress={() => router.push("/screens/destinations/AllDestinations")}>
               <ThemedText className="text-blue-600">Xem tất cả</ThemedText>
             </TouchableOpacity>
           </View>
@@ -130,7 +130,7 @@ export default function HomeScreen() {
         <View className="p-4">
           <View className="flex-row justify-between items-center mb-4">
             <ThemedText className="text-xl font-bold">Tour nổi bật</ThemedText>
-            <TouchableOpacity onPress={() => router.push("/screens/AllTours")}>
+            <TouchableOpacity onPress={() => router.push("/screens/tours/AllTours")}>
               <ThemedText className="text-blue-600">Xem tất cả</ThemedText>
             </TouchableOpacity>
           </View>
@@ -170,7 +170,7 @@ export default function HomeScreen() {
         <View className="p-4">
           <View className="flex-row justify-between items-center mb-4">
             <ThemedText className="text-xl font-bold">Ưu đãi hot</ThemedText>
-            <TouchableOpacity onPress={() => router.push("/screens/AllDeals")}>
+            <TouchableOpacity onPress={() => router.push("/screens/deals/AllDeals")}>
               <ThemedText className="text-blue-600">Xem tất cả</ThemedText>
             </TouchableOpacity>
           </View>

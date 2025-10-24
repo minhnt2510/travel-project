@@ -108,9 +108,9 @@ export default function WishlistScreen() {
 
   const handleBookingPress = (item: WishlistItem) => {
     if (item.type === "tour") {
-      router.push("/screens/Checkout");
+      router.push("/screens/cart/Checkout");
     } else {
-      router.push("/screens/Checkout");
+      router.push("/screens/cart/Checkout");
     }
   };
 
