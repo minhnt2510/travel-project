@@ -1,19 +1,43 @@
-import { View, TouchableOpacity } from "react-native";
-import { ThemedView } from "@/ui-components/themed-view";
 import { ThemedText } from "@/ui-components/themed-text";
+import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 
-interface PaymentResultProps {
-  status: "success" | "failure";
+interface OrderData {
   orderNumber: string;
-  amount: number;
+  items: any[];
+  contactInfo: any;
+  paymentMethod: string;
+  totals: any;
+  status: string;
+  createdAt: string;
 }
 
-export default function PaymentResult({
-  status = "success",
-  orderNumber = "DH123456789",
-  amount = 4350000,
-}: PaymentResultProps) {
+export default function PaymentResult() {
+  const params = useLocalSearchParams();
+  const [orderData, setOrderData] = useState<OrderData | null>(null);
+  
+  const status = params.status as "success" | "failure" || "success";
+  const orderNumber = params.orderNumber as string || "DH123456789";
+  const amount = parseInt(params.amount as string) || 4350000;
+
+  useEffect(() => {
+    loadOrderData();
+  }, [orderNumber]);
+
+  const loadOrderData = async () => {
+    try {
+      const order = await AsyncStorage.getItem(`order_${orderNumber}`);
+      if (order) {
+        setOrderData(JSON.parse(order));
+      }
+    } catch (error) {
+      console.error("Error loading order data:", error);
+    }
+  };
   return (
     <ThemedView className="flex-1">
       <View className="flex-1 items-center justify-center p-4">
@@ -56,21 +80,47 @@ export default function PaymentResult({
           </View>
         </View>
 
+        {/* Order Details */}
+        {orderData && (
+          <View className="w-full bg-white p-4 rounded-lg shadow mb-6">
+            <ThemedText className="text-lg font-bold mb-4">Chi tiết đơn hàng</ThemedText>
+            {orderData.items.map((item, index) => (
+              <View key={index} className="flex-row justify-between py-2 border-b border-gray-100">
+                <View className="flex-1">
+                  <ThemedText className="font-medium">{item.name}</ThemedText>
+                  <ThemedText className="text-gray-600 text-sm">
+                    {item.type === "tour" ? "Tour" : "Khách sạn"} • SL: {item.quantity}
+                  </ThemedText>
+                </View>
+                <ThemedText className="font-semibold">
+                  {(item.price * item.quantity).toLocaleString()}đ
+                </ThemedText>
+              </View>
+            ))}
+            <View className="flex-row justify-between pt-2 mt-2">
+              <ThemedText className="font-bold">Tổng cộng:</ThemedText>
+              <ThemedText className="font-bold text-blue-600">
+                {orderData.totals.total.toLocaleString()}đ
+              </ThemedText>
+            </View>
+          </View>
+        )}
+
         {/* Action Buttons */}
         <View className="w-full space-y-4">
           {status === "success" ? (
             <>
               <TouchableOpacity
                 className="bg-blue-600 py-3 px-6 rounded-lg items-center"
-                onPress={() => {}}
+                onPress={() => router.push("/(tabs)/bookings")}
               >
                 <ThemedText className="text-white font-semibold">
-                  Xem chi tiết đơn hàng
+                  Xem đơn hàng của tôi
                 </ThemedText>
               </TouchableOpacity>
               <TouchableOpacity
                 className="py-3 px-6 rounded-lg items-center"
-                onPress={() => {}}
+                onPress={() => router.push("/")}
               >
                 <ThemedText className="text-blue-600">
                   Trở về trang chủ
@@ -81,7 +131,7 @@ export default function PaymentResult({
             <>
               <TouchableOpacity
                 className="bg-blue-600 py-3 px-6 rounded-lg items-center"
-                onPress={() => {}}
+                onPress={() => router.push("/screens/Checkout")}
               >
                 <ThemedText className="text-white font-semibold">
                   Thử lại
@@ -89,7 +139,7 @@ export default function PaymentResult({
               </TouchableOpacity>
               <TouchableOpacity
                 className="py-3 px-6 rounded-lg items-center"
-                onPress={() => {}}
+                onPress={() => router.push("/screens/Chat")}
               >
                 <ThemedText className="text-blue-600">
                   Liên hệ hỗ trợ
