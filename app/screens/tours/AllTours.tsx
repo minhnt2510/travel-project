@@ -4,7 +4,7 @@ import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { ScrollView, TouchableOpacity, View } from "react-native";
-import { IMAGES } from "../Util_Images";
+import { IMAGES } from "../../Util_Images";
 
 export default function AllToursScreen() {
   const allTours = [
