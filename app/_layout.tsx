@@ -21,6 +21,7 @@ export default function RootLayout() {
           {/* Tabs & Auth groups */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="screens" options={{ headerShown: false }} />
 
           {/* Single screens (tránh 404, tùy biến header) */}
           <Stack.Screen name="screens/Checkout" options={{ headerShown: false }} />

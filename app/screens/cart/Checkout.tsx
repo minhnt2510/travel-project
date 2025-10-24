@@ -147,7 +147,7 @@ export default function Checkout() {
       
       // Navigate to payment result
       router.push({
-        pathname: "/screens/PaymentResult",
+        pathname: "/screens/cart/PaymentResult",
         params: {
           status: "success",
           orderNumber,
@@ -158,7 +158,7 @@ export default function Checkout() {
     } catch (error) {
       console.error("Payment processing error:", error);
       router.push({
-        pathname: "/screens/PaymentResult",
+        pathname: "/screens/cart/PaymentResult",
         params: {
           status: "failure",
           orderNumber: `DH${Date.now()}`,

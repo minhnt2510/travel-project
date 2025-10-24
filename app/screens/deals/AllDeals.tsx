@@ -115,7 +115,7 @@ export default function AllDealsScreen() {
 
   const openDetail = (destinationId: string) => {
     router.push({
-      pathname: "/screens/HotelDetail",
+      pathname: "/screens/destinations/HotelDetail",
       params: { destinationId },
     });
   };

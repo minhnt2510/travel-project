@@ -84,7 +84,7 @@ export default function AllToursScreen() {
 
   const openDetail = (destinationId: string) => {
     router.push({
-      pathname: "/screens/HotelDetail",
+      pathname: "/screens/destinations/HotelDetail",
       params: { destinationId },
     });
   };
