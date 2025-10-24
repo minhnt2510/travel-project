@@ -10,6 +10,7 @@ import {
   Alert, Dimensions, ScrollView,
   TouchableOpacity, useColorScheme, View
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 
@@ -115,8 +116,12 @@ const handleBookTrip = async () => {
   }
 
   return (
-    <ThemedView className={`flex-1 ${isDark ? "bg-slate-900" : "bg-gray-50"}`}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <SafeAreaView className={`flex-1 ${isDark ? "bg-slate-900" : "bg-gray-50"}`}>
+    <ThemedView className="flex-1">
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }} // THÊM DÒNG NÀY
+      >
         {/* === HÌNH ẢNH + HEADER === */}
         <View className="relative">
           <Image
@@ -276,35 +281,35 @@ const handleBookTrip = async () => {
         </View>
       </ScrollView>
 
-      {/* === BOTTOM BAR CỐ ĐỊNH === */}
       <View className={`absolute bottom-0 left-0 right-0 p-6 ${isDark ? "bg-slate-900" : "bg-white"} border-t ${isDark ? "border-slate-700" : "border-gray-200"} shadow-2xl`}>
-        <View className="flex-row justify-between items-center">
-          <View>
-            <ThemedText className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Giá từ</ThemedText>
-            <ThemedText className="text-blue-600 font-extrabold text-2xl">
-              {destination.price}
-            </ThemedText>
-            <ThemedText className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>/ người</ThemedText>
-          </View>
+          <View className="flex-row justify-between items-center">
+            <View>
+              <ThemedText className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>Giá từ</ThemedText>
+              <ThemedText className="text-blue-600 font-extrabold text-2xl">
+                {destination?.price}
+              </ThemedText>
+              <ThemedText className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>/ người</ThemedText>
+            </View>
 
-          <TouchableOpacity
-            onPress={handleBookTrip}
-            disabled={isBooking}
-            className="bg-blue-600 px-8 py-4 rounded-2xl flex-row items-center shadow-lg"
-          >
-            {isBooking ? (
-              <ActivityIndicator size="small" color="#FFF" />
-            ) : (
-              <>
-                <IconSymbol name="calendar" size={22} color="#FFF" />
-                <ThemedText className="text-white font-bold ml-2 text-base">
-                  Đặt ngay
-                </ThemedText>
-              </>
-            )}
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleBookTrip}
+              disabled={isBooking}
+              className="bg-blue-600 px-8 py-4 rounded-2xl flex-row items-center shadow-lg"
+            >
+              {isBooking ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <>
+                  <IconSymbol name="calendar" size={22} color="#FFF" />
+                  <ThemedText className="text-white font-bold ml-2 text-base">
+                    Đặt ngay
+                  </ThemedText>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </ThemedView>
+      </ThemedView>
+    </SafeAreaView>
   );
 }
