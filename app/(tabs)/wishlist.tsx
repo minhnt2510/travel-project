@@ -6,6 +6,7 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { Alert, FlatList, TouchableOpacity, View } from "react-native";
+import IMAGES from "../Util_Images";
 
 interface WishlistItem {
   id: string;
@@ -23,7 +24,7 @@ const defaultWishlistItems: WishlistItem[] = [
     id: "1",
     name: "Tour Đà Lạt 3N2Đ",
     location: "Đà Lạt, Lâm Đồng",
-    image: "https://placekitten.com/300/200",
+    image: IMAGES.dalat,
     price: "2,500,000đ",
     type: "tour",
   },
@@ -31,7 +32,7 @@ const defaultWishlistItems: WishlistItem[] = [
     id: "2",
     name: "Dalat Palace Heritage",
     location: "Đà Lạt, Lâm Đồng",
-    image: "https://placekitten.com/300/201",
+    image: IMAGES.dalat,
     price: "1,800,000đ/đêm",
     type: "hotel",
   },
@@ -62,7 +63,10 @@ export default function WishlistScreen() {
       } else {
         // Initialize with default items for demo
         setWishlistItems(defaultWishlistItems);
-        await AsyncStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(defaultWishlistItems));
+        await AsyncStorage.setItem(
+          WISHLIST_STORAGE_KEY,
+          JSON.stringify(defaultWishlistItems)
+        );
       }
     } catch (error) {
       console.error("Error loading wishlist:", error);
@@ -86,9 +90,14 @@ export default function WishlistScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              const updatedItems = wishlistItems.filter(item => item.id !== itemId);
+              const updatedItems = wishlistItems.filter(
+                (item) => item.id !== itemId
+              );
               setWishlistItems(updatedItems);
-              await AsyncStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(updatedItems));
+              await AsyncStorage.setItem(
+                WISHLIST_STORAGE_KEY,
+                JSON.stringify(updatedItems)
+              );
             } catch (error) {
               console.error("Error removing from wishlist:", error);
             }
@@ -100,9 +109,9 @@ export default function WishlistScreen() {
 
   const handleItemPress = (item: WishlistItem) => {
     if (item.type === "tour") {
-      router.push(`/screens/TripDetail?id=${item.id}`);
+      router.push(`/screens/bookings/TripDetail?id=${item.id}`);
     } else {
-      router.push(`/screens/HotelDetail?id=${item.id}`);
+      router.push(`/screens/destinations/HotelDetail?id=${item.id}`);
     }
   };
 
@@ -123,7 +132,7 @@ export default function WishlistScreen() {
       <ThemedText className="text-gray-400 text-center">
         Hãy khám phá và thêm những tour du lịch hoặc khách sạn yêu thích vào đây
       </ThemedText>
-      <TouchableOpacity 
+      <TouchableOpacity
         className="bg-blue-600 px-6 py-3 rounded-lg mt-6"
         onPress={() => router.push("/")}
       >
@@ -158,7 +167,7 @@ export default function WishlistScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ padding: 16 }}
           renderItem={({ item }) => (
-            <TouchableOpacity 
+            <TouchableOpacity
               className="bg-white rounded-lg shadow-sm mb-4 overflow-hidden"
               onPress={() => handleItemPress(item)}
             >
@@ -168,7 +177,7 @@ export default function WishlistScreen() {
                   className="w-full h-48"
                   contentFit="cover"
                 />
-                <TouchableOpacity 
+                <TouchableOpacity
                   className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full items-center justify-center"
                   onPress={() => removeFromWishlist(item.id)}
                 >
@@ -195,7 +204,7 @@ export default function WishlistScreen() {
                   <ThemedText className="text-blue-600 font-semibold">
                     {item.price}
                   </ThemedText>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     className="bg-blue-600 px-4 py-2 rounded"
                     onPress={() => handleBookingPress(item)}
                   >
