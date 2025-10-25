@@ -1,4 +1,5 @@
 // services/api.ts
+import IMAGES from "@/app/Util_Images";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export interface Destination {
@@ -45,11 +46,13 @@ const mockDestinations: Destination[] = [
     name: "Đà Lạt",
     country: "Việt Nam",
     city: "Lâm Đồng",
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400",
+    image:
+      "https://d3pa5s1toq8zys.cloudfront.net/explore/wp-content/uploads/2023/10/Da-Lat.jpg",
     rating: 4.8,
     reviews: 1250,
     price: "2,500,000đ",
-    description: "Thành phố ngàn hoa với khí hậu mát mẻ quanh năm, nổi tiếng với những đồi thông, hồ nước thơ mộng và kiến trúc Pháp cổ kính.",
+    description:
+      "Thành phố ngàn hoa với khí hậu mát mẻ quanh năm, nổi tiếng với những đồi thông, hồ nước thơ mộng và kiến trúc Pháp cổ kính.",
     coordinates: { latitude: 11.9404, longitude: 108.4583 },
   },
   {
@@ -57,35 +60,39 @@ const mockDestinations: Destination[] = [
     name: "Phú Quốc",
     country: "Việt Nam",
     city: "Kiên Giang",
-    image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400",
+    image:
+      "https://bcp.cdnchinhphu.vn/334894974524682240/2025/6/23/phu-quoc-17506756503251936667562.jpg",
     rating: 4.9,
     reviews: 2100,
     price: "5,500,000đ",
-    description: "Đảo ngọc với những bãi biển tuyệt đẹp, nước biển trong xanh và hệ sinh thái biển phong phú.",
-    coordinates: { latitude: 10.2899, longitude: 103.9840 },
+    description:
+      "Đảo ngọc với những bãi biển tuyệt đẹp, nước biển trong xanh và hệ sinh thái biển phong phú.",
+    coordinates: { latitude: 10.2899, longitude: 103.984 },
   },
   {
     id: "3",
     name: "Hội An",
     country: "Việt Nam",
     city: "Quảng Nam",
-    image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=400",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSubIRulzd54wWhkW5arL9YQnSoC2Xo0IgLXw&s",
     rating: 4.7,
     reviews: 1800,
     price: "1,800,000đ",
-    description: "Phố cổ Hội An với kiến trúc cổ kính, đèn lồng đầy màu sắc và ẩm thực đặc sắc.",
-    coordinates: { latitude: 15.8801, longitude: 108.3380 },
+    description:
+      "Phố cổ Hội An với kiến trúc cổ kính, đèn lồng đầy màu sắc và ẩm thực đặc sắc.",
+    coordinates: { latitude: 15.8801, longitude: 108.338 },
   },
   {
     id: "4",
     name: "Hạ Long",
     country: "Việt Nam",
     city: "Quảng Ninh",
-    image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=400",
+    image: "https://hanoilionboutiquehotel.com/images/tour/2023/09/02/large/cruise-5-star_1693649770.jpeg",
     rating: 4.9,
     reviews: 3200,
     price: "3,200,000đ",
-    description: "Vịnh Hạ Long với hàng nghìn đảo đá vôi tuyệt đẹp, được UNESCO công nhận là Di sản Thế giới.",
+    description:
+      "Vịnh Hạ Long với hàng nghìn đảo đá vôi tuyệt đẹp, được UNESCO công nhận là Di sản Thế giới.",
     coordinates: { latitude: 20.9101, longitude: 107.1839 },
   },
 ];
@@ -94,11 +101,9 @@ const mockUser: User = {
   id: "1",
   name: "Nguyễn Văn A",
   email: "nguyenvana@email.com",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100",
+  avatar: "https://m.yodycdn.com/blog/anh-cho-meme-yody-vn51.jpg",
   phone: "0123456789",
 };
-
-// === HELPER: Lưu / Lấy trips từ AsyncStorage ===
 const TRIPS_KEY = "travel_app_trips";
 
 const getStoredTrips = async (): Promise<Trip[]> => {
@@ -149,7 +154,9 @@ export const api = {
     return await getStoredTrips();
   },
 
-  createTrip: async (tripData: Omit<Trip, "id" | "createdAt">): Promise<Trip> => {
+  createTrip: async (
+    tripData: Omit<Trip, "id" | "createdAt">
+  ): Promise<Trip> => {
     await new Promise((r) => setTimeout(r, 1000));
     const trips = await getStoredTrips();
     const newTrip: Trip = {
@@ -162,7 +169,10 @@ export const api = {
     return newTrip;
   },
 
-  updateTrip: async (id: string, tripData: Partial<Trip>): Promise<Trip | null> => {
+  updateTrip: async (
+    id: string,
+    tripData: Partial<Trip>
+  ): Promise<Trip | null> => {
     await new Promise((r) => setTimeout(r, 800));
     const trips = await getStoredTrips();
     const index = trips.findIndex((t) => t.id === id);
@@ -197,7 +207,10 @@ export const api = {
   },
 
   // === AUTH ===
-  login: async (email: string, password: string): Promise<{ success: boolean; user?: User; message?: string }> => {
+  login: async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; user?: User; message?: string }> => {
     await new Promise((r) => setTimeout(r, 1000));
     if (email === "test@email.com" && password === "123456") {
       return { success: true, user: mockUser };
@@ -205,7 +218,11 @@ export const api = {
     return { success: false, message: "Email hoặc mật khẩu không đúng" };
   },
 
-  register: async (userData: { name: string; email: string; password: string }): Promise<{ success: boolean; user?: User; message?: string }> => {
+  register: async (userData: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<{ success: boolean; user?: User; message?: string }> => {
     await new Promise((r) => setTimeout(r, 1000));
     const newUser: User = {
       id: Date.now().toString(),

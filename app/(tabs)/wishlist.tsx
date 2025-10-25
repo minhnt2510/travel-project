@@ -24,7 +24,8 @@ const defaultWishlistItems: WishlistItem[] = [
     id: "1",
     name: "Tour Đà Lạt 3N2Đ",
     location: "Đà Lạt, Lâm Đồng",
-    image: IMAGES.dalat,
+    image:
+      "https://mia.vn/media/uploads/blog-du-lich/truot-co-da-lat-1-1734285073.jpg",
     price: "2,500,000đ",
     type: "tour",
   },
@@ -50,7 +51,6 @@ export default function WishlistScreen() {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load wishlist from storage on component mount
   useEffect(() => {
     loadWishlist();
   }, []);
@@ -115,12 +115,28 @@ export default function WishlistScreen() {
     }
   };
 
-  const handleBookingPress = (item: WishlistItem) => {
-    if (item.type === "tour") {
-      router.push("/screens/cart/Checkout");
-    } else {
-      router.push("/screens/cart/Checkout");
-    }
+  const handleBookingPress = async (item: WishlistItem) => {
+    // Lấy số tiền (bỏ ký tự không phải số)
+    const price =
+      typeof item.price === "string"
+        ? Number(item.price.replace(/\D/g, "")) || 0
+        : Number(item.price) || 0;
+
+    // Chuẩn payload cho Checkout (Checkout đang đọc key "cart_items")
+    const cartPayload = [
+      {
+        id: item.id,
+        name: item.name,
+        price,
+        quantity: 1,
+        type: item.type, // "tour" | "hotel"
+      },
+    ];
+
+    await AsyncStorage.setItem("cart_items", JSON.stringify(cartPayload));
+
+    // Mở trang Checkout (có thể gắn ?from=wishlist để sau này phân tích)
+    router.push("/screens/cart/Checkout?from=wishlist");
   };
 
   const renderEmptyState = () => (

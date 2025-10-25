@@ -1,17 +1,15 @@
+// app/(tabs)/bookings.tsx
 import { api, type Destination, type Trip } from "@/services/api";
 import { ThemedText } from "@/ui-components/themed-text";
 import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { useFocusEffect } from "@react-navigation/native";
-import { Image } from "expo-image";
 import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
   Modal,
   ScrollView,
-  TextInput,
   TouchableOpacity,
   useColorScheme,
   View,
@@ -22,6 +20,13 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+
+import { router } from "expo-router";
+import { Image } from "expo-image"; // dùng ở empty-state
+import TripCard from "../components/trips/TripCard";
+import DestinationPicker from "../components/destinations/DestinationPicker";
+import InputField from "../components/common/InputField";
+
 export default function BookingsScreen() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -35,12 +40,15 @@ export default function BookingsScreen() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [travelers, setTravelers] = useState("");
+  const isDark = useColorScheme() === "dark";
 
   // Animation
   const fade = useSharedValue(0);
   const fabScale = useSharedValue(0);
-
-  const isDark = useColorScheme() === "dark";
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: fade.value }));
+  const fabStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: fabScale.value }],
+  }));
 
   useFocusEffect(
     useCallback(() => {
@@ -60,7 +68,7 @@ export default function BookingsScreen() {
       const data = await api.getTrips();
       setTrips(data);
     } catch {
-      Alert.alert("Lõi", "Không thể tải danh sách chuyến đi");
+      Alert.alert("Lỗi", "Không thể tải danh sách chuyến đi");
     } finally {
       setLoading(false);
     }
@@ -71,7 +79,6 @@ export default function BookingsScreen() {
       setLoadingDestinations(true);
       const data = await api.getDestinations();
       setDestinations(data);
-      // Mặc định chọn điểm đầu tiên
       if (data.length > 0) setSelectedDestination(data[0]);
     } catch {
       Alert.alert("Lỗi", "Không thể tải điểm đến");
@@ -93,8 +100,7 @@ export default function BookingsScreen() {
     setEditingTrip(trip);
     setStartDate(trip.startDate);
     setEndDate(trip.endDate);
-    setTravelers(trip.travelers.toString());
-    // Tìm destination tương ứng
+    setTravelers(String(trip.travelers));
     const dest = destinations.find((d) => d.name === trip.destinationName);
     setSelectedDestination(dest || null);
     setIsAddingTrip(false);
@@ -128,7 +134,7 @@ export default function BookingsScreen() {
 
     try {
       if (isAddingTrip) {
-        const newTrip = {
+        await api.createTrip({
           destinationId: selectedDestination.id,
           destinationName: selectedDestination.name,
           destinationImage: selectedDestination.image,
@@ -136,9 +142,8 @@ export default function BookingsScreen() {
           endDate,
           travelers: parseInt(travelers),
           totalPrice: selectedDestination.price,
-          status: "pending" as const,
-        };
-        await api.createTrip(newTrip);
+          status: "pending",
+        });
         Alert.alert("Thành công", "Đã thêm chuyến đi!");
       } else if (editingTrip) {
         await api.updateTrip(editingTrip.id, {
@@ -188,11 +193,6 @@ export default function BookingsScreen() {
         return status;
     }
   };
-
-  const animatedStyle = useAnimatedStyle(() => ({ opacity: fade.value }));
-  const fabStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: fabScale.value }],
-  }));
 
   if (loading) {
     return (
@@ -262,16 +262,23 @@ export default function BookingsScreen() {
                 key={trip.id}
                 trip={trip}
                 isDark={isDark}
-                onEdit={() => openEditModal(trip)}
-                onDelete={() => handleDeleteTrip(trip.id)}
                 getStatusStyle={getStatusStyle}
                 getStatusText={getStatusText}
+                onEdit={() => openEditModal(trip)}
+                onDelete={() => handleDeleteTrip(trip.id)}
+                onPay={() =>
+                  router.push({
+                    pathname: "/screens/cart/Checkout",
+                    params: { tripId: trip.id },
+                  })
+                }
+                showPayButton={trip.status === "pending"}
               />
             ))}
           </ScrollView>
         )}
 
-        {/* FAB: NÚT THÊM */}
+        {/* FAB: thêm */}
         <Animated.View style={[fabStyle]} className="absolute bottom-8 right-6">
           <TouchableOpacity
             onPress={openAddModal}
@@ -282,7 +289,7 @@ export default function BookingsScreen() {
         </Animated.View>
       </Animated.View>
 
-      {/* === MODAL THÊM/SỬA – CÓ CHỌN ĐIỂM ĐẾN === */}
+      {/* Modal thêm/sửa */}
       <Modal
         visible={isModalVisible}
         animationType="slide"
@@ -315,69 +322,23 @@ export default function BookingsScreen() {
           </View>
 
           <ScrollView className="flex-1 p-6">
-            {/* === CHỌN ĐIỂM ĐẾN === */}
-            <View className="mb-6">
-              <ThemedText
-                className={`text-base font-semibold mb-3 ${
-                  isDark ? "text-gray-200" : "text-gray-800"
-                }`}
-              >
-                Chọn điểm đến
-              </ThemedText>
+            {/* Chọn điểm đến */}
+            <ThemedText
+              className={`text-base font-semibold mb-3 ${
+                isDark ? "text-gray-200" : "text-gray-800"
+              }`}
+            >
+              Chọn điểm đến
+            </ThemedText>
+            <DestinationPicker
+              destinations={destinations}
+              selectedId={selectedDestination?.id}
+              onSelect={setSelectedDestination}
+              loading={loadingDestinations}
+              isDark={isDark}
+            />
 
-              {loadingDestinations ? (
-                <View className="flex-row items-center justify-center py-8">
-                  <ActivityIndicator size="small" color="#3b82f6" />
-                </View>
-              ) : (
-                <FlatList
-                  data={destinations}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  keyExtractor={(item) => item.id}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      onPress={() => setSelectedDestination(item)}
-                      className={`mr-4 w-36 rounded-2xl overflow-hidden border-2 ${
-                        selectedDestination?.id === item.id
-                          ? "border-blue-500"
-                          : isDark
-                          ? "border-slate-600"
-                          : "border-gray-300"
-                      }`}
-                    >
-                      <Image
-                        source={{ uri: item.image }}
-                        className="w-full h-28"
-                        contentFit="cover"
-                      />
-                      <View
-                        className={`p-3 ${
-                          isDark ? "bg-slate-800" : "bg-white"
-                        }`}
-                      >
-                        <ThemedText
-                          className={`text-sm font-bold text-center ${
-                            isDark ? "text-white" : "text-gray-900"
-                          }`}
-                        >
-                          {item.name}
-                        </ThemedText>
-                        <ThemedText
-                          className={`text-xs text-center mt-1 ${
-                            isDark ? "text-gray-400" : "text-gray-600"
-                          }`}
-                        >
-                          {item.price}
-                        </ThemedText>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                />
-              )}
-            </View>
-
-            {/* === FORM === */}
+            {/* Form */}
             <InputField
               label="Ngày bắt đầu"
               placeholder="YYYY-MM-DD"
@@ -421,153 +382,3 @@ export default function BookingsScreen() {
     </ThemedView>
   );
 }
-
-// === CARD CHUYẾN ĐI ===
-const TripCard = ({
-  trip,
-  isDark,
-  onEdit,
-  onDelete,
-  getStatusStyle,
-  getStatusText,
-}: {
-  trip: Trip;
-  isDark: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
-  getStatusStyle: (s: string) => string;
-  getStatusText: (s: string) => string;
-}) => (
-  <View
-    className={`mb-6 ${
-      isDark ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"
-    } rounded-3xl shadow-2xl overflow-hidden border`}
-  >
-    <Image
-      source={{ uri: trip.destinationImage }}
-      className="w-full h-56"
-      contentFit="cover"
-    />
-    <View className="p-5">
-      <View className="flex-row justify-between items-center mb-3">
-        <ThemedText
-          className={`text-2xl font-extrabold ${
-            isDark ? "text-white" : "text-gray-900"
-          }`}
-        >
-          {trip.destinationName}
-        </ThemedText>
-        <View className={getStatusStyle(trip.status)}>
-          <ThemedText className="text-xs font-bold">
-            {getStatusText(trip.status)}
-          </ThemedText>
-        </View>
-      </View>
-
-      <View className="space-y-3 mb-4">
-        <View className="flex-row items-center">
-          <IconSymbol
-            name="calendar"
-            size={18}
-            color={isDark ? "#94a3b8" : "#6b7280"}
-          />
-          <ThemedText
-            className={`ml-2 ${
-              isDark ? "text-gray-300" : "text-gray-600"
-            } font-medium`}
-          >
-            {trip.startDate} - {trip.endDate}
-          </ThemedText>
-        </View>
-        <View className="flex-row items-center">
-          <IconSymbol
-            name="users"
-            size={18}
-            color={isDark ? "#94a3b8" : "#6b7280"}
-          />
-          <ThemedText
-            className={`ml-2 ${
-              isDark ? "text-gray-300" : "text-gray-600"
-            } font-medium`}
-          >
-            {trip.travelers} người
-          </ThemedText>
-        </View>
-      </View>
-
-      <View className="flex-row justify-between items-center">
-        <ThemedText
-          className={`text-3xl font-extrabold ${
-            isDark ? "text-blue-400" : "text-blue-600"
-          }`}
-        >
-          {trip.totalPrice}
-        </ThemedText>
-        <View className="flex-row space-x-3">
-          <TouchableOpacity
-            onPress={onEdit}
-            className={`w-12 h-12 rounded-full ${
-              isDark ? "bg-slate-700" : "bg-blue-100"
-            } flex items-center justify-center`}
-          >
-            <IconSymbol
-              name="edit"
-              size={20}
-              color={isDark ? "#60a5fa" : "#2563eb"}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onDelete}
-            className={`w-12 h-12 rounded-full ${
-              isDark ? "bg-slate-700" : "bg-red-100"
-            } flex items-center justify-center`}
-          >
-            <IconSymbol
-              name="trash"
-              size={20}
-              color={isDark ? "#f87171" : "#dc2626"}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  </View>
-);
-
-// === INPUT FIELD ===
-const InputField = ({
-  label,
-  placeholder,
-  value,
-  onChange,
-  keyboardType,
-  isDark,
-}: {
-  label: string;
-  placeholder: string;
-  value: string;
-  onChange: (t: string) => void;
-  keyboardType?: "default" | "numeric";
-  isDark: boolean;
-}) => (
-  <View className="mb-5">
-    <ThemedText
-      className={`text-base font-semibold mb-2 ${
-        isDark ? "text-gray-200" : "text-gray-800"
-      }`}
-    >
-      {label}
-    </ThemedText>
-    <TextInput
-      className={`border rounded-2xl px-4 py-3.5 text-base ${
-        isDark
-          ? "bg-slate-800 border-slate-600 text-white placeholder-gray-400"
-          : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-      }`}
-      placeholder={placeholder}
-      value={value}
-      onChangeText={onChange}
-      keyboardType={keyboardType}
-    />
-  </View>
-);

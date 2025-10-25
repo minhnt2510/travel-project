@@ -41,7 +41,8 @@ export default function HomeScreen() {
       id: "2",
       destinationId: "2",
       name: "Tour Phú Quốc 4N3Đ",
-      image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+      image:
+        "https://bcp.cdnchinhphu.vn/334894974524682240/2025/6/23/phu-quoc-17506756503251936667562.jpg",
       price: "5,500,000đ",
       rating: 4.9,
       reviews: 256,
@@ -65,7 +66,7 @@ export default function HomeScreen() {
       name: "Tour Hạ Long",
       type: "Tour",
       image:
-        "https://images.unsplash.com/photo-1540979388649-3c0e1210f2ea?w=800",
+        "https://pix10.agoda.net/hotelImages/434/43427/43427_16051708510042386025.jpg?ca=6&ce=1&s=414x232",
       price: "3,500,000đ",
       discount: "15%",
     },
@@ -97,7 +98,7 @@ export default function HomeScreen() {
               className="ml-3 w-11 h-11 rounded-full items-center justify-center bg-white/20"
               accessibilityLabel="Mở menu người dùng"
             >
-              <IconSymbol name="person" size={22} color="#FFF" />
+              <IconSymbol name="user" size={22} color="#FFF" />
             </TouchableOpacity>
           </View>
         </View>
@@ -248,7 +249,7 @@ export default function HomeScreen() {
         <View className="bg-white rounded-t-2xl p-4 pb-8">
           <View className="w-12 h-1.5 bg-gray-300 self-center rounded-full mb-3" />
           <MenuItem
-            icon="person"
+            icon="user"
             label="Hồ sơ cá nhân"
             onPress={() => {
               setMenuVisible(false);
@@ -272,7 +273,7 @@ export default function HomeScreen() {
             }}
           />
           <MenuItem
-            icon="arrow.right.square"
+            icon="power"
             label="Đăng xuất"
             onPress={() => {
               setMenuVisible(false);

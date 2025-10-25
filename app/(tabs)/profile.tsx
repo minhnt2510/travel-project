@@ -5,8 +5,20 @@ import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { Image } from "expo-image";
 import { Link, router } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Modal, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import {
+  ActivityIndicator,
+  Alert,
+  Modal,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 export default function ProfileScreen() {
   const [user, setUser] = useState<User | null>(null);
@@ -78,21 +90,17 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      "Đăng xuất",
-      "Bạn có chắc chắn muốn đăng xuất?",
-      [
-        { text: "Hủy", style: "cancel" },
-        {
-          text: "Đăng xuất",
-          style: "destructive",
-          onPress: () => {
-            // Navigate to login screen
-            router.replace("/(auth)/login");
-          }
-        }
-      ]
-    );
+    Alert.alert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất?", [
+      { text: "Hủy", style: "cancel" },
+      {
+        text: "Đăng xuất",
+        style: "destructive",
+        onPress: () => {
+          // Navigate to login screen
+          router.replace("/(auth)/login");
+        },
+      },
+    ]);
   };
 
   const userStats = [
@@ -102,14 +110,18 @@ export default function ProfileScreen() {
   ];
 
   const menuItems: { icon: string; label: string; href: string }[] = [
-    { icon: "user", label: "Thông tin cá nhân", href: "/screens/ReviewCreate" },
+    {
+      icon: "user",
+      label: "Thông tin cá nhân",
+      href: "/screens/reviews/ReviewCreate",
+    },
     { icon: "heart", label: "Danh sách yêu thích", href: "/(tabs)/wishlist" },
     {
       icon: "credit-card",
       label: "Phương thức thanh toán",
       href: "/screens/Checkout",
     },
-    { icon: "settings", label: "Cài đặt", href: "/screens/Search" },
+    { icon: "settings", label: "Cài đặt", href: "/screens/search/Search" },
     {
       icon: "help-circle",
       label: "Trợ giúp & Hỗ trợ",
@@ -129,7 +141,9 @@ export default function ProfileScreen() {
     return (
       <ThemedView className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#2563eb" />
-        <ThemedText className="mt-4 text-gray-600">Đang tải thông tin...</ThemedText>
+        <ThemedText className="mt-4 text-gray-600">
+          Đang tải thông tin...
+        </ThemedText>
       </ThemedView>
     );
   }
@@ -137,7 +151,9 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <ThemedView className="flex-1 justify-center items-center">
-        <ThemedText className="text-gray-600">Không thể tải thông tin người dùng</ThemedText>
+        <ThemedText className="text-gray-600">
+          Không thể tải thông tin người dùng
+        </ThemedText>
         <TouchableOpacity
           onPress={loadUser}
           className="mt-4 bg-blue-600 px-6 py-3 rounded-full"
@@ -156,7 +172,11 @@ export default function ProfileScreen() {
           <View className="items-center">
             <View className="relative">
               <Image
-                source={{ uri: user.avatar || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100" }}
+                source={{
+                  uri:
+                    user.avatar ||
+                    "https://m.yodycdn.com/blog/anh-cho-meme-yody-vn51.jpg",
+                }}
                 className="w-24 h-24 rounded-full"
               />
               <TouchableOpacity
@@ -169,9 +189,7 @@ export default function ProfileScreen() {
             <ThemedText className="text-white text-xl font-bold mt-4">
               {user.name}
             </ThemedText>
-            <ThemedText className="text-blue-100">
-              {user.email}
-            </ThemedText>
+            <ThemedText className="text-blue-100">{user.email}</ThemedText>
             {user.phone && (
               <ThemedText className="text-blue-100 text-sm mt-1">
                 {user.phone}

@@ -18,67 +18,72 @@ export default function AllToursScreen() {
       rating: 4.8,
       reviews: 128,
       duration: "3 ngày 2 đêm",
-      description: "Khám phá thành phố ngàn hoa với khí hậu mát mẻ quanh năm"
+      description: "Khám phá thành phố ngàn hoa với khí hậu mát mẻ quanh năm",
     },
     {
       id: "2",
       destinationId: "2",
       name: "Tour Phú Quốc 4N3Đ",
-      image: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800",
+      image:
+        "https://bcp.cdnchinhphu.vn/334894974524682240/2025/6/23/phu-quoc-17506756503251936667562.jpg",
       price: "5,500,000đ",
       originalPrice: "6,200,000đ",
       rating: 4.9,
       reviews: 256,
       duration: "4 ngày 3 đêm",
-      description: "Trải nghiệm đảo ngọc với những bãi biển tuyệt đẹp"
+      description: "Trải nghiệm đảo ngọc với những bãi biển tuyệt đẹp",
     },
     {
       id: "3",
       destinationId: "3",
       name: "Tour Hội An 2N1Đ",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSubIRulzd54wWhkW5arL9YQnSoC2Xo0IgLXw&s",
       price: "1,800,000đ",
       originalPrice: "2,200,000đ",
       rating: 4.7,
       reviews: 89,
       duration: "2 ngày 1 đêm",
-      description: "Khám phá phố cổ cổ kính với kiến trúc độc đáo"
+      description: "Khám phá phố cổ cổ kính với kiến trúc độc đáo",
     },
     {
       id: "4",
       destinationId: "4",
       name: "Tour Hạ Long 3N2Đ",
-      image: "https://images.unsplash.com/photo-1540979388649-3c0e1210f2ea?w=800",
+      image:
+        "https://hanoilionboutiquehotel.com/images/tour/2023/09/02/large/cruise-5-star_1693649770.jpeg",
       price: "3,500,000đ",
       originalPrice: "4,000,000đ",
       rating: 4.6,
       reviews: 156,
       duration: "3 ngày 2 đêm",
-      description: "Du thuyền trên vịnh biển với những hòn đảo đá vôi hùng vĩ"
+      description: "Du thuyền trên vịnh biển với những hòn đảo đá vôi hùng vĩ",
     },
     {
       id: "5",
       destinationId: "5",
       name: "Tour Sapa 3N2Đ",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800",
+      image:
+        "https://image.vietnamnews.vn/uploadvnnews/Article/2025/9/5/448159_fansipan.jpg",
       price: "2,200,000đ",
       originalPrice: "2,800,000đ",
       rating: 4.5,
       reviews: 98,
       duration: "3 ngày 2 đêm",
-      description: "Khám phá thị trấn miền núi với ruộng bậc thang tuyệt đẹp"
+      description: "Khám phá thị trấn miền núi với ruộng bậc thang tuyệt đẹp",
     },
     {
       id: "6",
       destinationId: "6",
       name: "Tour Nha Trang 4N3Đ",
-      image: "https://images.unsplash.com/photo-1571115764595-644a1f56a55c?w=800",
+      image:
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX5peo3NTgD5vhgOyn1jvAUuV213JjmfUNng&s",
       price: "4,200,000đ",
       originalPrice: "4,800,000đ",
       rating: 4.8,
       reviews: 203,
       duration: "4 ngày 3 đêm",
-      description: "Thành phố biển với những bãi cát trắng mịn"
+      description: "Thành phố biển với những bãi cát trắng mịn",
     },
   ];
 
@@ -124,7 +129,9 @@ export default function AllToursScreen() {
               <ThemedText className="text-gray-600 text-sm">Đà Lạt</ThemedText>
             </TouchableOpacity>
             <TouchableOpacity className="bg-gray-100 px-4 py-2 rounded-full">
-              <ThemedText className="text-gray-600 text-sm">Phú Quốc</ThemedText>
+              <ThemedText className="text-gray-600 text-sm">
+                Phú Quốc
+              </ThemedText>
             </TouchableOpacity>
             <TouchableOpacity className="bg-gray-100 px-4 py-2 rounded-full">
               <ThemedText className="text-gray-600 text-sm">Hội An</ThemedText>
@@ -166,18 +173,21 @@ export default function AllToursScreen() {
                     </ThemedText>
                   </View>
                 </View>
-                
-                <ThemedText className="text-gray-500 text-sm mb-2" numberOfLines={2}>
+
+                <ThemedText
+                  className="text-gray-500 text-sm mb-2"
+                  numberOfLines={2}
+                >
                   {tour.description}
                 </ThemedText>
-                
+
                 <View className="flex-row items-center mb-2">
                   <IconSymbol name="star" size={16} color="#FFB800" />
                   <ThemedText className="ml-1 text-gray-600 text-sm">
                     {tour.rating} ({tour.reviews} đánh giá)
                   </ThemedText>
                 </View>
-                
+
                 <View className="flex-row items-center justify-between">
                   <View>
                     <ThemedText className="text-blue-600 font-semibold text-lg">
