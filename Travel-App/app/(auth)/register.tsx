@@ -1,0 +1,230 @@
+import { api } from "@/services/api";
+import { ThemedText } from "@/ui-components/themed-text";
+import { ThemedView } from "@/ui-components/themed-view";
+import { IconSymbol } from "@/ui-components/ui/icon-symbol";
+import { Link, Stack, router } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming
+} from "react-native-reanimated";
+
+export default function RegisterScreen() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Animation
+  const fade = useSharedValue(0);
+  const scale = useSharedValue(0.95);
+  const translateY = useSharedValue(30);
+
+  useEffect(() => {
+    fade.value = withTiming(1, { duration: 600 });
+    scale.value = withSpring(1, { damping: 18 });
+    translateY.value = withSpring(0, { damping: 18 });
+  }, []);
+
+  const containerStyle = useAnimatedStyle(() => ({
+    opacity: fade.value,
+    transform: [{ scale: scale.value }, { translateY: translateY.value }],
+  }));
+
+  const validateForm = () => {
+    if (!name.trim()) return Alert.alert("Lỗi", "Vui lòng nhập họ và tên"), false;
+    if (!email.trim()) return Alert.alert("Lỗi", "Vui lòng nhập email"), false;
+    if (!/\S+@\S+\.\S+/.test(email))
+      return Alert.alert("Lỗi", "Email không hợp lệ"), false;
+    if (password.length < 6)
+      return Alert.alert("Lỗi", "Mật khẩu phải có ít nhất 6 ký tự"), false;
+    if (password !== confirmPassword)
+      return Alert.alert("Lỗi", "Mật khẩu xác nhận không khớp"), false;
+    return true;
+  };
+
+  const handleRegister = async () => {
+    if (!validateForm()) return;
+    setIsLoading(true);
+    try {
+      const result = await api.register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
+
+      if (result.success && result.user) {
+        Alert.alert("Thành công", "Đăng ký thành công! Vui lòng đăng nhập.", [
+          { text: "OK", onPress: () => router.replace("/(auth)/login") },
+        ]);
+      } else {
+        Alert.alert("Lỗi", result.message || "Đăng ký thất bại");
+      }
+    } catch {
+      Alert.alert("Lỗi", "Có lỗi xảy ra, vui lòng thử lại");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <ThemedView className="flex-1 bg-gray-50">
+      <Stack.Screen options={{ headerShown: false }} />
+
+      {/* Background - Light & Clean */}
+      <View className="absolute inset-0 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50" />
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1 justify-center px-6"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <Animated.View style={[containerStyle]} className="w-full max-w-md mx-auto">
+            {/* Logo & Title */}
+            <View className="items-center mb-10">
+              <View className="bg-white rounded-3xl p-5 shadow-lg border border-gray-200">
+                <IconSymbol name="user-plus" size={60} color="#7c3aed" />
+              </View>
+              <ThemedText className="text-gray-900 text-4xl font-bold mt-6 tracking-tight">
+                Đăng ký
+              </ThemedText>
+              <ThemedText className="text-gray-600 text-lg mt-2">
+                Tạo tài khoản để bắt đầu hành trình
+              </ThemedText>
+            </View>
+
+            {/* Register Card */}
+            <View className="bg-white rounded-3xl p-7 shadow-xl border border-gray-200">
+              {/* Name Field */}
+              <View className="mb-5">
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 h-14 border border-gray-300">
+                  <IconSymbol name="user" size={22} color="#6b7280" />
+                  <TextInput
+                    className="flex-1 ml-3 text-gray-900 font-medium"
+                    placeholder="Họ và tên"
+                    placeholderTextColor="#9ca3af"
+                    value={name}
+                    onChangeText={setName}
+                  />
+                </View>
+              </View>
+
+              {/* Email Field */}
+              <View className="mb-5">
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 h-14 border border-gray-300">
+                  <IconSymbol name="mail" size={22} color="#6b7280" />
+                  <TextInput
+                    className="flex-1 ml-3 text-gray-900 font-medium"
+                    placeholder="Email"
+                    placeholderTextColor="#9ca3af"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    value={email}
+                    onChangeText={setEmail}
+                  />
+                </View>
+              </View>
+
+              {/* Password Field */}
+              <View className="mb-5">
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 h-14 border border-gray-300">
+                  <IconSymbol name="lock" size={22} color="#6b7280" />
+                  <TextInput
+                    className="flex-1 ml-3 text-gray-900 font-medium"
+                    placeholder="Mật khẩu"
+                    placeholderTextColor="#9ca3af"
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={setPassword}
+                  />
+                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                    <IconSymbol
+                      name={showPassword ? "eye-off" : "eye"}
+                      size={22}
+                      color="#6b7280"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Confirm Password Field */}
+              <View className="mb-6">
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 h-14 border border-gray-300">
+                  <IconSymbol name="lock" size={22} color="#6b7280" />
+                  <TextInput
+                    className="flex-1 ml-3 text-gray-900 font-medium"
+                    placeholder="Xác nhận mật khẩu"
+                    placeholderTextColor="#9ca3af"
+                    secureTextEntry={!showConfirmPassword}
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                  />
+                  <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
+                    <IconSymbol
+                      name={showConfirmPassword ? "eye-off" : "eye"}
+                      size={22}
+                      color="#6b7280"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Register Button */}
+              <TouchableOpacity
+                onPress={handleRegister}
+                disabled={isLoading}
+                className="bg-purple-600 rounded-2xl h-14 justify-center items-center shadow-md active:opacity-90"
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <ThemedText className="text-white font-bold text-lg">
+                    Đăng ký
+                  </ThemedText>
+                )}
+              </TouchableOpacity>
+
+              {/* Login Link */}
+              <View className="flex-row justify-center mt-6">
+                <ThemedText className="text-gray-600 text-sm">
+                  Đã có tài khoản?{" "}
+                </ThemedText>
+                <Link href="/(auth)/login">
+                  <ThemedText className="text-purple-600 font-semibold underline text-sm">
+                    Đăng nhập
+                  </ThemedText>
+                </Link>
+              </View>
+            </View>
+
+            {/* Demo Info */}
+            <View className="mt-6 bg-purple-50 border border-purple-200 rounded-2xl p-4">
+              <ThemedText className="text-purple-900 text-sm font-medium text-center mb-1">
+                Dùng tài khoản demo:
+              </ThemedText>
+              <ThemedText className="text-purple-700 text-xs text-center">
+                Email: test@email.com | Mật khẩu: 123456
+              </ThemedText>
+            </View>
+          </Animated.View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </ThemedView>
+  );
+}
