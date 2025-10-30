@@ -1,0 +1,86 @@
+# =========================
+# Global
+# =========================
+node_modules/
+dist/
+build/
+tmp/
+temp/
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# =========================
+# Environment Files
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# Prisma
+# =========================
+/prisma/dev.db
+/prisma/*.db-journal
+
+# =========================
+# VSCode / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS-specific
+# =========================
+Desktop.ini
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# =========================
+# Expo / React Native
+# =========================
+.expo/
+.expo-shared/
+.expo-dev/
+web-build/
+.expo-settings.json
+
+# =========================
+# Backend (Node + Express + Prisma)
+# =========================
+backend/node_modules/
+backend/dist/
+backend/.env
+backend/prisma/dev.db
+backend/prisma/*.db-journal
+
+# =========================
+# Frontend (Expo / React Native)
+# =========================
+Travel-App/node_modules/
+Travel-App/.expo/
+Travel-App/.expo-shared/
+Travel-App/.expo-dev/
+Travel-App/web-build/
+Travel-App/.env
+Travel-App/expo-env.d.ts
+Travel-App/android/
+Travel-App/ios/
+
+# =========================
+# Others
+# =========================
+package-lock.json
