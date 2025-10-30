@@ -58,7 +58,9 @@ const apiRequest = async (
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Request failed" }));
+      const error = await response
+        .json()
+        .catch(() => ({ message: "Request failed" }));
       throw new Error(error.message || "Request failed");
     }
 
@@ -198,7 +200,12 @@ export const api = {
   login: async (
     email: string,
     password: string
-  ): Promise<{ success: boolean; user?: User; accessToken?: string; message?: string }> => {
+  ): Promise<{
+    success: boolean;
+    user?: User;
+    accessToken?: string;
+    message?: string;
+  }> => {
     try {
       const data = await apiRequest("/auth/login", {
         method: "POST",
@@ -264,8 +271,10 @@ export const api = {
     if (filters?.search) params.append("search", filters.search);
     if (filters?.limit) params.append("limit", filters.limit.toString());
     if (filters?.offset) params.append("offset", filters.offset.toString());
-    if (filters?.minPrice) params.append("minPrice", filters.minPrice.toString());
-    if (filters?.maxPrice) params.append("maxPrice", filters.maxPrice.toString());
+    if (filters?.minPrice)
+      params.append("minPrice", filters.minPrice.toString());
+    if (filters?.maxPrice)
+      params.append("maxPrice", filters.maxPrice.toString());
 
     const query = params.toString();
     return await apiRequest(`/tours${query ? `?${query}` : ""}`);
@@ -339,7 +348,10 @@ export const api = {
     });
   },
 
-  updateReview: async (id: string, reviewData: Partial<Review>): Promise<Review> => {
+  updateReview: async (
+    id: string,
+    reviewData: Partial<Review>
+  ): Promise<Review> => {
     return await apiRequest(`/reviews/${id}`, {
       method: "PUT",
       body: JSON.stringify(reviewData),
@@ -450,9 +462,14 @@ export const api = {
     const bookings = await api.getBookings();
     return bookings.map((booking) => ({
       id: booking._id,
-      destinationId: typeof booking.tourId === "string" ? booking.tourId : booking.tourId._id,
-      destinationName: typeof booking.tourId === "string" ? "" : booking.tourId.title,
-      destinationImage: typeof booking.tourId === "string" ? "" : booking.tourId.imageUrl || "",
+      destinationId:
+        typeof booking.tourId === "string"
+          ? booking.tourId
+          : booking.tourId._id,
+      destinationName:
+        typeof booking.tourId === "string" ? "" : booking.tourId.title,
+      destinationImage:
+        typeof booking.tourId === "string" ? "" : booking.tourId.imageUrl || "",
       startDate: booking.travelDate,
       endDate: booking.travelDate,
       travelers: booking.quantity,
@@ -478,9 +495,14 @@ export const api = {
     const booking = await api.createBooking(bookingData);
     return {
       id: booking._id,
-      destinationId: typeof booking.tourId === "string" ? booking.tourId : booking.tourId._id,
-      destinationName: typeof booking.tourId === "string" ? "" : booking.tourId.title,
-      destinationImage: typeof booking.tourId === "string" ? "" : booking.tourId.imageUrl || "",
+      destinationId:
+        typeof booking.tourId === "string"
+          ? booking.tourId
+          : booking.tourId._id,
+      destinationName:
+        typeof booking.tourId === "string" ? "" : booking.tourId.title,
+      destinationImage:
+        typeof booking.tourId === "string" ? "" : booking.tourId.imageUrl || "",
       startDate: booking.travelDate,
       endDate: booking.travelDate,
       travelers: booking.quantity,
