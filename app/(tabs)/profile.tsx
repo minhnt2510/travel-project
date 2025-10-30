@@ -19,9 +19,10 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { useUser } from "../_layout";
 
 export default function ProfileScreen() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, setUser, logout } = useUser();
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -49,7 +50,10 @@ export default function ProfileScreen() {
     try {
       setLoading(true);
       const userData = await api.getUser();
-      setUser(userData);
+      setUser({
+        ...userData,
+        role: userData.role === "admin" ? "admin" : "user",
+      });
       setName(userData.name);
       setEmail(userData.email);
       setPhone(userData.phone || "");
@@ -78,7 +82,10 @@ export default function ProfileScreen() {
         email: email.trim(),
         phone: phone.trim(),
       });
-      setUser(updatedUser);
+      setUser({
+        ...updatedUser,
+        role: updatedUser.role === "admin" ? "admin" : "user",
+      });
       setIsEditMode(false);
       setIsModalVisible(false);
       Alert.alert("Thành công", "Đã cập nhật thông tin thành công!");
@@ -96,7 +103,7 @@ export default function ProfileScreen() {
         text: "Đăng xuất",
         style: "destructive",
         onPress: () => {
-          // Navigate to login screen
+          logout();
           router.replace("/(auth)/login");
         },
       },

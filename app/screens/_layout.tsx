@@ -1,3 +1,4 @@
+// Đây là layout stack mặc định cho các màn hình dạng Stack trong project (ví dụ: modal, chi tiết, v.v.)
 // app/screens/_layout.tsx
 import { Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

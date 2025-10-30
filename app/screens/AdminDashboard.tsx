@@ -1,7 +1,9 @@
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, TouchableOpacity } from "react-native";
 import { ThemedView } from "@/ui-components/themed-view";
 import { ThemedText } from "@/ui-components/themed-text";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
+import { useUser } from "../_layout";
+import { router } from "expo-router";
 
 interface StatCard {
   title: string;
@@ -42,15 +44,31 @@ const stats: StatCard[] = [
   },
 ];
 
+// TODO: Refactor phần header/stats ra component riêng để tái sử dụng cho các tab admin khác
 export default function AdminDashboard() {
+  const { setUser } = useUser();
+
   return (
     <ThemedView className="flex-1">
       {/* Header */}
-      <View className="p-4 border-b border-gray-200">
-        <ThemedText className="text-2xl font-bold">Quản lý hệ thống</ThemedText>
-        <ThemedText className="text-gray-600">
-          Xem tổng quan hoạt động của hệ thống
-        </ThemedText>
+      <View className="p-4 border-b border-gray-200 flex-row items-center justify-between">
+        <View>
+          <ThemedText className="text-2xl font-bold">
+            Quản lý hệ thống
+          </ThemedText>
+          <ThemedText className="text-gray-600">
+            Xem tổng quan hoạt động của hệ thống
+          </ThemedText>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            setUser(null);
+            router.replace("/(auth)/login");
+          }}
+          className="bg-red-100 p-2 rounded-full ml-4"
+        >
+          <IconSymbol name="log-out" size={20} color="#dc2626" />
+        </TouchableOpacity>
       </View>
 
       <ScrollView className="flex-1 p-4">

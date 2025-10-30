@@ -1,63 +1,51 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
-import "react-native-reanimated";
-import { View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import React, { createContext, useContext, useState } from "react";
+import { Slot } from "expo-router";
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
+export type User = {
+  _id: string;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+  avatar?: string;
+  phone?: string;
+};
 
-export const unstable_settings = { anchor: "(tabs)" };
+type AuthContextType = {
+  user: User | null;
+  token: string | null;
+  setUser: (u: User | null) => void;
+  setToken: (t: string | null) => void;
+  login: (user: User, token: string) => void;
+  logout: () => void;
+};
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function useUser() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useUser: outside AuthProvider");
+  return ctx;
+}
 
 export default function RootLayout() {
-  const isDark = useColorScheme() === "dark";
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
+  const login = (u: User, t: string) => {
+    setUser(u);
+    setToken(t);
+    // TODO: persist token (AsyncStorage/SecureStore etc)
+  };
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    // TODO: clear token from storage
+  };
   return (
-    <SafeAreaProvider>
-      <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-        <View className={`flex-1 ${isDark ? "bg-slate-900" : "bg-white"}`}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="screens" options={{ headerShown: false }} />
-
-            <Stack.Screen
-              name="screens/Checkout"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="screens/PaymentResult"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="screens/Chat"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="screens/Notifications"
-              options={{ title: "Thông báo" }}
-            />
-            <Stack.Screen
-              name="screens/ReviewCreate"
-              options={{ title: "Đánh giá" }}
-            />
-            <Stack.Screen
-              name="screens/TripDetail"
-              options={{ title: "Chi tiết chuyến" }}
-            />
-
-            <Stack.Screen
-              name="modal"
-              options={{ presentation: "modal", title: "Modal" }}
-            />
-          </Stack>
-          <StatusBar style={isDark ? "light" : "dark"} />
-        </View>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <AuthContext.Provider
+      value={{ user, token, setUser, setToken, login, logout }}
+    >
+      <Slot />
+    </AuthContext.Provider>
   );
 }

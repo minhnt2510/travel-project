@@ -19,10 +19,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
-  withTiming
+  withTiming,
 } from "react-native-reanimated";
+import { useUser } from "../_layout";
 
 export default function LoginScreen() {
+  const { login } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,8 +48,10 @@ export default function LoginScreen() {
 
   const validateForm = () => {
     if (!email.trim()) return Alert.alert("Lỗi", "Vui lòng nhập email"), false;
-    if (!/\S+@\S+\.\S+/.test(email)) return Alert.alert("Lỗi", "Email không hợp lệ"), false;
-    if (password.length < 6) return Alert.alert("Lỗi", "Mật khẩu ít nhất 6 ký tự"), false;
+    if (!/\S+@\S+\.\S+/.test(email))
+      return Alert.alert("Lỗi", "Email không hợp lệ"), false;
+    if (password.length < 6)
+      return Alert.alert("Lỗi", "Mật khẩu ít nhất 6 ký tự"), false;
     return true;
   };
 
@@ -56,10 +60,21 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       const result = await api.login(email.trim(), password);
-      if (result.success && result.user) {
-        Alert.alert("Thành công", "Đăng nhập thành công!", [
-          { text: "OK", onPress: () => router.replace("/(tabs)") }
-        ]);
+      if (result.success && result.user && result.accessToken) {
+        login(
+          {
+            _id: result.user._id,
+            name: result.user.name,
+            email: result.user.email,
+            role: (result.user.role === "admin" ? "admin" : "user") as
+              | "admin"
+              | "user",
+            avatar: result.user.avatar,
+            phone: result.user.phone,
+          },
+          result.accessToken
+        );
+        // Không cần router.replace, luồng index sẽ tự điều hướng
       } else {
         Alert.alert("Lỗi", result.message || "Đăng nhập thất bại");
       }
@@ -82,7 +97,10 @@ export default function LoginScreen() {
         className="flex-1 justify-center px-6"
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Animated.View style={[containerStyle]} className="w-full max-w-md mx-auto">
+          <Animated.View
+            style={[containerStyle]}
+            className="w-full max-w-md mx-auto"
+          >
             {/* Logo & Title */}
             <View className="items-center mb-10">
               <View className="bg-white rounded-3xl p-5 shadow-lg border border-gray-200">
@@ -130,7 +148,9 @@ export default function LoginScreen() {
                     value={password}
                     onChangeText={setPassword}
                   />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
                     <IconSymbol
                       name={showPassword ? "eye-off" : "eye"}
                       size={22}
