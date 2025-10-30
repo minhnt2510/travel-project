@@ -74,6 +74,7 @@ export default function LoginScreen() {
           },
           result.accessToken
         );
+        router.replace("/(tabs)");
         // Không cần router.replace, luồng index sẽ tự điều hướng
       } else {
         Alert.alert("Lỗi", result.message || "Đăng nhập thất bại");
