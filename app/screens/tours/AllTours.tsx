@@ -4,7 +4,14 @@ import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { ScrollView, TouchableOpacity, View, ActivityIndicator, Alert, TextInput } from "react-native";
+import {
+  ScrollView,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+  Alert,
+  TextInput,
+} from "react-native";
 import { api, type Tour } from "@/services/api";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 
@@ -22,7 +29,9 @@ export default function AllToursScreen() {
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [searchQuery, setSearchQuery] = useState(params.search as string || "");
+  const [searchQuery, setSearchQuery] = useState(
+    (params.search as string) || ""
+  );
   const [filterVisible, setFilterVisible] = useState(false);
 
   useEffect(() => {
@@ -36,11 +45,11 @@ export default function AllToursScreen() {
         limit: 50,
         offset: 0,
       };
-      
+
       if (selectedCategory !== "all") {
         filters.category = selectedCategory;
       }
-      
+
       if (searchQuery.trim()) {
         filters.search = searchQuery;
       }
@@ -79,7 +88,9 @@ export default function AllToursScreen() {
     return (
       <ThemedView className="flex-1 justify-center items-center bg-gray-50">
         <ActivityIndicator size="large" color="#2563eb" />
-        <ThemedText className="mt-4 text-gray-600">Đang tải tours...</ThemedText>
+        <ThemedText className="mt-4 text-gray-600">
+          Đang tải tours...
+        </ThemedText>
       </ThemedView>
     );
   }
@@ -115,7 +126,10 @@ export default function AllToursScreen() {
               <IconSymbol name="x" size={20} color="#6B7280" />
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={handleSearch} className="ml-2 bg-blue-600 px-4 py-2 rounded-xl">
+          <TouchableOpacity
+            onPress={handleSearch}
+            className="ml-2 bg-blue-600 px-4 py-2 rounded-xl"
+          >
             <IconSymbol name="arrow-right" size={18} color="#FFF" />
           </TouchableOpacity>
         </View>
@@ -129,9 +143,7 @@ export default function AllToursScreen() {
               <TouchableOpacity
                 key={cat.id}
                 className={`px-4 py-2 rounded-full flex-row items-center ${
-                  selectedCategory === cat.id
-                    ? "bg-blue-600"
-                    : "bg-gray-100"
+                  selectedCategory === cat.id ? "bg-blue-600" : "bg-gray-100"
                 }`}
                 onPress={() => setSelectedCategory(cat.id)}
               >
@@ -142,9 +154,7 @@ export default function AllToursScreen() {
                 />
                 <ThemedText
                   className={`ml-2 font-semibold ${
-                    selectedCategory === cat.id
-                      ? "text-white"
-                      : "text-gray-700"
+                    selectedCategory === cat.id ? "text-white" : "text-gray-700"
                   }`}
                 >
                   {cat.name}
@@ -180,7 +190,9 @@ export default function AllToursScreen() {
                 >
                   <View className="relative">
                     <Image
-                      source={{ uri: tour.imageUrl || "https://via.placeholder.com/400" }}
+                      source={{
+                        uri: tour.imageUrl || "https://via.placeholder.com/400",
+                      }}
                       className="w-full h-56"
                       contentFit="cover"
                     />
@@ -206,7 +218,11 @@ export default function AllToursScreen() {
                     {tour.originalPrice && (
                       <View className="absolute bottom-4 left-4 bg-red-500 px-3 py-1.5 rounded-full shadow-md">
                         <ThemedText className="text-white font-bold text-sm">
-                          -{Math.round((1 - tour.price / tour.originalPrice) * 100)}% GIẢM
+                          -
+                          {Math.round(
+                            (1 - tour.price / tour.originalPrice) * 100
+                          )}
+                          % GIẢM
                         </ThemedText>
                       </View>
                     )}
@@ -218,7 +234,11 @@ export default function AllToursScreen() {
                           {tour.title}
                         </ThemedText>
                         <View className="flex-row items-center mt-1">
-                          <IconSymbol name="location" size={14} color="#6B7280" />
+                          <IconSymbol
+                            name="location"
+                            size={14}
+                            color="#6B7280"
+                          />
                           <ThemedText className="text-gray-600 text-sm ml-1">
                             {tour.location}
                           </ThemedText>
@@ -236,7 +256,11 @@ export default function AllToursScreen() {
                     <View className="flex-row items-center justify-between mb-3">
                       <View className="flex-row items-center space-x-4">
                         <View className="flex-row items-center">
-                          <IconSymbol name="calendar" size={14} color="#6B7280" />
+                          <IconSymbol
+                            name="calendar"
+                            size={14}
+                            color="#6B7280"
+                          />
                           <ThemedText className="text-gray-600 text-sm ml-1">
                             {tour.duration} ngày
                           </ThemedText>
