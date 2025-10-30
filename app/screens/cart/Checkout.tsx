@@ -21,7 +21,6 @@ interface PaymentMethod {
   icon: string;
   description: string;
 }
-
 interface OrderItem {
   id: string;
   name: string;
@@ -52,7 +51,6 @@ const paymentMethods: PaymentMethod[] = [
 ];
 
 export default function Checkout() {
-  // Nhận tripId nếu Checkout được mở từ “Chuyến đi”
   const { tripId } = useLocalSearchParams<{ tripId?: string | string[] }>();
   const normalizedTripId = Array.isArray(tripId) ? tripId[0] : tripId;
 

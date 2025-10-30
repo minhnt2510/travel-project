@@ -1,55 +1,24 @@
+import { api } from "@/services/api";
 import { ThemedText } from "@/ui-components/themed-text";
 import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { Alert, FlatList, TouchableOpacity, View } from "react-native";
-import IMAGES from "../Util_Images";
-
-interface WishlistItem {
-  id: string;
-  name: string;
-  location: string;
-  image: string;
-  price: string;
-  type: "tour" | "hotel";
-}
-
-const WISHLIST_STORAGE_KEY = "wishlist_items";
-
-const defaultWishlistItems: WishlistItem[] = [
-  {
-    id: "1",
-    name: "Tour Đà Lạt 3N2Đ",
-    location: "Đà Lạt, Lâm Đồng",
-    image:
-      "https://mia.vn/media/uploads/blog-du-lich/truot-co-da-lat-1-1734285073.jpg",
-    price: "2,500,000đ",
-    type: "tour",
-  },
-  {
-    id: "2",
-    name: "Dalat Palace Heritage",
-    location: "Đà Lạt, Lâm Đồng",
-    image: IMAGES.dalat,
-    price: "1,800,000đ/đêm",
-    type: "hotel",
-  },
-  {
-    id: "3",
-    name: "Tour Phú Quốc 4N3Đ",
-    location: "Phú Quốc, Kiên Giang",
-    image: "https://placekitten.com/300/202",
-    price: "5,500,000đ",
-    type: "tour",
-  },
-];
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  TouchableOpacity,
+  View,
+  RefreshControl,
+} from "react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 
 export default function WishlistScreen() {
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [wishlistItems, setWishlistItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     loadWishlist();
@@ -57,29 +26,27 @@ export default function WishlistScreen() {
 
   const loadWishlist = async () => {
     try {
-      const storedItems = await AsyncStorage.getItem(WISHLIST_STORAGE_KEY);
-      if (storedItems) {
-        setWishlistItems(JSON.parse(storedItems));
-      } else {
-        // Initialize with default items for demo
-        setWishlistItems(defaultWishlistItems);
-        await AsyncStorage.setItem(
-          WISHLIST_STORAGE_KEY,
-          JSON.stringify(defaultWishlistItems)
-        );
-      }
+      setLoading(true);
+      const data = await api.getWishlist();
+      setWishlistItems(data);
     } catch (error) {
       console.error("Error loading wishlist:", error);
-      setWishlistItems(defaultWishlistItems);
+      Alert.alert("Lỗi", "Không thể tải danh sách yêu thích");
     } finally {
       setLoading(false);
     }
   };
 
-  const removeFromWishlist = async (itemId: string) => {
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadWishlist();
+    setRefreshing(false);
+  };
+
+  const removeFromWishlist = async (tourId: string) => {
     Alert.alert(
       "Xóa khỏi danh sách yêu thích",
-      "Bạn có chắc chắn muốn xóa item này khỏi danh sách yêu thích?",
+      "Bạn có chắc chắn muốn xóa tour này khỏi danh sách yêu thích?",
       [
         {
           text: "Hủy",
@@ -90,16 +57,11 @@ export default function WishlistScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              const updatedItems = wishlistItems.filter(
-                (item) => item.id !== itemId
-              );
-              setWishlistItems(updatedItems);
-              await AsyncStorage.setItem(
-                WISHLIST_STORAGE_KEY,
-                JSON.stringify(updatedItems)
-              );
+              await api.removeFromWishlist(tourId);
+              await loadWishlist();
+              Alert.alert("Thành công", "Đã xóa khỏi danh sách yêu thích!");
             } catch (error) {
-              console.error("Error removing from wishlist:", error);
+              Alert.alert("Lỗi", "Không thể xóa");
             }
           },
         },
@@ -107,71 +69,54 @@ export default function WishlistScreen() {
     );
   };
 
-  const handleItemPress = (item: WishlistItem) => {
-    if (item.type === "tour") {
-      router.push(`/screens/bookings/TripDetail?id=${item.id}`);
-    } else {
-      router.push(`/screens/destinations/HotelDetail?id=${item.id}`);
-    }
-  };
-
-  const handleBookingPress = async (item: WishlistItem) => {
-    // Lấy số tiền (bỏ ký tự không phải số)
-    const price =
-      typeof item.price === "string"
-        ? Number(item.price.replace(/\D/g, "")) || 0
-        : Number(item.price) || 0;
-
-    // Chuẩn payload cho Checkout (Checkout đang đọc key "cart_items")
-    const cartPayload = [
-      {
-        id: item.id,
-        name: item.name,
-        price,
-        quantity: 1,
-        type: item.type, // "tour" | "hotel"
-      },
-    ];
-
-    await AsyncStorage.setItem("cart_items", JSON.stringify(cartPayload));
-
-    // Mở trang Checkout (có thể gắn ?from=wishlist để sau này phân tích)
-    router.push("/screens/cart/Checkout?from=wishlist");
+  const handleItemPress = (tourId: string) => {
+    router.push({
+      pathname: "/screens/destinations/HotelDetail",
+      params: { destinationId: tourId },
+    });
   };
 
   const renderEmptyState = () => (
     <View className="flex-1 items-center justify-center p-8">
-      <IconSymbol name="heart" size={64} color="#D1D5DB" />
-      <ThemedText className="text-xl font-semibold text-gray-500 mt-4 mb-2">
+      <View className="bg-gradient-to-br from-pink-100 to-red-100 w-32 h-32 rounded-full items-center justify-center">
+        <IconSymbol name="heart" size={64} color="#EF4444" />
+      </View>
+      <ThemedText className="text-2xl font-bold text-gray-900 mt-6 mb-2">
         Danh sách yêu thích trống
       </ThemedText>
-      <ThemedText className="text-gray-400 text-center">
-        Hãy khám phá và thêm những tour du lịch hoặc khách sạn yêu thích vào đây
+      <ThemedText className="text-gray-500 text-center mb-8">
+        Hãy khám phá và thêm những tour du lịch yêu thích vào đây nhé!
       </ThemedText>
       <TouchableOpacity
-        className="bg-blue-600 px-6 py-3 rounded-lg mt-6"
+        className="bg-blue-600 px-8 py-4 rounded-full flex-row items-center"
         onPress={() => router.push("/")}
       >
-        <ThemedText className="text-white font-semibold">
+        <ThemedText className="text-white font-bold text-lg mr-2">
           Khám phá ngay
         </ThemedText>
+        <IconSymbol name="arrow-right" size={20} color="#FFF" />
       </TouchableOpacity>
     </View>
   );
 
   if (loading) {
     return (
-      <ThemedView className="flex-1 items-center justify-center">
-        <ThemedText>Đang tải...</ThemedText>
+      <ThemedView className="flex-1 items-center justify-center bg-gray-50">
+        <ActivityIndicator size="large" color="#2563eb" />
+        <ThemedText className="mt-4 text-gray-600">Đang tải...</ThemedText>
       </ThemedView>
     );
   }
 
   return (
-    <ThemedView className="flex-1">
-      <View className="p-4 border-b border-gray-200">
-        <ThemedText className="text-2xl font-bold">
-          Danh sách yêu thích ({wishlistItems.length})
+    <ThemedView className="flex-1 bg-gray-50">
+      {/* Header */}
+      <View className="bg-gradient-to-r from-pink-500 to-red-500 p-6 pt-12">
+        <ThemedText className="text-3xl font-extrabold text-white mb-2">
+          Danh sách yêu thích
+        </ThemedText>
+        <ThemedText className="text-pink-100">
+          {wishlistItems.length} tour đã lưu
         </ThemedText>
       </View>
 
@@ -180,58 +125,105 @@ export default function WishlistScreen() {
       ) : (
         <FlatList
           data={wishlistItems}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item._id}
           contentContainerStyle={{ padding: 16 }}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              className="bg-white rounded-lg shadow-sm mb-4 overflow-hidden"
-              onPress={() => handleItemPress(item)}
-            >
-              <View className="relative">
-                <Image
-                  source={{ uri: item.image }}
-                  className="w-full h-48"
-                  contentFit="cover"
-                />
-                <TouchableOpacity
-                  className="absolute top-2 right-2 w-8 h-8 bg-white rounded-full items-center justify-center"
-                  onPress={() => removeFromWishlist(item.id)}
-                >
-                  <IconSymbol name="heart" size={20} color="#EF4444" />
-                </TouchableOpacity>
-                <View className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded">
-                  <ThemedText className="text-white text-xs">
-                    {item.type === "tour" ? "Tour" : "Khách sạn"}
-                  </ThemedText>
-                </View>
-              </View>
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          renderItem={({ item, index }) => {
+            const tour = typeof item.tourId === "object" ? item.tourId : null;
+            if (!tour) return null;
 
-              <View className="p-4">
-                <ThemedText className="text-lg font-semibold mb-1">
-                  {item.name}
-                </ThemedText>
-                <View className="flex-row items-center mb-2">
-                  <IconSymbol name="map-pin" size={16} color="#6B7280" />
-                  <ThemedText className="text-gray-600 ml-1">
-                    {item.location}
-                  </ThemedText>
-                </View>
-                <View className="flex-row justify-between items-center">
-                  <ThemedText className="text-blue-600 font-semibold">
-                    {item.price}
-                  </ThemedText>
-                  <TouchableOpacity
-                    className="bg-blue-600 px-4 py-2 rounded"
-                    onPress={() => handleBookingPress(item)}
-                  >
-                    <ThemedText className="text-white">
-                      {item.type === "tour" ? "Đặt tour" : "Đặt phòng"}
+            return (
+              <Animated.View entering={FadeInDown.delay(index * 100).duration(500)}>
+                <TouchableOpacity
+                  className="bg-white rounded-2xl shadow-lg mb-4 overflow-hidden"
+                  onPress={() => handleItemPress(tour._id)}
+                >
+                  <View className="relative">
+                    <Image
+                      source={{ uri: tour.imageUrl || "https://via.placeholder.com/400" }}
+                      className="w-full h-56"
+                      contentFit="cover"
+                    />
+                    <View className="absolute top-4 right-4">
+                      <TouchableOpacity
+                        onPress={() => removeFromWishlist(tour._id)}
+                        className="bg-white w-12 h-12 rounded-full items-center justify-center shadow-lg"
+                      >
+                        <IconSymbol name="heart" size={24} color="#EF4444" />
+                      </TouchableOpacity>
+                    </View>
+                    <View className="absolute top-4 left-4">
+                      <View className="bg-white px-3 py-2 rounded-full flex-row items-center shadow-md">
+                        <IconSymbol name="star" size={14} color="#FFB800" />
+                        <ThemedText className="text-gray-900 font-bold text-xs ml-1">
+                          {tour.rating?.toFixed(1) || "0.0"}
+                        </ThemedText>
+                      </View>
+                    </View>
+                    {tour.originalPrice && (
+                      <View className="absolute bottom-4 left-4 bg-red-500 px-3 py-1.5 rounded-full">
+                        <ThemedText className="text-white font-bold text-xs">
+                          -{Math.round((1 - tour.price / tour.originalPrice) * 100)}%
+                        </ThemedText>
+                      </View>
+                    )}
+                  </View>
+
+                  <View className="p-4">
+                    <ThemedText className="text-xl font-bold text-gray-900 mb-2">
+                      {tour.title}
                     </ThemedText>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          )}
+                    <View className="flex-row items-center mb-3">
+                      <IconSymbol name="map-pin" size={16} color="#6B7280" />
+                      <ThemedText className="text-gray-600 ml-2">
+                        {tour.location}
+                      </ThemedText>
+                    </View>
+                    <View className="flex-row items-center mb-3">
+                      <IconSymbol name="calendar" size={16} color="#6B7280" />
+                      <ThemedText className="text-gray-600 ml-2">
+                        {tour.duration} ngày
+                      </ThemedText>
+                      <ThemedText className="text-gray-400 mx-2">•</ThemedText>
+                      <IconSymbol name="users" size={16} color="#6B7280" />
+                      <ThemedText className="text-gray-600 ml-2">
+                        Còn {tour.availableSeats} chỗ
+                      </ThemedText>
+                    </View>
+                    <ThemedText
+                      className="text-gray-500 text-sm mb-3"
+                      numberOfLines={2}
+                    >
+                      {tour.description}
+                    </ThemedText>
+                    <View className="flex-row justify-between items-center pt-3 border-t border-gray-200">
+                      <View>
+                        <ThemedText className="text-blue-600 font-bold text-xl">
+                          {tour.price?.toLocaleString("vi-VN")}đ
+                        </ThemedText>
+                        {tour.originalPrice && (
+                          <ThemedText className="text-gray-400 text-sm line-through">
+                            {tour.originalPrice.toLocaleString("vi-VN")}đ
+                          </ThemedText>
+                        )}
+                      </View>
+                      <TouchableOpacity
+                        className="bg-blue-600 px-6 py-3 rounded-full flex-row items-center"
+                        onPress={() => handleItemPress(tour._id)}
+                      >
+                        <ThemedText className="text-white font-bold mr-2">
+                          Xem tour
+                        </ThemedText>
+                        <IconSymbol name="arrow-right" size={18} color="#FFF" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </Animated.View>
+            );
+          }}
         />
       )}
     </ThemedView>

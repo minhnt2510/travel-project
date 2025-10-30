@@ -13,7 +13,7 @@ type Props = {
   onEdit: () => void;
   onDelete: () => void;
   onPay?: () => void;
-  showPayButton?: boolean; // mặc định: hiển thị khi pending
+  showPayButton?: boolean;  
 };
 
 export default function TripCard({
