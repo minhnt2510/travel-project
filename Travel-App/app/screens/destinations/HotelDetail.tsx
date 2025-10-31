@@ -52,10 +52,20 @@ export default function HotelDetail() {
     }
   };
 
+  const handleBookTour = () => {
+    if (!destination) return;
+
+    // Navigate to tour detail (core) - RoomList là bổ sung nếu cần
+    router.push({
+      pathname: "/screens/tours/TourDetail",
+      params: { destinationId: destination.id },
+    });
+  };
+
   const handleSelectRoom = () => {
     if (!destination) return;
 
-    // Navigate to room list screen
+    // Navigate to room list screen (bổ sung - không phải core)
     router.push({
       pathname: "/screens/rooms/RoomList",
       params: { destinationId: destination.id, destinationName: destination.name },
@@ -334,16 +344,28 @@ export default function HotelDetail() {
               <ThemedText className={`text-xs ${isDark ? "text-gray-500" : "text-gray-500"}`}>/ người</ThemedText>
             </View>
 
-            <TouchableOpacity
-              activeOpacity={0.9}
-              onPress={handleSelectRoom}
-              className="rounded-2xl overflow-hidden shadow-xl bg-orange-500"
-              style={{ paddingHorizontal: 32, paddingVertical: 16 }}
-            >
-              <ThemedText className="text-white font-extrabold text-base text-center">
-                Chọn phòng
-              </ThemedText>
-            </TouchableOpacity>
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={handleBookTour}
+                className="flex-1 rounded-2xl overflow-hidden shadow-xl bg-blue-600"
+                style={{ paddingHorizontal: 24, paddingVertical: 16 }}
+              >
+                <ThemedText className="text-white font-extrabold text-base text-center">
+                  Đặt tour
+                </ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={handleSelectRoom}
+                className="rounded-2xl overflow-hidden shadow-xl bg-orange-500"
+                style={{ paddingHorizontal: 20, paddingVertical: 16 }}
+              >
+                <ThemedText className="text-white font-extrabold text-sm text-center">
+                  Lưu trú
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </ThemedView>

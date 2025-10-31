@@ -49,6 +49,10 @@ export const api = {
   createBooking: bookingsApi.createBooking,
   getBookingById: bookingsApi.getBookingById,
   cancelBooking: bookingsApi.cancelBooking,
+  
+  // Admin Bookings
+  getAllBookings: bookingsApi.getAllBookings,
+  updateBookingStatus: bookingsApi.updateBookingStatus,
 
   // Reviews
   getTourReviews: reviewsApi.getTourReviews,

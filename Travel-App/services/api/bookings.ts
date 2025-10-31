@@ -30,5 +30,17 @@ export const bookingsApi = {
       method: "PUT",
     });
   },
+
+  // Admin endpoints
+  getAllBookings: async (): Promise<Booking[]> => {
+    return await apiRequest("/admin/bookings");
+  },
+
+  updateBookingStatus: async (id: string, status: string): Promise<Booking> => {
+    return await apiRequest(`/admin/bookings/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    });
+  },
 };
 

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { requireAuth, AuthRequest } from "../middleware/auth";
+import { requireAuth, requireAdmin, type AuthRequest } from "../middleware/auth";
 import { Booking } from "../models/Booking";
 import { Tour } from "../models/Tour";
 import { Notification } from "../models/Notification";
@@ -121,6 +121,54 @@ router.put(
     });
 
     res.json(booking);
+  }
+);
+
+// Admin: Get all bookings
+router.get("/admin/bookings", requireAdmin, async (req: AuthRequest, res) => {
+  const bookings = await Booking.find()
+    .populate("tourId")
+    .populate("userId")
+    .sort({ createdAt: -1 });
+  res.json(bookings);
+});
+
+// Admin: Update booking status
+router.put(
+  "/admin/bookings/:id/status",
+  requireAdmin,
+  async (req: AuthRequest, res) => {
+    const { status } = req.body;
+    
+    if (!["pending", "confirmed", "in_progress", "completed", "cancelled"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status" });
+    }
+
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    const oldStatus = booking.status;
+    booking.status = status;
+    
+    // Update payment status if needed
+    if (status === "confirmed" && booking.paymentStatus === "pending") {
+      booking.paymentStatus = "paid";
+    }
+    
+    await booking.save();
+
+    // Create notification for user
+    await Notification.create({
+      userId: booking.userId,
+      type: "booking",
+      title: `Trạng thái đơn hàng đã được cập nhật`,
+      message: `Đơn hàng của bạn đã được chuyển từ "${oldStatus}" sang "${status}"`,
+      link: `/bookings/${booking._id}`,
+    });
+
+    res.json(await booking.populate("tourId"));
   }
 );
 

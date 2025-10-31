@@ -23,11 +23,14 @@ import Animated, {
 
 import { router } from "expo-router";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import TripCard from "../components/trips/TripCard";
 import DestinationPicker from "../components/destinations/DestinationPicker";
 import InputField from "../components/common/InputField";
+import { useUser } from "../_layout";
 
 export default function BookingsScreen() {
+  const { user } = useUser();
   const [trips, setTrips] = useState<Trip[]>([]);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +44,15 @@ export default function BookingsScreen() {
   const [endDate, setEndDate] = useState("");
   const [travelers, setTravelers] = useState("");
   const isDark = useColorScheme() === "dark";
+
+  // Calculate stats
+  const stats = {
+    total: trips.length,
+    pending: trips.filter((t) => t.status === "pending").length,
+    confirmed: trips.filter((t) => t.status === "confirmed").length,
+    inProgress: trips.filter((t) => t.status === "in_progress").length,
+    completed: trips.filter((t) => t.status === "completed").length,
+  };
 
   // Animation
   const fade = useSharedValue(0);
@@ -189,6 +201,16 @@ export default function BookingsScreen() {
           ? "bg-yellow-900 text-yellow-300"
           : "bg-yellow-100 text-yellow-700"
       }`;
+    if (status === "in_progress")
+      return `${base} ${
+        isDark
+          ? "bg-purple-900 text-purple-300"
+          : "bg-purple-100 text-purple-700"
+      }`;
+    if (status === "completed")
+      return `${base} ${
+        isDark ? "bg-blue-900 text-blue-300" : "bg-blue-100 text-blue-700"
+      }`;
     if (status === "cancelled")
       return `${base} ${
         isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-700"
@@ -204,6 +226,10 @@ export default function BookingsScreen() {
         return "Đã xác nhận";
       case "pending":
         return "Chờ xác nhận";
+      case "in_progress":
+        return "Đang phục vụ";
+      case "completed":
+        return "Hoàn thành";
       case "cancelled":
         return "Đã hủy";
       default:
@@ -232,56 +258,124 @@ export default function BookingsScreen() {
 
   return (
     <ThemedView className={`flex-1 ${isDark ? "bg-slate-900" : "bg-gray-50"}`}>
-      {/* Header */}
-      <View className={`p-6 ${isDark ? "bg-slate-800" : "bg-blue-600"}`}>
-        <ThemedText className="text-2xl font-extrabold text-white">
-          Chuyến đi của tôi
-        </ThemedText>
-      </View>
+      {/* Header with Gradient */}
+      <LinearGradient
+        colors={
+          isDark
+            ? (["#1e293b", "#0f172a"] as [string, string, ...string[]])
+            : (["#3b82f6", "#2563eb"] as [string, string, ...string[]])
+        }
+        className="pt-16 pb-6 px-6 rounded-b-3xl"
+      >
+        <View className="flex-row items-center justify-between mb-4">
+          <View className="flex-1">
+            <ThemedText className="text-3xl font-extrabold text-white mb-1">
+              Chuyến đi của tôi
+            </ThemedText>
+            <ThemedText className="text-white/90 text-sm font-medium">
+              {user?.name ? `Xin chào, ${user.name}` : "Quản lý chuyến đi"}
+            </ThemedText>
+          </View>
+          <View className="bg-white/20 backdrop-blur-md rounded-full px-4 py-2 border border-white/30">
+            <ThemedText className="text-white font-bold text-lg">
+              {stats.total}
+            </ThemedText>
+          </View>
+        </View>
+
+        {/* Stats Cards */}
+        {trips.length > 0 && (
+          <View className="flex-row gap-3 mt-4">
+            <View className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl p-3 border border-white/20">
+              <ThemedText className="text-white/80 text-xs font-medium mb-1">
+                Tổng cộng
+              </ThemedText>
+              <ThemedText className="text-white font-extrabold text-xl">
+                {stats.total}
+              </ThemedText>
+            </View>
+            <View className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl p-3 border border-white/20">
+              <ThemedText className="text-white/80 text-xs font-medium mb-1">
+                Chờ xác nhận
+              </ThemedText>
+              <ThemedText className="text-yellow-300 font-extrabold text-xl">
+                {stats.pending}
+              </ThemedText>
+            </View>
+            <View className="flex-1 bg-white/15 backdrop-blur-md rounded-2xl p-3 border border-white/20">
+              <ThemedText className="text-white/80 text-xs font-medium mb-1">
+                Đã xác nhận
+              </ThemedText>
+              <ThemedText className="text-green-300 font-extrabold text-xl">
+                {stats.confirmed}
+              </ThemedText>
+            </View>
+          </View>
+        )}
+      </LinearGradient>
 
       {/* Content */}
       <Animated.View style={[animatedStyle]} className="flex-1">
         {trips.length === 0 ? (
-          <View className="flex-1 justify-center items-center px-8">
-            <View
-              className={`p-8 rounded-3xl ${
-                isDark ? "bg-slate-800" : "bg-white"
-              } shadow-xl`}
+          <View className="flex-1 justify-center items-center px-8 -mt-8">
+            <LinearGradient
+              colors={
+                isDark
+                  ? (["#1e293b", "#0f172a"] as [string, string, ...string[]])
+                  : (["#eff6ff", "#e0e7ff"] as [string, string, ...string[]])
+              }
+              className="p-10 rounded-3xl items-center shadow-2xl border"
+              style={{
+                borderColor: isDark ? "#334155" : "#c7d2fe",
+                borderWidth: 2,
+              }}
             >
-              <IconSymbol
-                name="calendar"
-                size={64}
-                color={isDark ? "#64748b" : "#9ca3af"}
-              />
+              <View className="bg-white/90 rounded-full p-6 mb-6 shadow-lg">
+                <IconSymbol name="calendar" size={56} color="#3b82f6" />
+              </View>
               <ThemedText
-                className={`text-lg font-semibold mt-4 text-center ${
-                  isDark ? "text-gray-200" : "text-gray-700"
+                className={`text-2xl font-extrabold mb-3 ${
+                  isDark ? "text-white" : "text-gray-900"
                 }`}
               >
-                Bạn chưa có chuyến đi nào
+                Chưa có chuyến đi
               </ThemedText>
               <ThemedText
-                className={`text-sm mt-2 text-center ${
-                  isDark ? "text-gray-400" : "text-gray-500"
+                className={`text-base mt-2 text-center max-w-xs ${
+                  isDark ? "text-gray-300" : "text-gray-600"
                 }`}
               >
-                Nhấn nút để thêm chuyến đi đầu tiên
+                Khám phá và đặt tour để bắt đầu hành trình của bạn
               </ThemedText>
-            </View>
+              <TouchableOpacity
+                onPress={() => router.push("/(tabs)")}
+                className="mt-6 bg-blue-600 px-8 py-4 rounded-2xl shadow-lg"
+              >
+                <ThemedText className="text-white font-bold text-base">
+                  Khám phá tour
+                </ThemedText>
+              </TouchableOpacity>
+            </LinearGradient>
           </View>
         ) : (
           <ScrollView
-            className="flex-1 px-4 pt-4 pb-24"
+            className="flex-1 px-4 pt-6 pb-24"
             showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 40 }}
           >
-            {trips.map((trip) => (
+            {trips.map((trip, index) => (
               <TripCard
                 key={trip.id}
                 trip={trip}
                 isDark={isDark}
                 getStatusStyle={getStatusStyle}
                 getStatusText={getStatusText}
-                onEdit={() => openEditModal(trip)}
+                onPress={() =>
+                  router.push({
+                    pathname: "/screens/bookings/BookingDetail",
+                    params: { bookingId: trip.id },
+                  })
+                }
                 onDelete={() => handleDeleteTrip(trip.id)}
                 onPay={() =>
                   router.push({

@@ -118,7 +118,7 @@ export const helpersApi = {
           endDate: travelDate,
           travelers: booking.quantity || 1,
           totalPrice: totalPriceNum.toLocaleString("vi-VN") + "đ",
-          status: (booking.status || "pending") as "confirmed" | "pending" | "cancelled",
+          status: (booking.status || "pending") as "confirmed" | "pending" | "in_progress" | "cancelled" | "completed",
           createdAt,
         };
       });

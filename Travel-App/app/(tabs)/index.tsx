@@ -22,6 +22,9 @@ import SectionHeader from "@/app/components/home/SectionHeader";
 import TourCard from "@/app/components/common/TourCard";
 import DestinationCard from "@/app/components/common/DestinationCard";
 import QuickFilters from "@/app/components/common/QuickFilters";
+import FilterModal, {
+  type FilterState,
+} from "@/app/components/common/FilterModal";
 import UserMenu from "@/app/components/common/UserMenu";
 
 const TOP_DESTINATIONS = [
@@ -35,10 +38,14 @@ const TOP_DESTINATIONS = [
 export default function HomeScreen() {
   const { user } = useUser();
   const [menuVisible, setMenuVisible] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [featuredTours, setFeaturedTours] = useState<Tour[]>([]);
   const [allTours, setAllTours] = useState<Tour[]>([]);
+  const [filteredTours, setFilteredTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [activeFilters, setActiveFilters] = useState<FilterState | null>(null);
 
   useEffect(() => {
     loadData();
@@ -49,15 +56,52 @@ export default function HomeScreen() {
       setLoading(true);
       const [featured, all] = await Promise.all([
         api.getFeaturedTours(),
-        api.getTours({ limit: 10 }),
+        api.getTours({ limit: 50 }),
       ]);
       setFeaturedTours(featured);
       setAllTours(all.tours);
+      setFilteredTours(all.tours);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleCategoryFilter = (category: string) => {
+    setSelectedCategory(category);
+    // TODO: Filter tours by category when backend supports it
+    // For now, just show all tours
+    if (category === "all") {
+      setFilteredTours(allTours);
+    } else {
+      // Filter logic will be implemented based on tour category field
+      setFilteredTours(allTours);
+    }
+  };
+
+  const handleApplyFilters = (filters: FilterState) => {
+    setActiveFilters(filters);
+    // TODO: Apply filters to tours
+    // Filter by price, duration, location, rating, etc.
+    let filtered = [...allTours];
+
+    // Filter by price
+    if (filters.priceRange) {
+      filtered = filtered.filter((tour) => {
+        const price = tour.price;
+        return (
+          price >= filters.priceRange.min && price <= filters.priceRange.max
+        );
+      });
+    }
+
+    // Filter by rating
+    if (filters.rating > 0) {
+      filtered = filtered.filter((tour) => tour.rating >= filters.rating);
+    }
+
+    setFilteredTours(filtered);
   };
 
   const onRefresh = async () => {
@@ -88,9 +132,9 @@ export default function HomeScreen() {
       }
       return;
     }
-    
+
     router.push({
-      pathname: "/screens/destinations/HotelDetail",
+      pathname: "/screens/tours/TourDetail",
       params: { destinationId: tourId },
     });
   };
@@ -126,7 +170,41 @@ export default function HomeScreen() {
           onMenuPress={() => setMenuVisible(true)}
         />
 
-        <QuickFilters />
+        <QuickFilters onFilterChange={handleCategoryFilter} />
+
+        {/* Filter Button */}
+        {activeFilters && (
+          <View className="px-4 pb-2 flex-row items-center justify-between">
+            <View className="flex-row items-center flex-1">
+              <IconSymbol name="filter" size={16} color="#3b82f6" />
+              <ThemedText className="ml-2 text-blue-600 text-sm font-medium">
+                Đang lọc ({filteredTours.length} kết quả)
+              </ThemedText>
+            </View>
+            <TouchableOpacity
+              onPress={() => setFilterModalVisible(true)}
+              className="px-3 py-1 bg-blue-50 rounded-lg"
+            >
+              <ThemedText className="text-blue-600 text-sm font-semibold">
+                Tùy chỉnh
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {!activeFilters && (
+          <View className="px-4 pb-2">
+            <TouchableOpacity
+              onPress={() => setFilterModalVisible(true)}
+              className="flex-row items-center justify-center py-2 bg-gray-50 rounded-lg border border-gray-200"
+            >
+              <IconSymbol name="sliders" size={16} color="#6b7280" />
+              <ThemedText className="ml-2 text-gray-700 text-sm font-medium">
+                Bộ lọc: Giá, Thời lượng, Vị trí...
+              </ThemedText>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Quick Booking Options */}
         <View className="px-4 py-4">
@@ -225,18 +303,19 @@ export default function HomeScreen() {
             }
           />
 
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingRight: 16 }}
           >
             {TOP_DESTINATIONS.map((destination, idx) => {
               // Try to find a real tour matching this destination name
               const matchingTour = allTours.find(
-                (tour) => tour.location.includes(destination.name) || 
-                          tour.title.includes(destination.name)
+                (tour) =>
+                  tour.location.includes(destination.name) ||
+                  tour.title.includes(destination.name)
               );
-              
+
               return (
                 <DestinationCard
                   key={destination.id}
@@ -267,14 +346,16 @@ export default function HomeScreen() {
           />
 
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {featuredTours.map((tour) => (
-              <TourCard
-                key={tour._id}
-                tour={tour}
-                onPress={openDetail}
-                onWishlistPress={addToWishlist}
-              />
-            ))}
+            {(filteredTours.length > 0 ? filteredTours : featuredTours).map(
+              (tour) => (
+                <TourCard
+                  key={tour._id}
+                  tour={tour}
+                  onPress={openDetail}
+                  onWishlistPress={addToWishlist}
+                />
+              )
+            )}
           </ScrollView>
 
           {featuredTours.length === 0 && (
@@ -313,6 +394,13 @@ export default function HomeScreen() {
       </ScrollView>
 
       <UserMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
+
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+        onApply={handleApplyFilters}
+        initialFilters={activeFilters || undefined}
+      />
     </ThemedView>
   );
 }

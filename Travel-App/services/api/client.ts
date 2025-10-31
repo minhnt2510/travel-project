@@ -144,7 +144,12 @@ export const apiRequest = async (
           const isAlreadyCancelled = errorMsg.includes("already cancelled") || 
                                     errorMsg.includes("Booking already cancelled");
           
-          if (__DEV__ && !isAlreadyCancelled) {
+          // For Forbidden (403) on booking endpoints, don't log as ERROR since we have fallback
+          // Only log if it's not a booking detail request (which has fallback mechanism)
+          const isBookingForbidden = response.status === 403 && 
+                                     (endpoint.includes('/bookings/') && !endpoint.includes('/cancel'));
+          
+          if (__DEV__ && !isAlreadyCancelled && !isBookingForbidden) {
             console.error(`❌ API Error ${response.status} for ${endpoint}:`, errorMsg);
             console.error(`📄 Full error response:`, error);
           }
@@ -153,6 +158,7 @@ export const apiRequest = async (
           (clientError as any).statusCode = response.status;
           (clientError as any).isClientError = true; // Mark as client error to prevent retry
           (clientError as any).isAlreadyCancelled = isAlreadyCancelled; // Mark for special handling
+          (clientError as any).isBookingForbidden = isBookingForbidden; // Mark for silent fallback
           throw clientError;
         }
         

@@ -24,8 +24,9 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     totalRevenue: 0,
     newOrders: 0,
-    newCustomers: 0,
-    newReviews: 0,
+    totalTours: 0,
+    pendingBookings: 0,
+    confirmedBookings: 0,
   });
 
   useEffect(() => {
@@ -35,21 +36,27 @@ export default function AdminDashboard() {
   const loadStats = async () => {
     try {
       setLoading(true);
-      // Fetch real data từ API nếu có
-      const [bookings, tours] = await Promise.all([
+      // Fetch real data từ API
+      const [bookings, toursData] = await Promise.all([
         api.getBookings().catch(() => []),
-        api.getTours().catch(() => ({ tours: [], total: 0 })),
+        api.getTours({ limit: 1000 }).catch(() => ({ tours: [], total: 0 })),
       ]);
 
       const totalRevenue = bookings.reduce((sum: number, b: any) => {
-        return sum + (b.totalPrice || 0);
+        const price = typeof b.totalPrice === "number" ? b.totalPrice : parseFloat(String(b.totalPrice || 0).replace(/[^\d.]/g, ""));
+        return sum + price;
       }, 0);
+
+      // Count pending bookings
+      const pendingBookings = bookings.filter((b: any) => b.status === "pending").length;
+      const confirmedBookings = bookings.filter((b: any) => b.status === "confirmed").length;
 
       setStats({
         totalRevenue,
         newOrders: bookings.length,
-        newCustomers: 0, // Cần API để lấy số khách hàng mới
-        newReviews: 0, // Cần API để lấy số đánh giá mới
+        totalTours: toursData.tours?.length || 0,
+        pendingBookings,
+        confirmedBookings,
       });
     } catch (error) {
       console.error("Error loading stats:", error);
@@ -85,17 +92,17 @@ export default function AdminDashboard() {
       color: ["#10b981", "#059669"],
     },
     {
-      title: "Tour",
-      value: `${stats.newOrders}`,
+      title: "Tổng tour",
+      value: `${stats.totalTours}`,
       change: "+5.4%",
       icon: "map",
       color: ["#8b5cf6", "#7c3aed"],
     },
     {
-      title: "Đánh giá",
-      value: `${stats.newReviews}`,
-      change: "+2.5%",
-      icon: "star",
+      title: "Chờ xác nhận",
+      value: `${stats.pendingBookings}`,
+      change: `${stats.confirmedBookings} đã xác nhận`,
+      icon: "clock",
       color: ["#f59e0b", "#d97706"],
     },
   ];
@@ -115,8 +122,8 @@ export default function AdminDashboard() {
     },
     { 
       icon: "calendar", 
-      label: "Tất cả đơn hàng", 
-      route: "/(tabs)/bookings", 
+      label: "Quản lý đơn hàng", 
+      route: "/screens/admin/ManageBookings", 
       color: ["#3b82f6", "#2563eb"] 
     },
     { 

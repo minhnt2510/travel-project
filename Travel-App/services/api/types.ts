@@ -52,7 +52,7 @@ export interface Booking {
   userId: string;
   quantity: number;
   totalPrice: number;
-  status: "pending" | "confirmed" | "cancelled" | "completed";
+  status: "pending" | "confirmed" | "in_progress" | "cancelled" | "completed";
   paymentStatus: "pending" | "paid" | "refunded";
   travelDate: string;
   travelers: Array<{
@@ -116,7 +116,7 @@ export interface Trip {
   endDate: string;
   travelers: number;
   totalPrice: string;
-  status: "confirmed" | "pending" | "cancelled";
+  status: "confirmed" | "pending" | "in_progress" | "cancelled" | "completed";
   createdAt: string;
 }
 

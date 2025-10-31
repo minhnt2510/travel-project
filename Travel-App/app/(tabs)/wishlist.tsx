@@ -21,7 +21,7 @@ export default function WishlistScreen() {
 
   const handleItemPress = (tourId: string) => {
     router.push({
-      pathname: "/screens/destinations/HotelDetail",
+      pathname: "/screens/tours/TourDetail",
       params: { destinationId: tourId },
     });
   };

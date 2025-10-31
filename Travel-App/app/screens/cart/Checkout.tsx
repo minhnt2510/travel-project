@@ -101,6 +101,22 @@ export default function Checkout() {
       // If tripId is provided, load booking data instead of cart
       if (normalizedTripId) {
         try {
+          // Check if user is logged in first
+          if (!user) {
+            Alert.alert(
+              "Cần đăng nhập",
+              "Vui lòng đăng nhập để thanh toán chuyến đi",
+              [
+                { text: "Hủy", style: "cancel", onPress: () => router.back() },
+                {
+                  text: "Đăng nhập",
+                  onPress: () => router.push("/(auth)/login"),
+                },
+              ]
+            );
+            return;
+          }
+
           const booking = await api.getBookingById(normalizedTripId);
           
           // Convert booking to orderItem format
@@ -122,11 +138,64 @@ export default function Checkout() {
             },
           ]);
           return;
-        } catch (error) {
-          console.error("Error loading booking:", error);
-          Alert.alert("Lỗi", "Không thể tải thông tin chuyến đi");
-          router.back();
-          return;
+        } catch (error: any) {
+          // Handle Forbidden error - try fallback from bookings list
+          if (error.message?.includes("Forbidden") || error.message?.includes("403")) {
+            try {
+              // Try to get booking from user's bookings list (which they have access to)
+              const bookings = await api.getBookings();
+              const matchingBooking = bookings.find((b) => b._id === normalizedTripId);
+              
+              if (matchingBooking) {
+                // Fallback successful - use it silently (no error log)
+                
+                // Convert booking to orderItem format
+                const tripPrice = typeof matchingBooking.totalPrice === "string" 
+                  ? parseFloat(matchingBooking.totalPrice.replace(/[^\d.]/g, "")) 
+                  : (typeof matchingBooking.totalPrice === "number" ? matchingBooking.totalPrice : 0);
+                
+                const destinationName = matchingBooking.tourId && typeof matchingBooking.tourId === "object"
+                  ? (matchingBooking.tourId as any).title || "Tour"
+                  : "Tour đã đặt";
+                
+                setOrderItems([
+                  {
+                    id: matchingBooking._id,
+                    name: destinationName,
+                    price: tripPrice,
+                    quantity: matchingBooking.quantity || 1,
+                    type: "tour" as const,
+                  },
+                ]);
+                return;
+              }
+            } catch (fallbackError) {
+              // Only log if fallback also fails
+              console.error("Error in fallback:", fallbackError);
+            }
+            
+            // If fallback fails, then log error
+            console.error("Error loading booking (fallback failed):", error);
+            
+            // If fallback also fails, show error
+            Alert.alert(
+              "Lỗi truy cập",
+              "Bạn không có quyền xem chuyến đi này. Vui lòng đăng nhập lại.",
+              [
+                { text: "Hủy", style: "cancel", onPress: () => router.back() },
+                {
+                  text: "Đăng nhập",
+                  onPress: () => router.push("/(auth)/login"),
+                },
+              ]
+            );
+            router.back();
+            return;
+          } else {
+            Alert.alert("Lỗi", "Không thể tải thông tin chuyến đi. Vui lòng thử lại.");
+            router.back();
+            return;
+          }
         }
       }
       
