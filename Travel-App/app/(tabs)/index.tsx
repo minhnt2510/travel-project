@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { ThemedText } from "@/ui-components/themed-text";
 import { ThemedView } from "@/ui-components/themed-view";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import {
   ActivityIndicator,
   ScrollView,
@@ -13,6 +13,7 @@ import {
 import { IMAGES } from "../Util_Images";
 import { api, type Tour } from "@/services/api";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useUser } from "../_layout";
 
 // Components
 import HeroHeader from "@/app/components/home/HeroHeader";
@@ -31,6 +32,7 @@ const TOP_DESTINATIONS = [
 ];
 
 export default function HomeScreen() {
+  const { user } = useUser();
   const [menuVisible, setMenuVisible] = useState(false);
   const [featuredTours, setFeaturedTours] = useState<Tour[]>([]);
   const [allTours, setAllTours] = useState<Tour[]>([]);
@@ -68,6 +70,24 @@ export default function HomeScreen() {
   };
 
   const openDetail = (tourId: string) => {
+    // Only allow real tour IDs (MongoDB ObjectId format: 24 hex chars)
+    if (!tourId || !tourId.match(/^[0-9a-fA-F]{24}$/)) {
+      // If it's a destination name, try to find matching tour
+      const matchingTour = allTours.find(
+        (tour) => tour.location.includes(tourId) || tour.title.includes(tourId)
+      );
+      if (matchingTour) {
+        router.push({
+          pathname: "/screens/destinations/HotelDetail",
+          params: { destinationId: matchingTour._id },
+        });
+      } else {
+        // Just show search
+        router.push("/screens/tours/AllTours");
+      }
+      return;
+    }
+    
     router.push({
       pathname: "/screens/destinations/HotelDetail",
       params: { destinationId: tourId },
@@ -123,14 +143,30 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingRight: 16 }}
           >
-            {TOP_DESTINATIONS.map((destination, idx) => (
-              <DestinationCard
-                key={destination.id}
-                destination={destination}
-                onPress={openDetail}
-                index={idx}
-              />
-            ))}
+            {TOP_DESTINATIONS.map((destination, idx) => {
+              // Try to find a real tour matching this destination name
+              const matchingTour = allTours.find(
+                (tour) => tour.location.includes(destination.name) || 
+                          tour.title.includes(destination.name)
+              );
+              
+              return (
+                <DestinationCard
+                  key={destination.id}
+                  destination={destination}
+                  onPress={(id) => {
+                    // If we found a matching tour, use its real ID
+                    if (matchingTour) {
+                      openDetail(matchingTour._id);
+                    } else {
+                      // Otherwise just search
+                      router.push("/screens/tours/AllTours");
+                    }
+                  }}
+                  index={idx}
+                />
+              );
+            })}
           </ScrollView>
         </View>
 

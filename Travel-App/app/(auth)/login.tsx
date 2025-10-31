@@ -3,7 +3,7 @@ import { ThemedText } from "@/ui-components/themed-text";
 import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { Link, Stack, router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -15,12 +15,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
 import { useUser } from "../_layout";
 
 export default function LoginScreen() {
@@ -29,22 +24,6 @@ export default function LoginScreen() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
-  // Animation
-  const fade = useSharedValue(0);
-  const scale = useSharedValue(0.95);
-  const translateY = useSharedValue(30);
-
-  useEffect(() => {
-    fade.value = withTiming(1, { duration: 600 });
-    scale.value = withSpring(1, { damping: 18 });
-    translateY.value = withSpring(0, { damping: 18 });
-  }, []);
-
-  const containerStyle = useAnimatedStyle(() => ({
-    opacity: fade.value,
-    transform: [{ scale: scale.value }, { translateY: translateY.value }],
-  }));
 
   const validateForm = () => {
     if (!email.trim()) return Alert.alert("Lỗi", "Vui lòng nhập email"), false;
@@ -60,22 +39,35 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       const result = await api.login(email.trim(), password);
+      console.log("Login result:", result); // Debug log
+
       if (result.success && result.user && result.accessToken) {
-        login(
-          {
-            _id: result.user._id,
-            name: result.user.name,
-            email: result.user.email,
-            role: (result.user.role === "admin" ? "admin" : "user") as
-              | "admin"
-              | "user",
-            avatar: result.user.avatar,
-            phone: result.user.phone,
-          },
-          result.accessToken
-        );
-        router.replace("/(tabs)");
-        // Không cần router.replace, luồng index sẽ tự điều hướng
+        const userData = {
+          _id: result.user._id || (result.user as any).id,
+          name: result.user.name,
+          email: result.user.email,
+          role: (result.user.role === "admin" ? "admin" : "user") as
+            | "admin"
+            | "user",
+          avatar: result.user.avatar,
+          phone: result.user.phone,
+        };
+
+        console.log("User data:", userData); // Debug log
+        console.log("User role:", userData.role); // Debug log
+
+        login(userData, result.accessToken);
+
+        // Redirect based on role - using push instead of replace for better navigation
+        if (userData.role === "admin") {
+          console.log("Redirecting to Admin Dashboard");
+          // Use push and then clear history
+          router.dismissAll();
+          router.push("/screens/AdminDashboard" as any);
+        } else {
+          console.log("Redirecting to tabs");
+          router.replace("/(tabs)" as any);
+        }
       } else {
         Alert.alert("Lỗi", result.message || "Đăng nhập thất bại");
       }
@@ -87,46 +79,46 @@ export default function LoginScreen() {
   };
 
   return (
-    <ThemedView className="flex-1 bg-gray-50">
+    <ThemedView className="flex-1 bg-white">
       <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Background - Light & Clean */}
-      <View className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100" />
+      {/* Gradient Background */}
+      <LinearGradient
+        colors={["#667eea", "#764ba2"]}
+        className="absolute inset-0"
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         className="flex-1 justify-center px-6"
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <Animated.View
-            style={[containerStyle]}
-            className="w-full max-w-md mx-auto"
-          >
+          <View className="w-full max-w-md mx-auto">
             {/* Logo & Title */}
             <View className="items-center mb-10">
-              <View className="bg-white rounded-3xl p-5 shadow-lg border border-gray-200">
-                <IconSymbol name="airplane" size={60} color="#2563eb" />
+              <View className="bg-white rounded-3xl p-6 shadow-2xl mb-4">
+                <IconSymbol name="airplane" size={64} color="#667eea" />
               </View>
-              <ThemedText className="text-gray-900 text-4xl font-bold mt-6">
+              <ThemedText className="text-gray-700 text-4xl font-extrabold mb-2">
                 Travel App
               </ThemedText>
-              <ThemedText className="text-gray-600 text-lg mt-2">
+              <ThemedText className="text-purple-600 text-lg font-medium">
                 Khám phá thế giới, bắt đầu hành trình
               </ThemedText>
             </View>
 
-            {/* Login Card - Clean & High Contrast */}
-            <View className="bg-white rounded-3xl p-7 shadow-xl border border-gray-200">
-              <ThemedText className="text-gray-900 text-2xl font-bold text-center mb-6">
+            {/* Login Card */}
+            <View className="bg-white rounded-3xl p-7 shadow-2xl">
+              <ThemedText className="text-gray-900 text-2xl font-extrabold text-center mb-6">
                 Đăng nhập
               </ThemedText>
 
               {/* Email Field */}
               <View className="mb-5">
-                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 h-14 border border-gray-300">
-                  <IconSymbol name="mail" size={22} color="#6b7280" />
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-5 h-14 border-2 border-gray-200">
+                  <IconSymbol name="mail" size={20} color="#667eea" />
                   <TextInput
-                    className="flex-1 ml-3 text-gray-900 font-medium"
+                    className="flex-1 ml-3 text-gray-900 font-semibold text-base"
                     placeholder="Email"
                     placeholderTextColor="#9ca3af"
                     keyboardType="email-address"
@@ -139,10 +131,10 @@ export default function LoginScreen() {
 
               {/* Password Field */}
               <View className="mb-4">
-                <View className="flex-row items-center bg-gray-50 rounded-2xl px-4 h-14 border border-gray-300">
-                  <IconSymbol name="lock" size={22} color="#6b7280" />
+                <View className="flex-row items-center bg-gray-50 rounded-2xl px-5 h-14 border-2 border-gray-200">
+                  <IconSymbol name="lock" size={20} color="#667eea" />
                   <TextInput
-                    className="flex-1 ml-3 text-gray-900 font-medium"
+                    className="flex-1 ml-3 text-gray-900 font-semibold text-base"
                     placeholder="Mật khẩu"
                     placeholderTextColor="#9ca3af"
                     secureTextEntry={!showPassword}
@@ -151,11 +143,12 @@ export default function LoginScreen() {
                   />
                   <TouchableOpacity
                     onPress={() => setShowPassword(!showPassword)}
+                    className="ml-2"
                   >
                     <IconSymbol
                       name={showPassword ? "eye-off" : "eye"}
-                      size={22}
-                      color="#6b7280"
+                      size={20}
+                      color="#667eea"
                     />
                   </TouchableOpacity>
                 </View>
@@ -163,7 +156,7 @@ export default function LoginScreen() {
 
               {/* Forgot Password */}
               <TouchableOpacity className="mb-6 self-end">
-                <ThemedText className="text-blue-600 font-medium text-sm underline">
+                <ThemedText className="text-purple-600 font-semibold text-sm">
                   Quên mật khẩu?
                 </ThemedText>
               </TouchableOpacity>
@@ -172,15 +165,21 @@ export default function LoginScreen() {
               <TouchableOpacity
                 onPress={handleLogin}
                 disabled={isLoading}
-                className="bg-blue-600 rounded-2xl h-14 justify-center items-center shadow-md active:opacity-90"
+                activeOpacity={0.9}
+                className="rounded-2xl overflow-hidden shadow-lg"
               >
-                {isLoading ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <ThemedText className="text-white font-bold text-lg">
-                    Đăng nhập
-                  </ThemedText>
-                )}
+                <LinearGradient
+                  colors={["#667eea", "#764ba2"]}
+                  className="h-14 justify-center items-center"
+                >
+                  {isLoading ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <ThemedText className="text-white font-extrabold text-lg">
+                      Đăng nhập
+                    </ThemedText>
+                  )}
+                </LinearGradient>
               </TouchableOpacity>
 
               {/* Register Link */}
@@ -189,23 +188,31 @@ export default function LoginScreen() {
                   Chưa có tài khoản?{" "}
                 </ThemedText>
                 <Link href="/(auth)/register">
-                  <ThemedText className="text-blue-600 font-semibold underline text-sm">
+                  <ThemedText className="text-purple-600 font-extrabold text-sm">
                     Đăng ký ngay
                   </ThemedText>
                 </Link>
               </View>
             </View>
 
-            {/* Demo Info - Clean */}
-            <View className="mt-6 bg-blue-50 border border-blue-200 rounded-2xl p-4">
-              <ThemedText className="text-blue-900 text-sm font-medium text-center mb-1">
-                Dùng tài khoản demo:
+            {/* Demo Info */}
+            <View className="mt-6 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-4">
+              <ThemedText className="text-white text-sm font-semibold text-center mb-2">
+                Tài khoản Admin:
               </ThemedText>
-              <ThemedText className="text-blue-700 text-xs text-center">
-                Email: test@email.com | Mật khẩu: 123456
+              <View className="bg-white/20 rounded-xl p-3 mb-2">
+                <ThemedText className="text-white text-xs font-medium mb-1">
+                  Email: admin@travel.com
+                </ThemedText>
+                <ThemedText className="text-white text-xs font-medium">
+                  Password: admin123
+                </ThemedText>
+              </View>
+              <ThemedText className="text-white/80 text-xs text-center">
+                Đăng nhập để xem Dashboard Admin
               </ThemedText>
             </View>
-          </Animated.View>
+          </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </ThemedView>

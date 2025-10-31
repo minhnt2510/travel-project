@@ -47,8 +47,17 @@ router.post("/login", async (req, res) => {
   );
 
   res.json({
+    success: true,
     accessToken,
-    user: { id: user._id, email: user.email, name: user.name },
+    user: { 
+      _id: user._id, 
+      id: user._id,
+      email: user.email, 
+      name: user.name,
+      role: user.role || "user",
+      avatar: user.avatar,
+      phone: user.phone,
+    },
   });
 });
 

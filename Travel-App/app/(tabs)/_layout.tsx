@@ -33,12 +33,20 @@ export default function TabLayout() {
             backgroundColor: t.background,
             borderTopWidth: 1,
             borderTopColor: "#E5E7EB",
-            height: 58 + insets.bottom,
-            paddingTop: 6,
-            paddingBottom: Math.max(6, insets.bottom / 2),
+            height: 65 + insets.bottom,
+            paddingTop: 8,
+            paddingBottom: Math.max(8, insets.bottom / 2),
+            paddingHorizontal: 8,
           },
-          tabBarLabelStyle: { fontSize: 12, fontWeight: "600", marginTop: 4 },
+          tabBarLabelStyle: { 
+            fontSize: 11, 
+            fontWeight: "600", 
+            marginTop: 4,
+          },
           tabBarIconStyle: { marginTop: 4 },
+          tabBarItemStyle: {
+            paddingVertical: 4,
+          },
         }}
       >
         <Tabs.Screen
@@ -46,7 +54,16 @@ export default function TabLayout() {
           options={{
             title: "Trang chủ",
             tabBarIcon: ({ color }) => (
-              <IconSymbol name="home" size={24} color={color} />
+              <IconSymbol name="home" size={22} color={color} />
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="explore"
+          options={{
+            title: "Khám phá",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol name="map" size={22} color={color} />
             ),
           }}
         />
@@ -55,25 +72,16 @@ export default function TabLayout() {
           options={{
             title: "Chuyến đi",
             tabBarIcon: ({ color }) => (
-              <IconSymbol name="calendar" size={24} color={color} />
+              <IconSymbol name="calendar" size={22} color={color} />
             ),
           }}
         />
         <Tabs.Screen
-          name="wishlist"
+          name="more"
           options={{
-            title: "Yêu thích",
+            title: "Thêm",
             tabBarIcon: ({ color }) => (
-              <IconSymbol name="heart" size={24} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="history"
-          options={{
-            title: "Lịch sử",
-            tabBarIcon: ({ color }) => (
-              <IconSymbol name="check-circle" size={24} color={color} />
+              <IconSymbol name="grid" size={22} color={color} />
             ),
           }}
         />
@@ -82,8 +90,33 @@ export default function TabLayout() {
           options={{
             title: "Cá nhân",
             tabBarIcon: ({ color }) => (
-              <IconSymbol name="user" size={24} color={color} />
+              <IconSymbol name="user" size={22} color={color} />
             ),
+          }}
+        />
+        {/* Hidden tabs - accessible from More menu */}
+        <Tabs.Screen
+          name="deals"
+          options={{
+            href: null, // Hide from tab bar
+          }}
+        />
+        <Tabs.Screen
+          name="wishlist"
+          options={{
+            href: null, // Hide from tab bar
+          }}
+        />
+        <Tabs.Screen
+          name="notifications"
+          options={{
+            href: null, // Hide from tab bar
+          }}
+        />
+        <Tabs.Screen
+          name="history"
+          options={{
+            href: null, // Hide from tab bar
           }}
         />
       </Tabs>

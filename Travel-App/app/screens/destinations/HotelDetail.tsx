@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { useUser } from "@/app/_layout";
 
 const { width } = Dimensions.get("window");
 
@@ -34,53 +35,73 @@ export default function HotelDetail() {
     try {
       setLoading(true);
       const data = await api.getDestinationById(destinationId!);
-      setDestination(data);
-    } catch {
-      Alert.alert("Lỗi", "Không thể tải thông tin địa điểm");
+      if (data) {
+        setDestination(data);
+      } else {
+        throw new Error("Không tìm thấy tour");
+      }
+    } catch (error: any) {
+      console.error("Error loading destination:", error);
+      Alert.alert(
+        "Lỗi", 
+        error?.message || "Không thể tải thông tin tour. Vui lòng kiểm tra kết nối mạng và thử lại."
+      );
+      router.back();
     } finally {
       setLoading(false);
     }
   };
 
- // Trong handleBookTrip
-const handleBookTrip = async () => {
-  if (!destination) return;
+  // Check if user is logged in
+  const { user } = useUser();
+  
+  const handleBookTrip = async () => {
+    if (!destination) return;
 
-  setIsBooking(true);
-  try {
-    const newTrip = {
-      destinationId: destination.id,
-      destinationName: destination.name,
-      destinationImage: destination.image,
-      startDate: new Date().toISOString().split("T")[0], // Hôm nay
-      endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // +5 ngày
-      travelers: 2,
-      totalPrice: destination.price,
-      status: "pending" as const,
-    };
+    // Guest mode: redirect to login
+    if (!user) {
+      router.push({
+        pathname: "/(auth)/login",
+        params: { redirect: `/screens/destinations/HotelDetail?destinationId=${destinationId}` },
+      });
+      return;
+    }
 
-    await api.createTrip(newTrip);
+    setIsBooking(true);
+    try {
+      const newTrip = {
+        destinationId: destination.id,
+        destinationName: destination.name,
+        destinationImage: destination.image,
+        startDate: new Date().toISOString().split("T")[0], // Hôm nay
+        endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // +5 ngày
+        travelers: 2,
+        totalPrice: destination.price,
+        status: "pending" as const,
+      };
 
-    Alert.alert(
-      "Thành công!",
-      `Đã đặt chuyến đi đến ${destination.name}!`,
-      [
-        {
-          text: "Xem chuyến đi",
-          onPress: () => {
-            router.push("/(tabs)/bookings");  
+      await api.createTrip(newTrip);
+
+      Alert.alert(
+        "Thành công!",
+        `Đã đặt chuyến đi đến ${destination.name}!`,
+        [
+          {
+            text: "Xem chuyến đi",
+            onPress: () => {
+              router.push("/(tabs)/bookings");  
+            },
           },
-        },
-        { text: "Ở lại", style: "cancel" },
-      ]
-    );
-  } catch (error) {
-    console.error(error);
-    Alert.alert("Lỗi", "Không thể đặt chuyến đi");
-  } finally {
-    setIsBooking(false);
-  }
-};
+          { text: "Ở lại", style: "cancel" },
+        ]
+      );
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Lỗi", "Không thể đặt chuyến đi");
+    } finally {
+      setIsBooking(false);
+    }
+  };
 
   const handleShare = () => {
     Alert.alert("Chia sẻ", "Tính năng chia sẻ sẽ được cập nhật sớm!");

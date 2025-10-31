@@ -22,19 +22,30 @@ export const helpersApi = {
   },
 
   getDestinationById: async (id: string): Promise<Destination | null> => {
-    const tour = await toursApi.getTourById(id);
-    return {
-      id: tour._id,
-      name: tour.title,
-      country: "Việt Nam",
-      city: tour.location,
-      image: tour.imageUrl || "",
-      rating: tour.rating,
-      reviews: tour.reviewCount,
-      price: tour.price.toLocaleString("vi-VN") + "đ",
-      description: tour.description,
-      coordinates: tour.coordinates || { latitude: 0, longitude: 0 },
-    };
+    try {
+      const tour = await toursApi.getTourById(id);
+      if (!tour || !tour._id) {
+        throw new Error("Tour không tồn tại");
+      }
+      return {
+        id: tour._id,
+        name: tour.title || "Không có tên",
+        country: "Việt Nam",
+        city: tour.location || "Không xác định",
+        image: tour.imageUrl || tour.images?.[0] || "",
+        rating: tour.rating || 0,
+        reviews: tour.reviewCount || 0,
+        price: tour.price ? typeof tour.price === 'number' ? tour.price.toLocaleString("vi-VN") + "đ" : tour.price : "0đ",
+        description: tour.description || "",
+        coordinates: tour.coordinates || { latitude: 0, longitude: 0 },
+      };
+    } catch (error: any) {
+      console.error("Error in getDestinationById:", error);
+      if (error.message) {
+        throw error;
+      }
+      throw new Error("Không thể tải thông tin tour. Vui lòng thử lại.");
+    }
   },
 
   searchDestinations: async (query: string): Promise<Destination[]> => {

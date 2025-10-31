@@ -45,10 +45,24 @@ router.get("/tours/featured", async (req, res) => {
 
 // Get tour by id
 router.get("/tours/:id", async (req, res) => {
-  const { id } = req.params;
-  const tour = await Tour.findById(id);
-  if (!tour) return res.status(404).json({ message: "Not found" });
-  res.json(tour);
+  try {
+    const { id } = req.params;
+    
+    // Validate ObjectId format
+    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid tour ID format" });
+    }
+    
+    const tour = await Tour.findById(id);
+    if (!tour) {
+      return res.status(404).json({ message: "Tour not found" });
+    }
+    
+    res.json(tour);
+  } catch (error: any) {
+    console.error("Error fetching tour:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 // Create tour

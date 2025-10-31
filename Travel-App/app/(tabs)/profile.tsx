@@ -123,19 +123,12 @@ export default function ProfileScreen() {
       label: "Thông tin cá nhân",
       href: "/screens/reviews/ReviewCreate",
     },
-    { icon: "heart", label: "Danh sách yêu thích", href: "/(tabs)/wishlist" },
     {
       icon: "credit-card",
       label: "Phương thức thanh toán",
-      href: "/screens/Checkout",
+      href: "/screens/cart/Checkout",
     },
-    { icon: "settings", label: "Cài đặt", href: "/screens/search/Search" },
-    {
-      icon: "help-circle",
-      label: "Trợ giúp & Hỗ trợ",
-      href: "/screens/Search",
-    },
-    { icon: "info", label: "Về chúng tôi", href: "/screens/Search" },
+    { icon: "settings", label: "Cài đặt", href: "/(tabs)/profile" },
   ];
 
   // Animated styles
