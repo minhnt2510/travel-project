@@ -36,7 +36,13 @@ router.get("/bookings", requireAuth, async (req: AuthRequest, res) => {
 // Create booking
 router.post("/bookings", requireAuth, async (req: AuthRequest, res) => {
   const parsed = createBookingSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json(parsed.error.flatten());
+  if (!parsed.success) {
+    console.error("Validation error:", parsed.error.flatten());
+    return res.status(400).json({ 
+      message: "Dữ liệu không hợp lệ",
+      errors: parsed.error.flatten() 
+    });
+  }
 
   const {
     tourId,

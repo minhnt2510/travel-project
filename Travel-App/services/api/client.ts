@@ -59,15 +59,24 @@ export const apiRequest = async (
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({ message: `Request failed with status ${response.status}` }));
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { message: `Request failed with status ${response.status}` };
+      }
       
       if (response.status === 404) {
         throw new Error("Không tìm thấy dữ liệu");
       }
       
-      throw new Error(error.message || `Request failed: ${response.status}`);
+      // Extract error message from validation errors if available
+      if (errorData.errors) {
+        const errorMessages = Object.values(errorData.errors).flat();
+        throw new Error(errorMessages.join(", ") || errorData.message || "Dữ liệu không hợp lệ");
+      }
+      
+      throw new Error(errorData.message || `Request failed: ${response.status}`);
     }
 
     const data = await response.json();

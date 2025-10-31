@@ -1,6 +1,7 @@
 // Helper methods - Legacy compatibility and utility functions
 import { toursApi } from "./tours";
 import { bookingsApi } from "./bookings";
+import { usersApi } from "./users";
 import { Destination, Trip } from "./types";
 
 export const helpersApi = {
@@ -35,7 +36,11 @@ export const helpersApi = {
         image: tour.imageUrl || tour.images?.[0] || "",
         rating: tour.rating || 0,
         reviews: tour.reviewCount || 0,
-        price: tour.price ? typeof tour.price === 'number' ? tour.price.toLocaleString("vi-VN") + "đ" : tour.price : "0đ",
+        price: tour.price
+          ? typeof tour.price === "number"
+            ? tour.price.toLocaleString("vi-VN") + "đ"
+            : tour.price
+          : "0đ",
         description: tour.description || "",
         coordinates: tour.coordinates || { latitude: 0, longitude: 0 },
       };
@@ -86,8 +91,34 @@ export const helpersApi = {
   },
 
   createTrip: async (
-    tripData: Omit<Trip, "id" | "createdAt">
+    tripData: Omit<Trip, "id" | "createdAt">,
+    userEmail?: string,
+    userPhone?: string
   ): Promise<Trip> => {
+    // Get current user info if available
+    let email = userEmail || "";
+    let phone = userPhone || "";
+
+    // If no user info provided, try to get from API
+    if (!email || !phone) {
+      try {
+        const currentUser = await usersApi.getCurrentUser();
+        if (currentUser) {
+          email = email || currentUser.email || "";
+          phone = phone || currentUser.phone || "";
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    }
+
+    // Validate email - must have valid email
+    if (!email || !email.includes("@")) {
+      throw new Error(
+        "Email không hợp lệ. Vui lòng cập nhật thông tin cá nhân."
+      );
+    }
+
     const bookingData = {
       tourId: tripData.destinationId,
       quantity: tripData.travelers,
@@ -95,7 +126,10 @@ export const helpersApi = {
       travelers: Array(tripData.travelers)
         .fill(0)
         .map((_, i) => ({ name: `Traveler ${i + 1}`, age: 25 })),
-      contactInfo: { phone: "", email: "" },
+      contactInfo: {
+        phone: phone || "0000000000", // Fallback phone
+        email: email, // Must be valid email
+      },
     };
     const booking = await bookingsApi.createBooking(bookingData);
     return {
@@ -134,4 +168,3 @@ export const helpersApi = {
     }
   },
 };
-
