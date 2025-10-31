@@ -6,10 +6,12 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  RefreshControl,
   TouchableOpacity,
   View,
 } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
 import { useWishlist } from "@/hooks/useWishlist";
 import TourCard from "@/app/components/common/TourCard";
 
@@ -41,23 +43,32 @@ export default function WishlistScreen() {
 
   const renderEmptyState = () => (
     <View className="flex-1 items-center justify-center p-8">
-      <View className="bg-gradient-to-br from-pink-100 to-red-100 w-32 h-32 rounded-full items-center justify-center">
-        <IconSymbol name="heart" size={64} color="#EF4444" />
-      </View>
-      <ThemedText className="text-2xl font-bold text-gray-900 mt-6 mb-2">
+      <LinearGradient
+        colors={['#fce7f3', '#fbcfe8']}
+        className="w-32 h-32 rounded-full items-center justify-center shadow-lg"
+      >
+        <IconSymbol name="heart" size={64} color="#ec4899" />
+      </LinearGradient>
+      <ThemedText className="text-2xl font-extrabold text-gray-900 mt-6 mb-2">
         Danh sách yêu thích trống
       </ThemedText>
-      <ThemedText className="text-gray-500 text-center mb-8">
+      <ThemedText className="text-gray-600 text-center mb-8 text-base">
         Hãy khám phá và thêm những tour du lịch yêu thích vào đây nhé!
       </ThemedText>
       <TouchableOpacity
-        className="bg-blue-600 px-8 py-4 rounded-full flex-row items-center"
+        activeOpacity={0.9}
         onPress={() => router.push("/")}
+        className="rounded-full overflow-hidden shadow-xl"
       >
-        <ThemedText className="text-white font-bold text-lg mr-2">
-          Khám phá ngay
-        </ThemedText>
-        <IconSymbol name="arrow-right" size={20} color="#FFF" />
+        <LinearGradient
+          colors={['#667eea', '#764ba2']}
+          className="px-8 py-4 flex-row items-center"
+        >
+          <ThemedText className="text-white font-extrabold text-lg mr-2">
+            Khám phá ngay
+          </ThemedText>
+          <IconSymbol name="arrow-right" size={20} color="#FFF" />
+        </LinearGradient>
       </TouchableOpacity>
     </View>
   );
@@ -73,14 +84,19 @@ export default function WishlistScreen() {
 
   return (
     <ThemedView className="flex-1 bg-gray-50">
-      <View className="bg-gradient-to-r from-pink-500 to-red-500 p-6 pt-12">
+      <LinearGradient
+        colors={['#ec4899', '#ef4444', '#f97316']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        className="p-6 pt-12 rounded-b-3xl"
+      >
         <ThemedText className="text-3xl font-extrabold text-white mb-2">
-          Danh sách yêu thích
+          Danh sách yêu thích ❤️
         </ThemedText>
-        <ThemedText className="text-pink-100">
+        <ThemedText className="text-white/90 font-medium">
           {items.length} tour đã lưu
         </ThemedText>
-      </View>
+      </LinearGradient>
 
       {items.length === 0 ? (
         renderEmptyState()
@@ -113,5 +129,3 @@ export default function WishlistScreen() {
     </ThemedView>
   );
 }
-
-import { RefreshControl } from "react-native";

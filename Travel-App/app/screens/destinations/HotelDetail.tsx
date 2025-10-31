@@ -11,6 +11,9 @@ import {
   TouchableOpacity, useColorScheme, View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import Animated, { FadeInDown } from "react-native-reanimated";
+import { useUser } from "@/app/_layout";
 
 const { width } = Dimensions.get("window");
 
@@ -32,53 +35,73 @@ export default function HotelDetail() {
     try {
       setLoading(true);
       const data = await api.getDestinationById(destinationId!);
-      setDestination(data);
-    } catch {
-      Alert.alert("Lỗi", "Không thể tải thông tin địa điểm");
+      if (data) {
+        setDestination(data);
+      } else {
+        throw new Error("Không tìm thấy tour");
+      }
+    } catch (error: any) {
+      console.error("Error loading destination:", error);
+      Alert.alert(
+        "Lỗi", 
+        error?.message || "Không thể tải thông tin tour. Vui lòng kiểm tra kết nối mạng và thử lại."
+      );
+      router.back();
     } finally {
       setLoading(false);
     }
   };
 
- // Trong handleBookTrip
-const handleBookTrip = async () => {
-  if (!destination) return;
+  // Check if user is logged in
+  const { user } = useUser();
+  
+  const handleBookTrip = async () => {
+    if (!destination) return;
 
-  setIsBooking(true);
-  try {
-    const newTrip = {
-      destinationId: destination.id,
-      destinationName: destination.name,
-      destinationImage: destination.image,
-      startDate: new Date().toISOString().split("T")[0], // Hôm nay
-      endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // +5 ngày
-      travelers: 2,
-      totalPrice: destination.price,
-      status: "pending" as const,
-    };
+    // Guest mode: redirect to login
+    if (!user) {
+      router.push({
+        pathname: "/(auth)/login",
+        params: { redirect: `/screens/destinations/HotelDetail?destinationId=${destinationId}` },
+      });
+      return;
+    }
 
-    await api.createTrip(newTrip);
+    setIsBooking(true);
+    try {
+      const newTrip = {
+        destinationId: destination.id,
+        destinationName: destination.name,
+        destinationImage: destination.image,
+        startDate: new Date().toISOString().split("T")[0], // Hôm nay
+        endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // +5 ngày
+        travelers: 2,
+        totalPrice: destination.price,
+        status: "pending" as const,
+      };
 
-    Alert.alert(
-      "Thành công!",
-      `Đã đặt chuyến đi đến ${destination.name}!`,
-      [
-        {
-          text: "Xem chuyến đi",
-          onPress: () => {
-            router.push("/(tabs)/bookings");  
+      await api.createTrip(newTrip);
+
+      Alert.alert(
+        "Thành công!",
+        `Đã đặt chuyến đi đến ${destination.name}!`,
+        [
+          {
+            text: "Xem chuyến đi",
+            onPress: () => {
+              router.push("/(tabs)/bookings");  
+            },
           },
-        },
-        { text: "Ở lại", style: "cancel" },
-      ]
-    );
-  } catch (error) {
-    console.error(error);
-    Alert.alert("Lỗi", "Không thể đặt chuyến đi");
-  } finally {
-    setIsBooking(false);
-  }
-};
+          { text: "Ở lại", style: "cancel" },
+        ]
+      );
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Lỗi", "Không thể đặt chuyến đi");
+    } finally {
+      setIsBooking(false);
+    }
+  };
 
   const handleShare = () => {
     Alert.alert("Chia sẻ", "Tính năng chia sẻ sẽ được cập nhật sớm!");
@@ -134,73 +157,100 @@ const handleBookTrip = async () => {
           <View className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
           {/* Back, Share, Heart */}
-          <View className="absolute top-12 left-4 right-4 flex-row justify-between items-center">
-            <TouchableOpacity
-              onPress={() => router.back()}
-              className="bg-white/20 backdrop-blur-md rounded-full p-3 shadow-lg"
-            >
-              <IconSymbol name="arrow-left" size={24} color="#FFF" />
-            </TouchableOpacity>
+          <View className="absolute top-12 left-4 right-4 flex-row justify-between items-center z-10">
+            <Animated.View entering={FadeInDown.delay(100).duration(500)}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => router.back()}
+                className="bg-white/20 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-white/30"
+              >
+                <IconSymbol name="arrow-left" size={22} color="#FFF" />
+              </TouchableOpacity>
+            </Animated.View>
 
-            <View className="flex-row space-x-2">
-              <TouchableOpacity
-                onPress={handleShare}
-                className="bg-white/20 backdrop-blur-md rounded-full p-3 shadow-lg"
-              >
-                <IconSymbol name="share" size={22} color="#FFF" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleAddToWishlist}
-                className="bg-white/20 backdrop-blur-md rounded-full p-3 shadow-lg"
-              >
-                <IconSymbol name="heart" size={22} color="#FFF" />
-              </TouchableOpacity>
+            <View className="flex-row">
+              <Animated.View entering={FadeInDown.delay(200).duration(500)}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleShare}
+                  className="bg-white/20 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-white/30 mr-2"
+                >
+                  <IconSymbol name="share" size={20} color="#FFF" />
+                </TouchableOpacity>
+              </Animated.View>
+              <Animated.View entering={FadeInDown.delay(300).duration(500)}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleAddToWishlist}
+                  className="bg-white/20 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-white/30"
+                >
+                  <IconSymbol name="heart" size={20} color="#FFF" />
+                </TouchableOpacity>
+              </Animated.View>
             </View>
           </View>
 
           {/* Price Badge */}
-          <View className="absolute bottom-6 right-6 bg-white rounded-2xl px-5 py-3 shadow-2xl">
-            <ThemedText className="text-blue-600 font-extrabold text-xl">
-              {destination.price}
-            </ThemedText>
-            <ThemedText className="text-gray-500 text-xs text-center">/ người</ThemedText>
-          </View>
+          <Animated.View 
+            entering={FadeInDown.delay(400).duration(500)}
+            className="absolute bottom-6 right-6 overflow-hidden rounded-2xl shadow-2xl"
+          >
+            <LinearGradient
+              colors={['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.9)']}
+              className="px-6 py-4"
+            >
+              <ThemedText className="text-purple-600 font-extrabold text-2xl">
+                {destination.price}
+              </ThemedText>
+              <ThemedText className="text-gray-600 text-xs text-center mt-1 font-medium">/ người</ThemedText>
+            </LinearGradient>
+          </Animated.View>
 
           {/* Tiêu đề trên ảnh */}
-          <View className="absolute bottom-6 left-6">
-            <ThemedText className="text-white text-3xl font-extrabold leading-tight">
+          <Animated.View 
+            entering={FadeInDown.delay(300).duration(500)}
+            className="absolute bottom-6 left-6 right-24"
+          >
+            <ThemedText className="text-white text-3xl font-extrabold leading-tight mb-2 shadow-lg">
               {destination.name}
             </ThemedText>
-            <View className="flex-row items-center mt-1">
-              <IconSymbol name="location" size={18} color="#FFF" />
-              <ThemedText className="text-white/90 ml-1 font-medium">
+            <View className="flex-row items-center">
+              <View className="bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg mr-2">
+                <IconSymbol name="location" size={16} color="#FFF" />
+              </View>
+              <ThemedText className="text-white/95 ml-1 font-bold text-base">
                 {destination.city}, {destination.country}
               </ThemedText>
             </View>
-          </View>
+          </Animated.View>
         </View>
 
         {/* === NỘI DUNG === */}
         <View className="px-6 py-6">
           {/* Rating */}
-          <View className="flex-row items-center mb-5">
-            <View className="flex-row">
+          <Animated.View 
+            entering={FadeInDown.delay(100).duration(500)}
+            className="flex-row items-center mb-6 bg-white rounded-2xl px-5 py-4 shadow-sm"
+          >
+            <View className="flex-row mr-3">
               {[1, 2, 3, 4, 5].map((star) => (
                 <IconSymbol
                   key={star}
                   name="star"
-                  size={22}
+                  size={24}
                   color={star <= Math.floor(destination.rating) ? "#fbbf24" : "#e5e7eb"}
                 />
               ))}
             </View>
-            <ThemedText className={`ml-2 font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
-              {destination.rating}
-            </ThemedText>
-            <ThemedText className={`ml-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-              ({destination.reviews} đánh giá)
-            </ThemedText>
-          </View>
+            <View className="flex-1">
+              <ThemedText className="font-extrabold text-gray-900 text-xl">
+                {destination.rating}
+              </ThemedText>
+              <ThemedText className="text-gray-600 text-sm">
+                ({destination.reviews} đánh giá)
+              </ThemedText>
+            </View>
+          </Animated.View>
 
           {/* Mô tả */}
           <View className="mb-6">
@@ -229,25 +279,31 @@ const handleBookTrip = async () => {
           </View>
 
           {/* Tiện ích */}
-          <View className="mb-6">
-            <ThemedText className={`text-lg font-extrabold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
-              Tiện ích nổi bật
+          <Animated.View 
+            entering={FadeInDown.delay(200).duration(500)}
+            className="mb-6"
+          >
+            <ThemedText className={`text-xl font-extrabold mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>
+              Tiện ích nổi bật ✨
             </ThemedText>
             <View className="flex-row flex-wrap">
               {["WiFi miễn phí", "Bãi đỗ xe", "Nhà hàng", "Hồ bơi", "Spa", "Gym"].map((feature, i) => (
                 <View
                   key={i}
-                  className={`px-4 py-2.5 rounded-full mr-2 mb-2 ${
-                    isDark ? "bg-slate-700" : "bg-blue-50"
-                  }`}
+                  className="mr-3 mb-3 overflow-hidden rounded-2xl shadow-sm"
                 >
-                  <ThemedText className={`text-sm font-semibold ${isDark ? "text-blue-300" : "text-blue-700"}`}>
-                    {feature}
-                  </ThemedText>
+                  <LinearGradient
+                    colors={['#e0e7ff', '#c7d2fe']}
+                    className="px-5 py-3"
+                  >
+                    <ThemedText className="text-sm font-extrabold text-purple-700">
+                      {feature}
+                    </ThemedText>
+                  </LinearGradient>
                 </View>
               ))}
             </View>
-          </View>
+          </Animated.View>
 
           {/* Đánh giá */}
           <View className="mb-8">
@@ -292,20 +348,26 @@ const handleBookTrip = async () => {
             </View>
 
             <TouchableOpacity
+              activeOpacity={0.9}
               onPress={handleBookTrip}
               disabled={isBooking}
-              className="bg-blue-600 px-8 py-4 rounded-2xl flex-row items-center shadow-lg"
+              className="rounded-2xl overflow-hidden shadow-xl"
             >
-              {isBooking ? (
-                <ActivityIndicator size="small" color="#FFF" />
-              ) : (
-                <>
-                  <IconSymbol name="calendar" size={22} color="#FFF" />
-                  <ThemedText className="text-white font-bold ml-2 text-base">
-                    Đặt ngay
-                  </ThemedText>
-                </>
-              )}
+              <LinearGradient
+                colors={['#667eea', '#764ba2']}
+                className="px-8 py-4 flex-row items-center justify-center"
+              >
+                {isBooking ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <>
+                    <IconSymbol name="calendar" size={22} color="#FFF" />
+                    <ThemedText className="text-white font-extrabold ml-2 text-base">
+                      Đặt ngay
+                    </ThemedText>
+                  </>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>

@@ -46,21 +46,41 @@ export const apiRequest = async (
   }
 
   try {
+    // Add timeout to fetch - increased to 30 seconds
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers,
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const error = await response
         .json()
-        .catch(() => ({ message: "Request failed" }));
-      throw new Error(error.message || "Request failed");
+        .catch(() => ({ message: `Request failed with status ${response.status}` }));
+      
+      if (response.status === 404) {
+        throw new Error("Không tìm thấy dữ liệu");
+      }
+      
+      throw new Error(error.message || `Request failed: ${response.status}`);
     }
 
-    return await response.json();
-  } catch (error) {
-    console.error("API Error:", error);
-    throw error;
+    const data = await response.json();
+    return data;
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      console.error("API Error: Request timed out", endpoint);
+      throw new Error("Kết nối timeout. Vui lòng kiểm tra kết nối mạng và backend.");
+    }
+    if (error.message) {
+      throw error;
+    }
+    console.error("API Error:", error, endpoint);
+    throw new Error("Có lỗi xảy ra khi kết nối đến server");
   }
 };

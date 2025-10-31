@@ -1,35 +1,40 @@
 /**
- * Theme configuration for the app
- * Supports Light & Dark mode with consistent design tokens
+ * Modern Theme configuration for the app
+ * Supports Light & Dark mode with beautiful gradients and consistent design tokens
  */
 
 import { Platform } from 'react-native';
 
-// Primary tint color (used for active states, links, etc.)
-const tintColorLight = '#2563eb'; // blue-600
-const tintColorDarkureDark = '#60a5fa'; // blue-400
+// Primary gradient colors
+const primaryGradientLight = ['#667eea', '#764ba2']; // Purple to violet
+const primaryGradientDark = ['#8b5cf6', '#6366f1']; // Lighter purple
 
 export const Colors = {
   light: {
     // Core
-    text: '#0f172a',           // slate-900
+    text: '#1a1a2e',           // Dark navy
     background: '#ffffff',
-    tint: tintColorLight,
+    tint: '#667eea',           // Purple
     icon: '#64748b',           // slate-500
     tabIconDefault: '#94a3b8', // slate-400
-    tabIconSelected: tintColorLight,
+    tabIconSelected: '#667eea',
     // Semantic
-    primary: '#2563eb',        // blue-600
-    secondary: '#64748b',      // slate-500
-    accent: '#f97316',         // orange-500 (khác với warning)
-    success: '#10b981',        // emerald-500
-    warning: '#f59e0b',        // amber-500
-    error: '#ef4444',          // red-500
+    primary: '#667eea',        // Purple
+    secondary: '#8b5cf6',      // Violet
+    accent: '#f59e0b',         // Amber/Gold
+    success: '#10b981',        // Emerald
+    warning: '#f59e0b',        // Amber
+    error: '#ef4444',          // Red
 
     // Surfaces
     surface: '#f8fafc',        // slate-50
     card: '#ffffff',
     border: '#e2e8f0',         // slate-200
+    
+    // Gradients
+    gradientPrimary: primaryGradientLight,
+    gradientHero: ['#667eea', '#764ba2', '#f093fb'],
+    gradientCard: ['#ffffff', '#f8fafc'],
 
     // Status bar
     statusBar: 'dark-content' as const,
@@ -40,11 +45,12 @@ export const Colors = {
     background: '#0f172a',     // slate-900
     icon: '#94a3b8',           // slate-400
     tabIconDefault: '#64748b', // slate-500
+    tabIconSelected: '#8b5cf6',
 
     // Semantic
-    primary: '#60a5fa',        // blue-400
-    secondary: '#94a3b8',      // slate-400
-    accent: '#fb923c',         // orange-400
+    primary: '#8b5cf6',        // Lighter purple
+    secondary: '#a78bfa',      // light violet
+    accent: '#fbbf24',         // light amber
     success: '#34d399',        // emerald-400
     warning: '#fbbf24',        // amber-400
     error: '#f87171',          // red-400
@@ -53,6 +59,11 @@ export const Colors = {
     surface: '#1e293b',        // slate-800
     card: '#1e293b',           // slate-800
     border: '#334155',         // slate-700
+
+    // Gradients
+    gradientPrimary: primaryGradientDark,
+    gradientHero: ['#1e293b', '#334155', '#475569'],
+    gradientCard: ['#1e293b', '#0f172a'],
 
     // Status bar
     statusBar: 'light-content' as const,

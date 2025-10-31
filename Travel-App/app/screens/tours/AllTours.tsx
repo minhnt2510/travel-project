@@ -19,9 +19,9 @@ const categories = [
   { id: "all", name: "Tất cả", icon: "grid" },
   { id: "adventure", name: "Phiêu lưu", icon: "compass" },
   { id: "culture", name: "Văn hóa", icon: "book" },
-  { id: "beach", name: "Biển", icon: "beach" },
-  { id: "mountain", name: "Núi", icon: "mountain" },
-  { id: "city", name: "Thành phố", icon: "city" },
+  { id: "beach", name: "Biển", icon: "droplet" },
+  { id: "mountain", name: "Núi", icon: "trending-up" },
+  { id: "city", name: "Thành phố", icon: "map-pin" },
 ];
 
 export default function AllToursScreen() {
