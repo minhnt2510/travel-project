@@ -14,6 +14,7 @@ import { ThemedText } from "@/ui-components/themed-text";
 import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { api } from "@/services/api";
+import { useUser } from "@/app/_layout";
 
 interface PaymentMethod {
   id: string;
@@ -53,6 +54,7 @@ const paymentMethods: PaymentMethod[] = [
 export default function Checkout() {
   const { tripId } = useLocalSearchParams<{ tripId?: string | string[] }>();
   const normalizedTripId = Array.isArray(tripId) ? tripId[0] : tripId;
+  const { user } = useUser();
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>("");
@@ -66,34 +68,99 @@ export default function Checkout() {
 
   useEffect(() => {
     loadOrderData();
-  }, []);
+    loadUserInfo();
+    loadSavedPaymentMethod();
+  }, [user]);
+
+  const loadUserInfo = async () => {
+    try {
+      // Load user info from context first
+      if (user) {
+        setContactInfo({
+          fullName: user.name || "",
+          email: user.email || "",
+          phone: user.phone || "",
+        });
+      } else {
+        // If not in context, try to get from API
+        const userData = await api.getUser();
+        setContactInfo({
+          fullName: userData.name || "",
+          email: userData.email || "",
+          phone: userData.phone || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error loading user info:", error);
+      // Keep empty if can't load
+    }
+  };
 
   const loadOrderData = async () => {
     try {
+      // If tripId is provided, load booking data instead of cart
+      if (normalizedTripId) {
+        try {
+          const booking = await api.getBookingById(normalizedTripId);
+          
+          // Convert booking to orderItem format
+          const tripPrice = typeof booking.totalPrice === "string" 
+            ? parseFloat(booking.totalPrice.replace(/[^\d.]/g, "")) 
+            : (typeof booking.totalPrice === "number" ? booking.totalPrice : 0);
+          
+          const destinationName = booking.tourId && typeof booking.tourId === "object"
+            ? (booking.tourId as any).title || "Tour"
+            : "Tour đã đặt";
+          
+          setOrderItems([
+            {
+              id: booking._id,
+              name: destinationName,
+              price: tripPrice,
+              quantity: booking.quantity || 1,
+              type: "tour" as const,
+            },
+          ]);
+          return;
+        } catch (error) {
+          console.error("Error loading booking:", error);
+          Alert.alert("Lỗi", "Không thể tải thông tin chuyến đi");
+          router.back();
+          return;
+        }
+      }
+      
+      // Otherwise, load from cart (original flow)
       const cartData = await AsyncStorage.getItem("cart_items");
       if (cartData) {
-        setOrderItems(JSON.parse(cartData));
+        const items = JSON.parse(cartData);
+        if (Array.isArray(items) && items.length > 0) {
+          setOrderItems(items);
+        } else {
+          // No items in cart
+          Alert.alert("Thông báo", "Giỏ hàng của bạn đang trống");
+          router.back();
+        }
       } else {
-        // demo nếu chưa có giỏ hàng
-        setOrderItems([
-          {
-            id: "1",
-            name: "Tour Đà Lạt 3N2Đ",
-            price: 2_500_000,
-            quantity: 2,
-            type: "tour",
-          },
-          {
-            id: "2",
-            name: "Khách sạn Dalat Palace",
-            price: 1_800_000,
-            quantity: 1,
-            type: "hotel",
-          },
-        ]);
+        // No cart data
+        Alert.alert("Thông báo", "Giỏ hàng của bạn đang trống");
+        router.back();
       }
     } catch (error) {
       console.error("Error loading order data:", error);
+      Alert.alert("Lỗi", "Không thể tải dữ liệu");
+      router.back();
+    }
+  };
+
+  const loadSavedPaymentMethod = async () => {
+    try {
+      const saved = await AsyncStorage.getItem("default_payment_method");
+      if (saved) {
+        setSelectedPaymentMethod(saved);
+      }
+    } catch (error) {
+      console.error("Error loading saved payment method:", error);
     }
   };
 
@@ -126,7 +193,22 @@ export default function Checkout() {
 
       const totals = calculateTotal();
 
-      // === TẠO TRIP ĐÃ XÁC NHẬN (confirmed) ===
+      // If paying for an existing trip (from bookings tab)
+      if (normalizedTripId) {
+        // Update booking status to confirmed
+        // Note: The backend should have an endpoint to confirm payment
+        // For now, we'll just show success and refresh
+        Alert.alert(
+          "Thanh toán thành công",
+          "Chuyến đi của bạn đã được xác nhận thanh toán!"
+        );
+        
+        // Go back to bookings tab
+        router.replace("/(tabs)/bookings");
+        return;
+      }
+
+      // Otherwise, create new trip from cart (original flow)
       // Lấy item chính (nếu có nhiều thì lấy item đầu)
       const primary = orderItems[0];
 

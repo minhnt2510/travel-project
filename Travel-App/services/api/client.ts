@@ -30,10 +30,11 @@ export const removeToken = async (): Promise<void> => {
   }
 };
 
-// API request helper
+// API request helper with retry logic
 export const apiRequest = async (
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retries: number = 2
 ): Promise<any> => {
   const token = await getToken();
   const headers: Record<string, string> = {
@@ -43,44 +44,150 @@ export const apiRequest = async (
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  } else if (__DEV__) {
+    console.warn(`⚠️ No token found for request: ${endpoint}`);
   }
 
-  try {
-    // Add timeout to fetch - increased to 30 seconds
+  // Helper function to make a single request attempt
+  const makeRequest = async (attempt: number): Promise<Response> => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    // Increased timeout to 45 seconds for slow connections
+    const timeoutId = setTimeout(() => {
+      controller.abort();
+    }, 45000);
 
-    const response = await fetch(`${API_URL}${endpoint}`, {
-      ...options,
-      headers,
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const error = await response
-        .json()
-        .catch(() => ({ message: `Request failed with status ${response.status}` }));
-      
-      if (response.status === 404) {
-        throw new Error("Không tìm thấy dữ liệu");
+    try {
+      const url = `${API_URL}${endpoint}`;
+      if (__DEV__ && attempt === 0) {
+        console.log(`🌐 API Request [${options.method || 'GET'}]: ${url}`);
       }
       
-      throw new Error(error.message || `Request failed: ${response.status}`);
-    }
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
 
-    const data = await response.json();
-    return data;
-  } catch (error: any) {
-    if (error.name === 'AbortError') {
-      console.error("API Error: Request timed out", endpoint);
-      throw new Error("Kết nối timeout. Vui lòng kiểm tra kết nối mạng và backend.");
-    }
-    if (error.message) {
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      
+      // If it's an abort error (timeout) and we have retries left, throw to retry
+      if (error.name === 'AbortError' && attempt < retries) {
+        throw error;
+      }
+      
+      // Re-throw to be handled by outer catch
       throw error;
     }
-    console.error("API Error:", error, endpoint);
-    throw new Error("Có lỗi xảy ra khi kết nối đến server");
+  };
+
+  // Retry logic
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      if (attempt > 0) {
+        // Wait before retry: exponential backoff (1s, 2s, 4s...)
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        if (__DEV__) {
+          console.log(`🔄 Retrying request (attempt ${attempt + 1}/${retries + 1}):`, endpoint);
+        }
+      }
+
+      const response = await makeRequest(attempt);
+
+      if (!response.ok) {
+        // Try to get error details from response
+        let error: any = { message: `Request failed with status ${response.status}` };
+        const contentType = response.headers.get("content-type");
+        
+        try {
+          if (contentType && contentType.includes("application/json")) {
+            error = await response.json();
+          } else {
+            const text = await response.text();
+            error = { message: text || `Request failed: ${response.status}` };
+          }
+        } catch (e) {
+          // If we can't parse, use default error
+          if (__DEV__) {
+            console.warn(`⚠️ Could not parse error response for ${endpoint}`);
+          }
+        }
+        
+        // Extract error message from various possible formats
+        let errorMessage = error.message || error.error || `Request failed: ${response.status}`;
+        
+        // Handle Zod validation errors (fieldErrors format)
+        if (error.fieldErrors) {
+          const fieldErrors: string[] = [];
+          Object.entries(error.fieldErrors).forEach(([field, messages]) => {
+            const msgs = Array.isArray(messages) ? messages : [messages];
+            msgs.forEach((msg: string) => {
+              fieldErrors.push(`${field}: ${msg}`);
+            });
+          });
+          if (fieldErrors.length > 0) {
+            errorMessage = fieldErrors.join(", ");
+          }
+        }
+        
+        // Don't retry on client errors (4xx) except 408 (Request Timeout)
+        // These should be thrown immediately without retrying
+        if (response.status >= 400 && response.status < 500 && response.status !== 408) {
+          const errorMsg = typeof errorMessage === 'string' 
+            ? errorMessage 
+            : JSON.stringify(errorMessage) || `Request failed: ${response.status}`;
+          
+          // Don't log "already cancelled" errors as they're handled gracefully
+          const isAlreadyCancelled = errorMsg.includes("already cancelled") || 
+                                    errorMsg.includes("Booking already cancelled");
+          
+          if (__DEV__ && !isAlreadyCancelled) {
+            console.error(`❌ API Error ${response.status} for ${endpoint}:`, errorMsg);
+            console.error(`📄 Full error response:`, error);
+          }
+          
+          const clientError = new Error(errorMsg);
+          (clientError as any).statusCode = response.status;
+          (clientError as any).isClientError = true; // Mark as client error to prevent retry
+          (clientError as any).isAlreadyCancelled = isAlreadyCancelled; // Mark for special handling
+          throw clientError;
+        }
+        
+        // For server errors (5xx) or 408, retry if attempts remain
+        if (attempt < retries && (response.status >= 500 || response.status === 408)) {
+          continue;
+        }
+        
+        throw new Error(typeof errorMessage === 'string' ? errorMessage : `Request failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error: any) {
+      // Don't retry client errors (4xx) - throw immediately
+      if (error.isClientError) {
+        throw error;
+      }
+      
+      // If this was the last attempt, throw the error
+      if (attempt === retries) {
+        if (error.name === 'AbortError') {
+          console.error("API Error: Request timed out after retries", endpoint);
+          throw new Error(`Kết nối timeout sau ${retries + 1} lần thử. Vui lòng kiểm tra kết nối mạng và đảm bảo backend đang chạy tại ${API_URL}`);
+        }
+        if (error.message) {
+          throw error;
+        }
+        console.error("API Error:", error, endpoint);
+        throw new Error("Có lỗi xảy ra khi kết nối đến server. Vui lòng kiểm tra kết nối mạng.");
+      }
+      // Otherwise, continue to next retry (only for network errors or server errors)
+    }
   }
+
+  // This should never be reached, but TypeScript needs it
+  throw new Error("Unexpected error in API request");
 };

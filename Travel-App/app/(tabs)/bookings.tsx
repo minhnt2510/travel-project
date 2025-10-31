@@ -22,7 +22,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { router } from "expo-router";
-import { Image } from "expo-image"; // dùng ở empty-state
+import { Image } from "expo-image";
 import TripCard from "../components/trips/TripCard";
 import DestinationPicker from "../components/destinations/DestinationPicker";
 import InputField from "../components/common/InputField";
@@ -66,9 +66,16 @@ export default function BookingsScreen() {
     try {
       setLoading(true);
       const data = await api.getTrips();
-      setTrips(data);
-    } catch {
-      Alert.alert("Lỗi", "Không thể tải danh sách chuyến đi");
+      // Filter out cancelled bookings - only show active bookings in "My Trips"
+      // Cancelled bookings should only appear in "History" tabr
+      const activeTrips = data.filter((trip) => trip.status !== "cancelled");
+      setTrips(activeTrips);
+    } catch (error: any) {
+      console.error("Error loading trips:", error);
+      Alert.alert(
+        "Lỗi",
+        error.message || "Không thể tải danh sách chuyến đi. Vui lòng thử lại."
+      );
     } finally {
       setLoading(false);
     }
@@ -117,9 +124,19 @@ export default function BookingsScreen() {
           try {
             await api.deleteTrip(tripId);
             await loadTrips();
-            Alert.alert("Thành công", "Đã xóa!");
-          } catch {
-            Alert.alert("Lỗi", "Không thể xóa");
+            Alert.alert("Thành công", "Đã hủy chuyến đi!");
+          } catch (error: any) {
+            console.error("Error deleting trip:", error);
+            // Check if already cancelled
+            if (
+              error.message?.includes("already cancelled") ||
+              error.message?.includes("Booking already cancelled")
+            ) {
+              await loadTrips(); // Refresh list
+              Alert.alert("Thông báo", "Chuyến đi này đã được hủy trước đó");
+            } else {
+              Alert.alert("Lỗi", error.message || "Không thể hủy chuyến đi");
+            }
           }
         },
       },
@@ -278,15 +295,7 @@ export default function BookingsScreen() {
           </ScrollView>
         )}
 
-        {/* FAB: thêm */}
-        <Animated.View style={[fabStyle]} className="absolute bottom-8 right-6">
-          <TouchableOpacity
-            onPress={openAddModal}
-            className="w-16 h-16 rounded-full bg-blue-600 shadow-2xl flex items-center justify-center"
-          >
-            <IconSymbol name="plus" size={28} color="#FFF" />
-          </TouchableOpacity>
-        </Animated.View>
+        {/* FAB removed - trips should only show booked trips, not manual additions */}
       </Animated.View>
 
       {/* Modal thêm/sửa */}

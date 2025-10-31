@@ -102,10 +102,10 @@ export default function AllToursScreen() {
         <View className="flex-row items-center mb-4">
           <TouchableOpacity onPress={() => router.back()}>
             <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center">
-              <IconSymbol name="arrow-left" size={24} color="#FFF" />
+              <IconSymbol name="arrow-left" size={24} color="" />
             </View>
           </TouchableOpacity>
-          <ThemedText className="text-white text-xl font-bold ml-4 flex-1">
+          <ThemedText className="text-black text-xl font-bold ml-4 flex-1">
             Tất cả tour ({tours.length})
           </ThemedText>
         </View>
@@ -235,7 +235,7 @@ export default function AllToursScreen() {
                         </ThemedText>
                         <View className="flex-row items-center mt-1">
                           <IconSymbol
-                            name="location"
+                            name="map-pin"
                             size={14}
                             color="#6B7280"
                           />

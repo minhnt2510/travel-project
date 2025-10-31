@@ -53,7 +53,7 @@ export default function TourCard({
                 {tour.title}
               </ThemedText>
               <View className="flex-row items-center mb-2">
-                <IconSymbol name="location" size={12} color="#667eea" />
+                <IconSymbol name="map-pin" size={12} color="#667eea" />
                 <ThemedText className="text-gray-600 text-xs ml-1">
                   {tour.location}
                 </ThemedText>
@@ -157,7 +157,7 @@ export default function TourCard({
           </ThemedText>
           <View className="flex-row items-center mb-4">
             <View className="bg-purple-50 px-3 py-1.5 rounded-full flex-row items-center mr-2">
-              <IconSymbol name="location" size={14} color="#667eea" />
+              <IconSymbol name="map-pin" size={14} color="#667eea" />
               <ThemedText className="text-purple-700 text-xs ml-1 font-semibold">
                 {tour.location}
               </ThemedText>

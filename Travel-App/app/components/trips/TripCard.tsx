@@ -5,6 +5,15 @@ import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { ThemedText } from "@/ui-components/themed-text";
 import type { Trip } from "@/services/api";
 
+// Helper function to format date: "2025-10-31" -> "31/10/2025"
+const formatDate = (dateString: string): string => {
+  if (!dateString) return "";
+  // Remove time part if exists: "2025-10-31T00:00:000z" -> "2025-10-31"
+  const dateOnly = dateString.split('T')[0];
+  const [year, month, day] = dateOnly.split('-');
+  return `${day}/${month}/${year}`;
+};
+
 type Props = {
   trip: Trip;
   isDark: boolean;
@@ -74,7 +83,7 @@ export default function TripCard({
                 isDark ? "text-gray-300" : "text-gray-600"
               } font-medium`}
             >
-              {trip.startDate} - {trip.endDate}
+              {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
             </ThemedText>
           </View>
 

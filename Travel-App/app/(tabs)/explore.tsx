@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
   RefreshControl,
+  ColorValue,
 } from "react-native";
 import { api, type Tour } from "@/services/api";
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,11 +24,26 @@ export default function ExploreScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const categories = [
-    { id: "beach", name: "Biển", emoji: "🏖️", color: ['#06b6d4', '#3b82f6'] },
-    { id: "mountain", name: "Núi", emoji: "🏔️", color: ['#10b981', '#059669'] },
-    { id: "city", name: "Thành phố", emoji: "🏙️", color: ['#8b5cf6', '#6366f1'] },
-    { id: "culture", name: "Văn hóa", emoji: "🏛️", color: ['#f59e0b', '#d97706'] },
-    { id: "nature", name: "Thiên nhiên", emoji: "🌳", color: ['#ec4899', '#db2777'] },
+    { id: "beach", name: "Biển", emoji: "🏖️", color: ["#06b6d4", "#3b82f6"] },
+    { id: "mountain", name: "Núi", emoji: "🏔️", color: ["#10b981", "#059669"] },
+    {
+      id: "city",
+      name: "Thành phố",
+      emoji: "🏙️",
+      color: ["#8b5cf6", "#6366f1"],
+    },
+    {
+      id: "culture",
+      name: "Văn hóa",
+      emoji: "🏛️",
+      color: ["#f59e0b", "#d97706"],
+    },
+    {
+      id: "nature",
+      name: "Thiên nhiên",
+      emoji: "🌳",
+      color: ["#ec4899", "#db2777"],
+    },
   ];
 
   useEffect(() => {
@@ -79,7 +95,7 @@ export default function ExploreScreen() {
   return (
     <ThemedView className="flex-1 bg-gray-50">
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={["#667eea", "#764ba2"]}
         className="px-4 pt-16 pb-8 rounded-b-3xl"
       >
         <ThemedText className="text-white text-3xl font-extrabold mb-4">
@@ -118,7 +134,7 @@ export default function ExploreScreen() {
               >
                 {selectedCategory === cat.id ? (
                   <LinearGradient
-                    colors={cat.color}
+                    colors={cat.color as [ColorValue, ColorValue]}
                     className="px-5 py-2.5"
                   >
                     <ThemedText className="text-white font-bold">
@@ -146,7 +162,13 @@ export default function ExploreScreen() {
         showsVerticalScrollIndicator={false}
       >
         <SectionHeader
-          title={selectedCategory ? `Tour ${categories.find(c => c.id === selectedCategory)?.name}` : "Tất cả tour"}
+          title={
+            selectedCategory
+              ? `Tour ${
+                  categories.find((c) => c.id === selectedCategory)?.name
+                }`
+              : "Tất cả tour"
+          }
           subtitle={`${tours.length} tour tìm thấy`}
         />
 
@@ -183,4 +205,3 @@ export default function ExploreScreen() {
     </ThemedView>
   );
 }
-

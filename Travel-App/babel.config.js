@@ -4,7 +4,7 @@ module.exports = function (api) {
   return {
     presets: ["babel-preset-expo"],
     plugins: [
-      "expo-router/babel",
+      // "expo-router/babel" - deprecated, already included in babel-preset-expo
       "nativewind/babel",
       [
         "module-resolver",

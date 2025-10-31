@@ -14,6 +14,7 @@ import { IMAGES } from "../Util_Images";
 import { api, type Tour } from "@/services/api";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useUser } from "../_layout";
+import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 
 // Components
 import HeroHeader from "@/app/components/home/HeroHeader";
@@ -126,6 +127,92 @@ export default function HomeScreen() {
         />
 
         <QuickFilters />
+
+        {/* Quick Booking Options */}
+        <View className="px-4 py-4">
+          <View className="flex-row flex-wrap justify-between">
+            <TouchableOpacity
+              className="bg-green-50 border-2 border-green-200 rounded-2xl p-4 mb-4"
+              style={{ width: "48%" }}
+              onPress={() => {
+                // Navigate to nearby hotels/tours
+                router.push("/screens/tours/AllTours");
+              }}
+            >
+              <View className="items-center">
+                <View className="bg-green-100 rounded-full p-3 mb-3">
+                  <IconSymbol name="map-pin" size={32} color="#10b981" />
+                </View>
+                <ThemedText className="text-green-700 font-bold text-base text-center mb-1">
+                  Gần bạn
+                </ThemedText>
+                <ThemedText className="text-green-600 text-xs text-center">
+                  Một bước lên mây
+                </ThemedText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="bg-orange-50 border-2 border-orange-200 rounded-2xl p-4 mb-4"
+              style={{ width: "48%" }}
+              onPress={() => {
+                router.push("/screens/tours/AllTours");
+              }}
+            >
+              <View className="items-center">
+                <View className="bg-orange-100 rounded-full p-3 mb-3">
+                  <IconSymbol name="clock" size={32} color="#f97316" />
+                </View>
+                <ThemedText className="text-orange-700 font-bold text-base text-center mb-1">
+                  Theo giờ
+                </ThemedText>
+                <ThemedText className="text-orange-600 text-xs text-center">
+                  Xịn từng phút giây
+                </ThemedText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="bg-purple-50 border-2 border-purple-200 rounded-2xl p-4 mb-4"
+              style={{ width: "48%" }}
+              onPress={() => {
+                router.push("/screens/tours/AllTours");
+              }}
+            >
+              <View className="items-center">
+                <View className="bg-purple-100 rounded-full p-3 mb-3">
+                  <IconSymbol name="moon" size={32} color="#a855f7" />
+                </View>
+                <ThemedText className="text-purple-700 font-bold text-base text-center mb-1">
+                  Qua đêm
+                </ThemedText>
+                <ThemedText className="text-purple-600 text-xs text-center">
+                  Ngon giấc như ở nhà
+                </ThemedText>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 mb-4"
+              style={{ width: "48%" }}
+              onPress={() => {
+                router.push("/screens/tours/AllTours");
+              }}
+            >
+              <View className="items-center">
+                <View className="bg-blue-100 rounded-full p-3 mb-3">
+                  <IconSymbol name="calendar" size={32} color="#3b82f6" />
+                </View>
+                <ThemedText className="text-blue-700 font-bold text-base text-center mb-1">
+                  Theo ngày
+                </ThemedText>
+                <ThemedText className="text-blue-600 text-xs text-center">
+                  Mỗi ngày 1 niềm vui
+                </ThemedText>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* Top Destinations */}
         <View className="px-4 py-4">

@@ -101,10 +101,30 @@ export default function AdminDashboard() {
   ];
 
   const quickActions = [
-    { icon: "plus", label: "Tạo tour", route: "", color: ["#667eea", "#764ba2"] },
-    { icon: "users", label: "Quản lý user", route: "", color: ["#10b981", "#059669"] },
-    { icon: "calendar", label: "Đơn hàng", route: "/(tabs)/bookings", color: ["#3b82f6", "#2563eb"] },
-    { icon: "settings", label: "Cài đặt", route: "", color: ["#f59e0b", "#d97706"] },
+    { 
+      icon: "users", 
+      label: "Quản lý Users", 
+      route: "/screens/admin/ManageUsers", 
+      color: ["#10b981", "#059669"] 
+    },
+    { 
+      icon: "map", 
+      label: "Quản lý Tours", 
+      route: "/screens/tours/AllTours", 
+      color: ["#667eea", "#764ba2"] 
+    },
+    { 
+      icon: "calendar", 
+      label: "Tất cả đơn hàng", 
+      route: "/(tabs)/bookings", 
+      color: ["#3b82f6", "#2563eb"] 
+    },
+    { 
+      icon: "bar-chart", 
+      label: "Thống kê", 
+      route: "/screens/admin/Statistics", 
+      color: ["#f59e0b", "#d97706"] 
+    },
   ];
 
   if (loading && !refreshing) {
@@ -156,7 +176,7 @@ export default function AdminDashboard() {
               key={index}
               className="w-[48%] mb-4 overflow-hidden rounded-2xl shadow-lg"
             >
-              <LinearGradient colors={stat.color} className="p-5">
+              <LinearGradient colors={stat.color as [string, string, ...string[]]} className="p-5">
                 <View className="flex-row items-center justify-between mb-3">
                   <View className="bg-white/20 backdrop-blur-md w-12 h-12 rounded-xl items-center justify-center">
                     <IconSymbol name={stat.icon} size={24} color="#FFF" />
@@ -193,7 +213,7 @@ export default function AdminDashboard() {
                 }}
                 className="w-[48%] mb-4 overflow-hidden rounded-2xl shadow-lg"
               >
-                <LinearGradient colors={action.color} className="p-5 items-center">
+                <LinearGradient colors={action.color as [string, string, ...string[]]} className="p-5 items-center">
                   <View className="bg-white/20 backdrop-blur-md w-14 h-14 rounded-xl items-center justify-center mb-3">
                     <IconSymbol name={action.icon} size={28} color="#FFF" />
                   </View>

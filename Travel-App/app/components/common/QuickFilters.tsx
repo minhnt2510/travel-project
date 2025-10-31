@@ -7,9 +7,14 @@ import { useState } from "react";
 const filters = [
   { label: "Nổi bật", emoji: "✨", color: ['#667eea', '#764ba2'] },
   { label: "Hot", emoji: "🔥", color: ['#ef4444', '#f97316'] },
+  { label: "Love Corner", emoji: "💕", color: ['#ec4899', '#f472b6'] },
+  { label: "Romantic Room", emoji: "🌹", color: ['#db2777', '#ec4899'] },
+  { label: "Dưới 300k", emoji: "💰", color: ['#10b981', '#059669'] },
+  { label: "Theo ngày", emoji: "📅", color: ['#3b82f6', '#2563eb'] },
+  { label: "Theo giờ", emoji: "⏰", color: ['#8b5cf6', '#7c3aed'] },
+  { label: "Qua đêm", emoji: "🌙", color: ['#6366f1', '#4f46e5'] },
   { label: "Biển", emoji: "🏖️", color: ['#06b6d4', '#3b82f6'] },
   { label: "Núi", emoji: "🏔️", color: ['#10b981', '#059669'] },
-  { label: "Thành phố", emoji: "🏙️", color: ['#8b5cf6', '#6366f1'] },
 ];
 
 export default function QuickFilters() {
@@ -33,7 +38,7 @@ export default function QuickFilters() {
                 >
                   {isSelected ? (
                     <LinearGradient
-                      colors={filter.color}
+                      colors={filter.color as [string, string, ...string[]]}
                       className="px-5 py-2.5 flex-row items-center"
                     >
                       <ThemedText className="mr-2 text-lg">{filter.emoji}</ThemedText>

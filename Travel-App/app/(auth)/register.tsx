@@ -219,16 +219,6 @@ export default function RegisterScreen() {
                   </Link>
                 </View>
               </View>
-
-              {/* Demo Info */}
-              <View className="mt-6 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-4">
-                <ThemedText className="text-white text-sm font-semibold text-center mb-1">
-                  Tài khoản demo:
-                </ThemedText>
-                <ThemedText className="text-white/90 text-xs text-center">
-                  admin@travel.com / admin123
-                </ThemedText>
-              </View>
             </View>
           </ScrollView>
         </TouchableWithoutFeedback>

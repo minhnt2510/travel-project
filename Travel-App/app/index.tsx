@@ -225,7 +225,7 @@ export default function GuestHomeScreen() {
                   onPress={handleSearch}
                 >
                   <LinearGradient
-                    colors={category.color}
+                    colors={category.color as [string, string, ...string[]]}
                     className="w-32 h-36 px-4 py-5 items-center justify-center"
                   >
                     <ThemedText className="text-4xl mb-2">{category.emoji}</ThemedText>

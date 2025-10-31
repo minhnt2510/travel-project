@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useUser } from "@/app/_layout";
+import CustomMapView from "@/app/components/common/MapView";
 
 const { width } = Dimensions.get("window");
 
@@ -21,7 +22,6 @@ export default function HotelDetail() {
   const { destinationId } = useLocalSearchParams<{ destinationId: string }>();
   const [destination, setDestination] = useState<Destination | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isBooking, setIsBooking] = useState(false);
 
   const isDark = useColorScheme() === "dark";
 
@@ -52,63 +52,46 @@ export default function HotelDetail() {
     }
   };
 
-  // Check if user is logged in
-  const { user } = useUser();
-  
-  const handleBookTrip = async () => {
+  const handleSelectRoom = () => {
     if (!destination) return;
 
-    // Guest mode: redirect to login
-    if (!user) {
-      router.push({
-        pathname: "/(auth)/login",
-        params: { redirect: `/screens/destinations/HotelDetail?destinationId=${destinationId}` },
-      });
-      return;
-    }
-
-    setIsBooking(true);
-    try {
-      const newTrip = {
-        destinationId: destination.id,
-        destinationName: destination.name,
-        destinationImage: destination.image,
-        startDate: new Date().toISOString().split("T")[0], // Hôm nay
-        endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // +5 ngày
-        travelers: 2,
-        totalPrice: destination.price,
-        status: "pending" as const,
-      };
-
-      await api.createTrip(newTrip);
-
-      Alert.alert(
-        "Thành công!",
-        `Đã đặt chuyến đi đến ${destination.name}!`,
-        [
-          {
-            text: "Xem chuyến đi",
-            onPress: () => {
-              router.push("/(tabs)/bookings");  
-            },
-          },
-          { text: "Ở lại", style: "cancel" },
-        ]
-      );
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Lỗi", "Không thể đặt chuyến đi");
-    } finally {
-      setIsBooking(false);
-    }
+    // Navigate to room list screen
+    router.push({
+      pathname: "/screens/rooms/RoomList",
+      params: { destinationId: destination.id, destinationName: destination.name },
+    });
   };
 
   const handleShare = () => {
     Alert.alert("Chia sẻ", "Tính năng chia sẻ sẽ được cập nhật sớm!");
   };
 
-  const handleAddToWishlist = () => {
-    Alert.alert("Yêu thích", "Đã thêm vào danh sách yêu thích!");
+  const handleAddToWishlist = async () => {
+    if (!user) {
+      Alert.alert(
+        "Cần đăng nhập",
+        "Vui lòng đăng nhập để thêm vào danh sách yêu thích",
+        [
+          { text: "Hủy", style: "cancel" },
+          {
+            text: "Đăng nhập",
+            onPress: () => router.push("/(auth)/login"),
+          },
+        ]
+      );
+      return;
+    }
+
+    try {
+      await api.addToWishlist(destinationId!);
+      Alert.alert("Thành công", "Đã thêm vào danh sách yêu thích!");
+    } catch (error: any) {
+      console.error("Error adding to wishlist:", error);
+      Alert.alert(
+        "Lỗi",
+        error.message || "Không thể thêm vào danh sách yêu thích"
+      );
+    }
   };
 
   if (loading) {
@@ -149,12 +132,12 @@ export default function HotelDetail() {
         <View className="relative">
           <Image
             source={{ uri: destination.image }}
-            className="w-full h-96"
+            className="w-full h-80"
             contentFit="cover"
           />
 
-          {/* Gradient overlay */}
-          <View className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+          {/* Gradient overlay nhẹ chỉ ở phía trên */}
+          <View className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
 
           {/* Back, Share, Heart */}
           <View className="absolute top-12 left-4 right-4 flex-row justify-between items-center z-10">
@@ -162,7 +145,7 @@ export default function HotelDetail() {
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => router.back()}
-                className="bg-white/20 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-white/30"
+                className="bg-black/50 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-black/30"
               >
                 <IconSymbol name="arrow-left" size={22} color="#FFF" />
               </TouchableOpacity>
@@ -173,7 +156,7 @@ export default function HotelDetail() {
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={handleShare}
-                  className="bg-white/20 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-white/30 mr-2"
+                  className="bg-black/50 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-black/30 mr-2"
                 >
                   <IconSymbol name="share" size={20} color="#FFF" />
                 </TouchableOpacity>
@@ -182,48 +165,49 @@ export default function HotelDetail() {
                 <TouchableOpacity
                   activeOpacity={0.8}
                   onPress={handleAddToWishlist}
-                  className="bg-white/20 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-white/30"
+                  className="bg-black/50 backdrop-blur-md rounded-full p-3.5 shadow-2xl border border-black/30"
                 >
                   <IconSymbol name="heart" size={20} color="#FFF" />
                 </TouchableOpacity>
               </Animated.View>
             </View>
           </View>
+        </View>
 
-          {/* Price Badge */}
-          <Animated.View 
-            entering={FadeInDown.delay(400).duration(500)}
-            className="absolute bottom-6 right-6 overflow-hidden rounded-2xl shadow-2xl"
-          >
-            <LinearGradient
-              colors={['rgba(255,255,255,0.95)', 'rgba(255,255,255,0.9)']}
-              className="px-6 py-4"
-            >
-              <ThemedText className="text-purple-600 font-extrabold text-2xl">
-                {destination.price}
-              </ThemedText>
-              <ThemedText className="text-gray-600 text-xs text-center mt-1 font-medium">/ người</ThemedText>
-            </LinearGradient>
-          </Animated.View>
-
-          {/* Tiêu đề trên ảnh */}
-          <Animated.View 
-            entering={FadeInDown.delay(300).duration(500)}
-            className="absolute bottom-6 left-6 right-24"
-          >
-            <ThemedText className="text-white text-3xl font-extrabold leading-tight mb-2 shadow-lg">
+        {/* === CARD INFO PHÍA DƯỚI ẢNH === */}
+        <Animated.View 
+          entering={FadeInDown.delay(300).duration(500)}
+          className="px-6 -mt-8 z-20"
+        >
+          <View className={`rounded-3xl p-5 shadow-2xl ${isDark ? "bg-slate-800" : "bg-white"}`}>
+            <ThemedText className={`text-3xl font-extrabold leading-tight mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>
               {destination.name}
             </ThemedText>
-            <View className="flex-row items-center">
-              <View className="bg-white/20 backdrop-blur-md px-2 py-1 rounded-lg mr-2">
-                <IconSymbol name="location" size={16} color="#FFF" />
+            
+            {/* Duration và Location */}
+            <View className="flex-row items-center flex-wrap mb-4">
+              <View className={`px-3 py-1.5 rounded-full mr-2 mb-2 ${isDark ? "bg-purple-500/30" : "bg-purple-50"}`}>
+                <ThemedText className={`font-bold text-sm ${isDark ? "text-purple-300" : "text-purple-700"}`}>
+                  3 ngày 2 đêm
+                </ThemedText>
               </View>
-              <ThemedText className="text-white/95 ml-1 font-bold text-base">
-                {destination.city}, {destination.country}
-              </ThemedText>
+              <View className={`flex-row items-center px-3 py-1.5 rounded-full mr-2 mb-2 ${isDark ? "bg-blue-500/30" : "bg-blue-50"}`}>
+                <IconSymbol name="map-pin" size={14} color={isDark ? "#93c5fd" : "#3b82f6"} />
+                <ThemedText className={`ml-1 font-bold text-sm ${isDark ? "text-blue-300" : "text-blue-700"}`}>
+                  {destination.city}, {destination.country}
+                </ThemedText>
+              </View>
             </View>
-          </Animated.View>
-        </View>
+
+            {/* Price */}
+            <View className="flex-row items-baseline pt-3 border-t border-gray-200">
+              <ThemedText className={`font-extrabold text-3xl ${isDark ? "text-purple-300" : "text-purple-600"}`}>
+                {destination.price}
+              </ThemedText>
+              <ThemedText className={`text-sm ml-2 font-medium ${isDark ? "text-gray-400" : "text-gray-600"}`}>/ người</ThemedText>
+            </View>
+          </View>
+        </Animated.View>
 
         {/* === NỘI DUNG === */}
         <View className="px-6 py-6">
@@ -267,15 +251,18 @@ export default function HotelDetail() {
             <ThemedText className={`text-lg font-extrabold mb-3 ${isDark ? "text-white" : "text-gray-900"}`}>
               Vị trí
             </ThemedText>
-            <View className={`rounded-3xl h-56 ${isDark ? "bg-slate-800" : "bg-gray-100"} flex items-center justify-center shadow-lg`}>
-              <IconSymbol name="map" size={56} color={isDark ? "#64748b" : "#9ca3af"} />
-              <ThemedText className={`mt-3 font-semibold ${isDark ? "text-gray-300" : "text-gray-700"}`}>
-                {destination.name}
-              </ThemedText>
-              <ThemedText className={`text-sm ${isDark ? "text-gray-500" : "text-gray-500"}`}>
-                {destination.coordinates.latitude}, {destination.coordinates.longitude}
-              </ThemedText>
+            <View className="rounded-3xl overflow-hidden shadow-lg">
+              <CustomMapView
+                latitude={destination.coordinates.latitude}
+                longitude={destination.coordinates.longitude}
+                height={300}
+                showUserLocation={true}
+                isDark={isDark}
+              />
             </View>
+            <ThemedText className={`text-sm mt-2 text-center ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+              {destination.coordinates.latitude.toFixed(6)}, {destination.coordinates.longitude.toFixed(6)}
+            </ThemedText>
           </View>
 
           {/* Tiện ích */}
@@ -349,25 +336,13 @@ export default function HotelDetail() {
 
             <TouchableOpacity
               activeOpacity={0.9}
-              onPress={handleBookTrip}
-              disabled={isBooking}
-              className="rounded-2xl overflow-hidden shadow-xl"
+              onPress={handleSelectRoom}
+              className="rounded-2xl overflow-hidden shadow-xl bg-orange-500"
+              style={{ paddingHorizontal: 32, paddingVertical: 16 }}
             >
-              <LinearGradient
-                colors={['#667eea', '#764ba2']}
-                className="px-8 py-4 flex-row items-center justify-center"
-              >
-                {isBooking ? (
-                  <ActivityIndicator size="small" color="#FFF" />
-                ) : (
-                  <>
-                    <IconSymbol name="calendar" size={22} color="#FFF" />
-                    <ThemedText className="text-white font-extrabold ml-2 text-base">
-                      Đặt ngay
-                    </ThemedText>
-                  </>
-                )}
-              </LinearGradient>
+              <ThemedText className="text-white font-extrabold text-base text-center">
+                Chọn phòng
+              </ThemedText>
             </TouchableOpacity>
           </View>
         </View>

@@ -136,7 +136,7 @@ export default function MoreScreen() {
                     <View className="bg-white p-4 flex-row items-center">
                       <View className="w-14 h-14 rounded-2xl overflow-hidden mr-4">
                         <LinearGradient
-                          colors={item.color}
+                          colors={item.color as [string, string, ...string[]]}
                           className="w-full h-full items-center justify-center"
                         >
                           <IconSymbol name={item.icon} size={26} color="#FFF" />

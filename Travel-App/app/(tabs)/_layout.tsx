@@ -9,7 +9,8 @@ import {
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
-  const t = Colors[useColorScheme() ?? "light"] as Record<string, string>;
+  const colorScheme = useColorScheme() ?? "light";
+  const t = Colors[colorScheme] as unknown as Record<string, string>;
 
   const activeTint =
     "tint" in t

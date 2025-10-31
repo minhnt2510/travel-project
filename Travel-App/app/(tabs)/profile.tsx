@@ -117,16 +117,21 @@ export default function ProfileScreen() {
     { label: "Điểm thưởng", value: "2,450" },
   ];
 
-  const menuItems: { icon: string; label: string; href: string }[] = [
+  const menuItems: { 
+    icon: string; 
+    label: string; 
+    href?: string;
+    onPress?: () => void;
+  }[] = [
     {
       icon: "user",
       label: "Thông tin cá nhân",
-      href: "/screens/reviews/ReviewCreate",
+      onPress: handleEditProfile,
     },
     {
       icon: "credit-card",
       label: "Phương thức thanh toán",
-      href: "/screens/cart/Checkout",
+      href: "/screens/payment/PaymentMethods",
     },
     { icon: "settings", label: "Cài đặt", href: "/(tabs)/profile" },
   ];
@@ -225,10 +230,11 @@ export default function ProfileScreen() {
 
         {/* Menu */}
         <View className="px-4 py-4">
-          {menuItems.map((item, idx) => (
-            <Link key={idx} href={item.href as any} asChild>
+          {menuItems.map((item, idx) => {
+            const content = (
               <TouchableOpacity 
                 activeOpacity={0.7}
+                onPress={item.onPress}
                 className="flex-row items-center py-4 px-3 mb-2 bg-white rounded-2xl shadow-sm border border-gray-100"
               >
                 <View className="w-10 h-10 rounded-xl bg-purple-50 items-center justify-center mr-3">
@@ -237,8 +243,18 @@ export default function ProfileScreen() {
                 <ThemedText className="flex-1 font-semibold text-gray-900">{item.label}</ThemedText>
                 <IconSymbol name="chevron-right" size={20} color="#9CA3AF" />
               </TouchableOpacity>
-            </Link>
-          ))}
+            );
+
+            if (item.href) {
+              return (
+                <Link key={idx} href={item.href as any} asChild>
+                  {content}
+                </Link>
+              );
+            }
+
+            return <View key={idx}>{content}</View>;
+          })}
         </View>
 
         {/* Đăng xuất */}

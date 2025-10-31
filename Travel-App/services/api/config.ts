@@ -10,7 +10,7 @@ const getApiUrl = () => {
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
-  
+
   // Default fallback - change this to your backend IP
   // Using your computer's local IP for better compatibility with iOS Simulator
   // For Android physical device: use your computer's IP
@@ -18,7 +18,7 @@ const getApiUrl = () => {
   // For iOS Simulator: use your computer's IP (works better than localhost)
   // For Android Emulator: use 10.0.2.2
   // Your IP detected: 192.168.137.150
-  return "http://192.168.1.15:4000";
+  return "http://192.168.137.150:4000";
 };
 
 export const API_URL = getApiUrl();
