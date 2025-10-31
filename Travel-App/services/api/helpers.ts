@@ -5,14 +5,14 @@ import { Destination, Trip } from "./types";
 
 export const helpersApi = {
   getDestinations: async (): Promise<Destination[]> => {
-    // Convert tours to destinations format for compatibility
-    const tours = await toursApi.getFeaturedTours();
+    // Show more places: pull a larger list of tours, not only featured
+    const { tours } = await toursApi.getTours({ limit: 100 });
     return tours.map((tour) => ({
       id: tour._id,
       name: tour.title,
       country: "Việt Nam",
       city: tour.location,
-      image: tour.imageUrl || "",
+      image: tour.imageUrl || tour.images?.[0] || "",
       rating: tour.rating,
       reviews: tour.reviewCount,
       price: tour.price.toLocaleString("vi-VN") + "đ",

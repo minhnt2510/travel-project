@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
-const LAN_IP = "192.168.1.7";       
+const LAN_IP = "192.168.1.15";       
 const PORT = 4000;                       
 export const BASE_URL = `http://${LAN_IP}:${PORT}`;
 

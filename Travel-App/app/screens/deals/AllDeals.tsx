@@ -7,111 +7,183 @@ import { ScrollView, TouchableOpacity, View } from "react-native";
 
 export default function AllDealsScreen() {
   const allDeals = [
-    {
-      id: "1",
-      destinationId: "1",
-      name: "Dalat Palace",
-      type: "Khách sạn",
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800",
-      price: "1,800,000đ",
-      originalPrice: "2,250,000đ",
-      discount: "20%",
-      rating: 4.7,
-      reviews: 89,
-      description: "Khách sạn 5 sao với view đẹp ra thành phố Đà Lạt"
-    },
-    {
-      id: "2",
-      destinationId: "4",
-      name: "Tour Hạ Long",
-      type: "Tour",
-      image: "https://pix10.agoda.net/hotelImages/434/43427/43427_16051708510042386025.jpg?ca=6&ce=1&s=414x232",
-      price: "3,500,000đ",
-      originalPrice: "4,100,000đ",
-      discount: "15%",
-      rating: 4.6,
-      reviews: 156,
-      description: "Du thuyền sang trọng trên vịnh Hạ Long"
-    },
-    {
-      id: "3",
-      destinationId: "2",
-      name: "JW Marriott Phú Quốc",
-      type: "Khách sạn",
-      image: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/12/0c/8d/55/sol-beach-house-phu-quoc.jpg?w=1200&h=-1&s=1",
-      price: "4,200,000đ",
-      originalPrice: "5,600,000đ",
-      discount: "25%",
-      rating: 4.9,
-      reviews: 203,
-      description: "Resort 5 sao với bãi biển riêng tuyệt đẹp"
-    },
-    {
-      id: "4",
-      destinationId: "3",
-      name: "Tour Hội An Heritage",
-      type: "Tour",
-      image: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/11/fc/0d/0f/outdoor-pool.jpg?w=900&h=500&s=1",
-      price: "1,500,000đ",
-      originalPrice: "1,900,000đ",
-      discount: "21%",
-      rating: 4.8,
-      reviews: 124,
-      description: "Khám phá phố cổ Hội An với hướng dẫn viên chuyên nghiệp"
-    },
-    {
-      id: "5",
-      destinationId: "6",
-      name: "Vinpearl Nha Trang",
-      type: "Khách sạn",
-      image: "https://checkinnhatrang.vn//Media/Upload/6.%20Vinpearl%20Land/Vinpearl%20Harbour/vinpearl-harbour-nha-trang-7.jpg",
-      price: "2,800,000đ",
-      originalPrice: "3,500,000đ",
-      discount: "20%",
-      rating: 4.5,
-      reviews: 178,
-      description: "Resort đảo với nhiều tiện ích giải trí"
-    },
-    {
-      id: "6",
-      destinationId: "5",
-      name: "Tour Sapa Trekking",
-      type: "Tour",
-      image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQv6vHaQFR1dQlhzGQXhRpZEVLPhhRZ409Ntg&s",
-      price: "1,900,000đ",
-      originalPrice: "2,400,000đ",
-      discount: "21%",
-      rating: 4.7,
-      reviews: 95,
-      description: "Trekking khám phá ruộng bậc thang và văn hóa dân tộc"
-    },
-    {
-      id: "7",
-      destinationId: "7",
-      name: "Hotel Saigon Morin",
-      type: "Khách sạn",
-      image: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/04/0f/75/9b/swimming-pool.jpg?w=500&h=-1&s=1",
-      price: "1,200,000đ",
-      originalPrice: "1,600,000đ",
-      discount: "25%",
-      rating: 4.4,
-      reviews: 67,
-      description: "Khách sạn cổ kính tại trung tâm thành phố Huế"
-    },
-    {
-      id: "8",
-      destinationId: "8",
-      name: "Tour Đà Nẵng City",
-      type: "Tour",
-      image: "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/28/72/ed/e7/tms-hotel-da-nang-beach.jpg?w=900&h=500&s=1",
-      price: "2,100,000đ",
-      originalPrice: "2,800,000đ",
-      discount: "25%",
-      rating: 4.6,
-      reviews: 142,
-      description: "Khám phá thành phố Đà Nẵng hiện đại và năng động"
-    },
-  ];
+  // 🔹 Dữ liệu Tour từ seed.ts
+  {
+    id: "tour1",
+    name: "Khám phá Đà Lạt 3 ngày 2 đêm",
+    type: "Tour",
+    image: "https://d3pa5s1toq8zys.cloudfront.net/explore/wp-content/uploads/2023/10/Da-Lat.jpg",
+    price: "2,500,000đ",
+    originalPrice: "3,000,000đ",
+    discount: "17%",
+    rating: 4.8,
+    reviews: 1250,
+    description:
+      "Tham quan Hồ Xuân Hương, Thung Lũng Tình Yêu, Chùa Linh Phước.",
+  },
+  {
+    id: "tour2",
+    name: "Đảo ngọc Phú Quốc - Resort 5 sao",
+    type: "Tour",
+    image:
+      "https://bcp.cdnchinhphu.vn/334894974524682240/2025/6/23/phu-quoc-17506756503251936667562.jpg",
+    price: "5,500,000đ",
+    originalPrice: "7,000,000đ",
+    discount: "21%",
+    rating: 4.9,
+    reviews: 2100,
+    description:
+      "Nghỉ dưỡng tại resort 5 sao, tham quan Bãi Sao, Bãi Dài và các hoạt động biển.",
+  },
+  {
+    id: "tour3",
+    name: "Vịnh Hạ Long - Cruise 2 ngày 1 đêm",
+    type: "Tour",
+    image:
+      "https://hanoilionboutiquehotel.com/images/tour/2023/09/02/large/cruise-5-star_1693649770.jpeg",
+    price: "3,200,000đ",
+    originalPrice: "3,800,000đ",
+    discount: "16%",
+    rating: 4.9,
+    reviews: 3200,
+    description:
+      "Du thuyền trên vịnh Hạ Long, tham quan hang động và thưởng thức hải sản.",
+  },
+  {
+    id: "tour4",
+    name: "Phố cổ Hội An - Ánh đèn lung linh",
+    type: "Tour",
+    image:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSubIRulzd54wWhkW5arL9YQnSoC2Xo0IgLXw&s",
+    price: "1,800,000đ",
+    originalPrice: "2,200,000đ",
+    discount: "18%",
+    rating: 4.7,
+    reviews: 1800,
+    description:
+      "Khám phá phố cổ Hội An, thưởng thức ẩm thực và ngắm đèn lồng về đêm.",
+  },
+  {
+    id: "tour5",
+    name: "Sa Pa - Mùa vàng ruộng bậc thang",
+    type: "Tour",
+    image: "https://static.sggp.org.vn/images/2024/06/28/17/sapa.jpg",
+    price: "4,200,000đ",
+    originalPrice: "5,000,000đ",
+    discount: "16%",
+    rating: 4.8,
+    reviews: 1450,
+    description: "Khám phá Fansipan, ruộng bậc thang và văn hóa dân tộc.",
+  },
+  {
+    id: "tour6",
+    name: "Đà Nẵng - Bà Nà Hills - Hội An",
+    type: "Tour",
+    image:
+      "https://banahills.sunworld.vn/wp-content/uploads/2024/04/DJI_0004-1-scaled.jpg",
+    price: "3,500,000đ",
+    originalPrice: "4,200,000đ",
+    discount: "17%",
+    rating: 4.8,
+    reviews: 2300,
+    description: "Khám phá thành phố biển, Bà Nà Hills và cầu Vàng nổi tiếng.",
+  },
+  {
+    id: "tour7",
+    name: "Nha Trang biển xanh cát trắng",
+    type: "Tour",
+    image:
+      "https://cdn3.ivivu.com/2023/07/Six-Senses-Ninh-V%C3%A2n-Bay-Nha-Trang-ivivu-10.jpg",
+    price: "2,800,000đ",
+    originalPrice: "3,400,000đ",
+    discount: "18%",
+    rating: 4.6,
+    reviews: 980,
+    description: "Lặn san hô, VinWonders Nha Trang, hải sản tươi ngon.",
+  },
+  {
+    id: "tour8",
+    name: "Huế - Di sản cố đô",
+    type: "Tour",
+    image:
+      "https://vacationtravel.com.vn/storage/photos/1/kh%C3%A1m%20ph%C3%A1%20vi%E1%BB%87t%20nam/MIEN%20TRUNG/CODOHUE1_800.jpg",
+    price: "2,100,000đ",
+    originalPrice: "2,600,000đ",
+    discount: "19%",
+    rating: 4.7,
+    reviews: 760,
+    description: "Tham quan Đại Nội, chùa Thiên Mụ, ca Huế trên sông Hương.",
+  },
+
+  // 🔹 Dữ liệu Hotel từ seed.ts
+  {
+    id: "hotel1",
+    name: "Vinpearl Resort & Spa Phú Quốc",
+    type: "Khách sạn",
+    image:
+      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/ee/ee/62/vinpearl-resort-spa-phu.jpg?w=900&h=-1&s=1",
+    price: "2,400,000đ",
+    originalPrice: "2,880,000đ",
+    discount: "20%",
+    rating: 4.7,
+    reviews: 3200,
+    description: "Resort 5 sao bên bờ biển với bãi biển riêng và spa cao cấp.",
+  },
+  {
+    id: "hotel2",
+    name: "InterContinental Danang Sun Peninsula",
+    type: "Khách sạn",
+    image:
+      "https://duan-sungroup.com/wp-content/uploads/2022/12/intercontinental-da-nang-sun-peninsula-resort-leading.png",
+    price: "9,500,000đ",
+    originalPrice: "11,400,000đ",
+    discount: "17%",
+    rating: 4.9,
+    reviews: 2100,
+    description:
+      "Khu nghỉ dưỡng 5 sao sang trọng tại bán đảo Sơn Trà với view biển tuyệt đẹp.",
+  },
+  {
+    id: "hotel3",
+    name: "Silk Path Grand Hue Hotel",
+    type: "Khách sạn",
+    image:
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/266420077.jpg?k=418cc8b870d26ab46d2da8fdbdd5c6499bcfb8a7409746f18862cd40f274c18f&o=",
+    price: "1,800,000đ",
+    originalPrice: "2,160,000đ",
+    discount: "17%",
+    rating: 4.6,
+    reviews: 860,
+    description: "Khách sạn 5 sao giữa lòng cố đô Huế, tiện nghi và sang trọng.",
+  },
+  {
+    id: "hotel4",
+    name: "FLC Luxury Resort Quy Nhơn",
+    type: "Khách sạn",
+    image:
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/359475229.jpg?k=69127903ce6837bd2a269a76cb00853b0561e5d963721a14aa050b37c6450bae&o=",
+    price: "2,200,000đ",
+    originalPrice: "2,640,000đ",
+    discount: "17%",
+    rating: 4.5,
+    reviews: 540,
+    description: "Resort ven biển với bãi biển riêng, spa và sân golf.",
+  },
+  {
+    id: "hotel5",
+    name: "Novotel Nha Trang",
+    type: "Khách sạn",
+    image:
+      "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/38/2024/10/30093116/Pool_17930-scaled.jpg",
+    price: "1,500,000đ",
+    originalPrice: "1,800,000đ",
+    discount: "17%",
+    rating: 4.4,
+    reviews: 1200,
+    description: "Khách sạn 4 sao trung tâm Trần Phú, view biển đẹp và tiện nghi.",
+  },
+];
+
 
   const openDetail = (destinationId: string) => {
     router.push({
@@ -171,7 +243,7 @@ export default function AllDealsScreen() {
             <TouchableOpacity
               key={deal.id}
               className="mb-4 bg-white rounded-lg shadow overflow-hidden"
-              onPress={() => openDetail(deal.destinationId)}
+              onPress={() => openDetail(deal.id)}
             >
               <View className="flex-row">
                 <Image
