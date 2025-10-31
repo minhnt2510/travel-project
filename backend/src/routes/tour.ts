@@ -5,17 +5,55 @@ const router = Router();
 
 // Get all tours with filters
 router.get("/tours", async (req, res) => {
-  const { category, location, featured, minPrice, maxPrice, search, limit = 50, offset = 0 } = req.query;
+  const {
+    category,
+    location,
+    featured,
+    minPrice,
+    maxPrice,
+    durationMin,
+    durationMax,
+    ratingMin,
+    categories,
+    locations,
+    search,
+    limit = 50,
+    offset = 0,
+  } = req.query as any;
   
   const filter: any = {};
   
-  if (category) filter.category = category;
-  if (location) filter.location = { $regex: location, $options: "i" };
+  if (categories) {
+    const list = String(categories)
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+    if (list.length) filter.category = { $in: list };
+  } else if (category) {
+    filter.category = category;
+  }
+  if (locations) {
+    const list = String(locations)
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean);
+    if (list.length) filter.location = { $in: list };
+  } else if (location) {
+    filter.location = { $regex: location, $options: "i" };
+  }
   if (featured === "true") filter.featured = true;
   if (minPrice || maxPrice) {
     filter.price = {};
     if (minPrice) filter.price.$gte = Number(minPrice);
     if (maxPrice) filter.price.$lte = Number(maxPrice);
+  }
+  if (durationMin || durationMax) {
+    filter.duration = {};
+    if (durationMin) filter.duration.$gte = Number(durationMin);
+    if (durationMax) filter.duration.$lte = Number(durationMax);
+  }
+  if (ratingMin) {
+    filter.rating = { $gte: Number(ratingMin) };
   }
   if (search) {
     filter.$or = [

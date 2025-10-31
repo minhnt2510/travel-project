@@ -3,6 +3,7 @@ export * from "./types";
 export * as authApi from "./auth";
 export * as toursApi from "./tours";
 export * as bookingsApi from "./bookings";
+export * as hotelsApi from "./hotels";
 export * as reviewsApi from "./reviews";
 export * as wishlistApi from "./wishlist";
 export * as usersApi from "./users";
@@ -14,6 +15,7 @@ export { removeToken } from "./client";
 import { authApi } from "./auth";
 import { toursApi } from "./tours";
 import { bookingsApi } from "./bookings";
+import { hotelsApi } from "./hotels";
 import { reviewsApi } from "./reviews";
 import { wishlistApi } from "./wishlist";
 import { usersApi } from "./users";
@@ -31,6 +33,11 @@ export const api = {
   getTours: toursApi.getTours,
   getFeaturedTours: toursApi.getFeaturedTours,
   getTourById: toursApi.getTourById,
+
+  // Hotels
+  getHotels: hotelsApi.getHotels,
+  getFeaturedHotels: hotelsApi.getFeaturedHotels,
+  getHotelById: hotelsApi.getHotelById,
 
   // User
   getCurrentUser: usersApi.getCurrentUser,

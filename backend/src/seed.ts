@@ -2,6 +2,7 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import { connectDB } from "./db";
 import { Tour } from "./models/Tour";
+import { Hotel } from "./models/Hotel";
 import { User } from "./models/User";
 import bcrypt from "bcryptjs";
 
@@ -246,6 +247,230 @@ const tours = [
       },
     ],
   },
+  {
+    title: "Đà Nẵng - Bà Nà Hills - Hội An",
+    description:
+      "Khám phá thành phố biển Đà Nẵng, tham quan Bà Nà Hills, cầu Vàng và dạo phố cổ Hội An.",
+    location: "Đà Nẵng",
+    price: 3500000,
+    originalPrice: 4200000,
+    duration: 3,
+    category: "city",
+    featured: true,
+    imageUrl:
+      "https://banahills.sunworld.vn/wp-content/uploads/2024/04/DJI_0004-1-scaled.jpg",
+    images: [
+      "https://banahills.sunworld.vn/wp-content/uploads/2024/04/DJI_0004-1-scaled.jpg",
+    ],
+    availableSeats: 18,
+    maxSeats: 24,
+    rating: 4.8,
+    reviewCount: 2300,
+    startDate: new Date("2024-02-01"),
+    endDate: new Date("2024-12-31"),
+    coordinates: { latitude: 16.0471, longitude: 108.2068 },
+    itinerary: [
+      { day: 1, activities: ["Biển Mỹ Khê", "Cầu Rồng", "Ẩm thực địa phương"] },
+      { day: 2, activities: ["Bà Nà Hills", "Cầu Vàng", "Fantasy Park"] },
+      { day: 3, activities: ["Ngũ Hành Sơn", "Hội An", "Đèn lồng"] },
+    ],
+  },
+  {
+    title: "Nha Trang biển xanh cát trắng",
+    description:
+      "Tắm biển, lặn ngắm san hô, VinWonders Nha Trang và thưởng thức hải sản",
+    location: "Nha Trang",
+    price: 2800000,
+    originalPrice: 3400000,
+    duration: 3,
+    category: "beach",
+    featured: false,
+    imageUrl:
+      "https://cdn3.ivivu.com/2023/07/Six-Senses-Ninh-V%C3%A2n-Bay-Nha-Trang-ivivu-10.jpg",
+    images: ["https://cdn3.ivivu.com/2023/07/Six-Senses-Ninh-V%C3%A2n-Bay-Nha-Trang-ivivu-10.jpg"],
+    availableSeats: 22,
+    maxSeats: 30,
+    rating: 4.6,
+    reviewCount: 980,
+    startDate: new Date("2024-02-01"),
+    endDate: new Date("2024-12-31"),
+    coordinates: { latitude: 12.2388, longitude: 109.1967 },
+    itinerary: [
+      { day: 1, activities: ["Biển Trần Phú", "Chợ đêm", "Hải sản"] },
+      { day: 2, activities: ["VinWonders", "Cáp treo vượt biển"] },
+      { day: 3, activities: ["Lặn biển", "Tháp Bà Ponagar"] },
+    ],
+  },
+  {
+    title: "Huế - Di sản cố đô",
+    description:
+      "Tham quan Đại Nội, chùa Thiên Mụ, lăng tẩm các vua Nguyễn và thưởng thức ca Huế trên sông Hương",
+    location: "Huế",
+    price: 2100000,
+    originalPrice: 2600000,
+    duration: 2,
+    category: "culture",
+    featured: false,
+    imageUrl:
+      "https://vacationtravel.com.vn/storage/photos/1/kh%C3%A1m%20ph%C3%A1%20vi%E1%BB%87t%20nam/MIEN%20TRUNG/CODOHUE1_800.jpg",
+    images: ["https://vacationtravel.com.vn/storage/photos/1/kh%C3%A1m%20ph%C3%A1%20vi%E1%BB%87t%20nam/MIEN%20TRUNG/CODOHUE1_800.jpg"],
+    availableSeats: 25,
+    maxSeats: 30,
+    rating: 4.7,
+    reviewCount: 760,
+    startDate: new Date("2024-02-01"),
+    endDate: new Date("2024-12-31"),
+    coordinates: { latitude: 16.4637, longitude: 107.5909 },
+    itinerary: [
+      { day: 1, activities: ["Đại Nội", "Chùa Thiên Mụ", "Ẩm thực Huế"] },
+      { day: 2, activities: ["Lăng Minh Mạng", "Ca Huế trên sông Hương"] },
+    ],
+  },
+  {
+    title: "Hà Giang - Con đường Hạnh Phúc",
+    description:
+      "Chinh phục đèo Mã Pì Lèng, cao nguyên đá Đồng Văn, mùa hoa tam giác mạch",
+    location: "Hà Giang",
+    price: 3900000,
+    originalPrice: 4700000,
+    duration: 3,
+    category: "mountain",
+    featured: true,
+    imageUrl:
+      "https://datviettour.com.vn/uploads/images/tin-tuc-SEO/mien-bac/ha-giang/con-duong-hanh-phuc-ha-giang.jpg",
+    images: [
+      "https://datviettour.com.vn/uploads/images/tin-tuc-SEO/mien-bac/ha-giang/con-duong-hanh-phuc-ha-giang.jpg",
+    ],
+    availableSeats: 12,
+    maxSeats: 18,
+    rating: 4.9,
+    reviewCount: 1340,
+    startDate: new Date("2024-02-01"),
+    endDate: new Date("2024-12-31"),
+    coordinates: { latitude: 22.8026, longitude: 104.9784 },
+    itinerary: [
+      { day: 1, activities: ["Quản Bạ", "Yên Minh"] },
+      { day: 2, activities: ["Đồng Văn", "Mã Pì Lèng"] },
+      { day: 3, activities: ["Mèo Vạc", "Đặc sản vùng cao"] },
+    ],
+  },
+  {
+    title: "Quy Nhơn - Kỳ Co Eo Gió",
+    description: "Biển xanh Kỳ Co, Eo Gió, ghềnh Ráng và ẩm thực Bình Định",
+    location: "Quy Nhơn",
+    price: 2600000,
+    originalPrice: 3200000,
+    duration: 3,
+    category: "beach",
+    featured: false,
+    imageUrl:
+      "https://nhonlytourist.com/images/nhonlytourist.com/thumbs/2023/04/image-1155-slide-1680720028-642dc09c9d646.jpg",
+    images: ["https://nhonlytourist.com/images/nhonlytourist.com/thumbs/2023/04/image-1155-slide-1680720028-642dc09c9d646.jpg"],
+    availableSeats: 20,
+    maxSeats: 28,
+    rating: 4.6,
+    reviewCount: 540,
+    startDate: new Date("2024-02-01"),
+    endDate: new Date("2024-12-31"),
+    coordinates: { latitude: 13.782, longitude: 109.219 },
+    itinerary: [
+      { day: 1, activities: ["Kỳ Co", "Eo Gió"] },
+      { day: 2, activities: ["Ghềnh Ráng", "Hải sản"] },
+      { day: 3, activities: ["Tháp Đôi", "Mua sắm"] },
+    ],
+  },
+];
+
+const hotels = [
+  {
+    name: "Vinpearl Resort & Spa Phú Quốc",
+    description:
+      "Resort 5 sao bên bờ biển với bãi biển riêng, hồ bơi lớn và spa.",
+    city: "Phú Quốc",
+    address: "Bãi Dài, Gành Dầu, Phú Quốc",
+    pricePerNight: 2400000,
+    stars: 5,
+    amenities: ["Bãi biển riêng", "Hồ bơi", "Spa", "Nhà hàng", "Gym", "Bar"],
+    imageUrl:
+      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/ee/ee/62/vinpearl-resort-spa-phu.jpg?w=900&h=-1&s=1",
+    images: [
+      "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/15/ee/ee/62/vinpearl-resort-spa-phu.jpg?w=900&h=-1&s=1",
+    ],
+    rating: 4.7,
+    reviewCount: 3200,
+    featured: true,
+    coordinates: { latitude: 10.309, longitude: 103.911 },
+  },
+  {
+    name: "InterContinental Danang Sun Peninsula",
+    description: "Khu nghỉ dưỡng 5 sao sang trọng tại bán đảo Sơn Trà",
+    city: "Đà Nẵng",
+    address: "Bán đảo Sơn Trà, Đà Nẵng",
+    pricePerNight: 9500000,
+    stars: 5,
+    amenities: ["Hồ bơi", "Spa", "Bãi biển", "Nhà hàng", "Bar", "Gym"],
+    imageUrl:
+      "https://duan-sungroup.com/wp-content/uploads/2022/12/intercontinental-da-nang-sun-peninsula-resort-leading.png",
+    images: [
+      "https://duan-sungroup.com/wp-content/uploads/2022/12/intercontinental-da-nang-sun-peninsula-resort-leading.png",
+    ],
+    rating: 4.9,
+    reviewCount: 2100,
+    featured: true,
+    coordinates: { latitude: 16.119, longitude: 108.295 },
+  },
+  {
+    name: "Silk Path Grand Hue Hotel",
+    description: "Khách sạn 5 sao giữa lòng cố đô Huế",
+    city: "Huế",
+    address: "02 Lê Lợi, Huế",
+    pricePerNight: 1800000,
+    stars: 5,
+    amenities: ["Hồ bơi", "Spa", "Nhà hàng", "Gym"],
+    imageUrl:
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/266420077.jpg?k=418cc8b870d26ab46d2da8fdbdd5c6499bcfb8a7409746f18862cd40f274c18f&o=",
+    images: [
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/266420077.jpg?k=418cc8b870d26ab46d2da8fdbdd5c6499bcfb8a7409746f18862cd40f274c18f&o=",
+    ],
+    rating: 4.6,
+    reviewCount: 860,
+    featured: false,
+    coordinates: { latitude: 16.466, longitude: 107.594 },
+  },
+  {
+    name: "FLC Luxury Resort Quy Nhơn",
+    description: "Resort ven biển với bãi biển riêng và sân golf",
+    city: "Quy Nhơn",
+    address: "Khu đô thị du lịch sinh thái Nhơn Lý",
+    pricePerNight: 2200000,
+    stars: 5,
+    amenities: ["Bãi biển", "Hồ bơi", "Spa", "Nhà hàng", "Golf"],
+    imageUrl:
+      "https://cf.bstatic.com/xdata/images/hotel/max1024x768/359475229.jpg?k=69127903ce6837bd2a269a76cb00853b0561e5d963721a14aa050b37c6450bae&o=",
+    images: ["https://cf.bstatic.com/xdata/images/hotel/max1024x768/359475229.jpg?k=69127903ce6837bd2a269a76cb00853b0561e5d963721a14aa050b37c6450bae&o="],
+    rating: 4.5,
+    reviewCount: 540,
+    featured: false,
+    coordinates: { latitude: 13.954, longitude: 109.238 },
+  },
+  {
+    name: "Novotel Nha Trang",
+    description: "Khách sạn 4 sao ngay trung tâm Trần Phú, view biển",
+    city: "Nha Trang",
+    address: "50 Trần Phú, Nha Trang",
+    pricePerNight: 1500000,
+    stars: 4,
+    amenities: ["Hồ bơi", "Spa", "Nhà hàng", "Bar"],
+    imageUrl:
+      "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/38/2024/10/30093116/Pool_17930-scaled.jpg",
+    images: [
+      "https://d2e5ushqwiltxm.cloudfront.net/wp-content/uploads/sites/38/2024/10/30093116/Pool_17930-scaled.jpg",
+    ],
+    rating: 4.4,
+    reviewCount: 1200,
+    featured: false,
+    coordinates: { latitude: 12.238, longitude: 109.196 },
+  },
 ];
 
 async function seed() {
@@ -259,6 +484,12 @@ async function seed() {
     // Create tours
     await Tour.insertMany(tours);
     console.log(`Created ${tours.length} tours`);
+
+    // Hotels
+    await Hotel.deleteMany({});
+    console.log("Cleared existing hotels");
+    await Hotel.insertMany(hotels);
+    console.log(`Created ${hotels.length} hotels`);
 
     // Create admin user
     const adminPasswordHash = await bcrypt.hash("admin123", 10);

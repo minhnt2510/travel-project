@@ -8,6 +8,7 @@ import tourRouter from "./routes/tour";
 import bookingRouter from "./routes/booking";
 import reviewRouter from "./routes/review";
 import wishlistRouter from "./routes/wishlist";
+import hotelRouter from "./routes/hotel";
 import notificationRouter from "./routes/notification";
 
 const app = express();
@@ -23,13 +24,14 @@ app.use("/", bookingRouter); // /bookings
 app.use("/", reviewRouter); // /reviews, /tours/:id/reviews
 app.use("/", wishlistRouter); // /wishlist
 app.use("/", notificationRouter); // /notifications
+app.use("/", hotelRouter); // /hotels
 
 const port = Number(process.env.PORT || 4000);
 
 connectDB()
   .then(() => {
     app.listen(port, () =>
-      console.log(`API listening on http://0.0.0.0:${port}`)
+      console.log(`API listening on http://192.168.1.15:${port}`)
     );
   })
   .catch((e) => {

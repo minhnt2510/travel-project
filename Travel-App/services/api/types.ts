@@ -120,3 +120,25 @@ export interface Trip {
   createdAt: string;
 }
 
+export interface Hotel {
+  _id: string;
+  name: string;
+  description: string;
+  city: string;
+  address?: string;
+  pricePerNight: number;
+  stars: number;
+  amenities?: string[];
+  imageUrl?: string;
+  images?: string[];
+  rating: number;
+  reviewCount: number;
+  featured: boolean;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+

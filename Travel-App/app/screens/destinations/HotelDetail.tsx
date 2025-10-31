@@ -69,17 +69,6 @@ export default function HotelDetail() {
 
     setIsBooking(true);
     try {
-      // Validate user has email
-      if (!user?.email) {
-        Alert.alert(
-          "Thông tin chưa đầy đủ",
-          "Vui lòng cập nhật email trong thông tin cá nhân trước khi đặt tour.",
-          [{ text: "OK" }]
-        );
-        setIsBooking(false);
-        return;
-      }
-
       const newTrip = {
         destinationId: destination.id,
         destinationName: destination.name,
@@ -87,11 +76,11 @@ export default function HotelDetail() {
         startDate: new Date().toISOString().split("T")[0], // Hôm nay
         endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0], // +5 ngày
         travelers: 2,
-        totalPrice: destination.price, // This will be converted in helpers
+        totalPrice: destination.price,
         status: "pending" as const,
       };
 
-      await api.createTrip(newTrip, user.email, user.phone);
+      await api.createTrip(newTrip);
 
       Alert.alert(
         "Thành công!",
@@ -106,14 +95,9 @@ export default function HotelDetail() {
           { text: "Ở lại", style: "cancel" },
         ]
       );
-    } catch (error: any) {
-      console.error("Booking error:", error);
-      const errorMessage = error?.message || "Không thể đặt chuyến đi";
-      Alert.alert(
-        "Lỗi đặt tour",
-        errorMessage,
-        [{ text: "OK" }]
-      );
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Lỗi", "Không thể đặt chuyến đi");
     } finally {
       setIsBooking(false);
     }

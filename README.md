@@ -5,14 +5,12 @@
 ## ✨ Tính năng chính
 
 ### 👤 Authentication & User Management
-
 - ✅ Đăng ký tài khoản
 - ✅ Đăng nhập/Đăng xuất
 - ✅ Quản lý thông tin cá nhân
 - ✅ JWT Authentication
 
 ### 🗺️ Tour Management
-
 - ✅ Xem danh sách tours
 - ✅ Tìm kiếm và lọc tours (category, location, price)
 - ✅ Tours nổi bật (featured)
@@ -20,7 +18,6 @@
 - ✅ Rating và reviews
 
 ### 📅 Booking System
-
 - ✅ Đặt tour
 - ✅ Quản lý bookings
 - ✅ Hủy booking
@@ -29,19 +26,16 @@
 - ✅ Trạng thái thanh toán
 
 ### ⭐ Reviews & Ratings
-
 - ✅ Xem reviews của tour
 - ✅ Viết review (rating, comment, images)
 - ✅ Pros & Cons
 - ✅ Tự động tính rating trung bình
 
 ### ❤️ Wishlist
-
 - ✅ Thêm/Xóa tours khỏi wishlist
 - ✅ Xem danh sách wishlist
 
 ### 🔔 Notifications
-
 - ✅ Thông báo đặt tour
 - ✅ Đánh dấu đã đọc
 - ✅ Xóa notifications
@@ -49,7 +43,6 @@
 ## 🛠️ Tech Stack
 
 ### Backend
-
 - **Runtime**: Node.js
 - **Framework**: Express.js
 - **Database**: MongoDB với Mongoose
@@ -58,7 +51,6 @@
 - **Language**: TypeScript
 
 ### Frontend
-
 - **Framework**: React Native
 - **Navigation**: Expo Router
 - **Styling**: NativeWind (Tailwind CSS)
@@ -113,7 +105,6 @@ travel-app/
 ## 🚀 Quick Start
 
 ### Prerequisites
-
 - Node.js 18+
 - MongoDB (local or Atlas)
 - npm or yarn
@@ -165,7 +156,6 @@ Chọn `i` (iOS), `a` (Android), hoặc `w` (Web)
 ### 4. Xem Database
 
 Sử dụng MongoDB Compass:
-
 - Download: https://www.mongodb.com/try/download/compass
 - Connect: `mongodb://localhost:27017`
 - Database: `travel-app`
@@ -173,14 +163,12 @@ Sử dụng MongoDB Compass:
 ## 📡 API Endpoints
 
 ### Authentication
-
 ```
 POST /auth/register     - Đăng ký
 POST /auth/login        - Đăng nhập
 ```
 
 ### Tours
-
 ```
 GET  /tours             - Danh sách tours (có filter)
 GET  /tours/featured    - Tours nổi bật
@@ -191,14 +179,12 @@ DELETE /tours/:id       - Xóa tour (admin)
 ```
 
 ### User
-
 ```
 GET /me                 - Thông tin user hiện tại
 PUT /me                 - Cập nhật user
 ```
 
 ### Bookings
-
 ```
 GET  /bookings          - Danh sách bookings của user
 POST /bookings          - Tạo booking
@@ -207,7 +193,6 @@ PUT  /bookings/:id/cancel - Hủy booking
 ```
 
 ### Reviews
-
 ```
 GET    /tours/:tourId/reviews - Reviews của tour
 POST   /reviews               - Tạo review
@@ -216,7 +201,6 @@ DELETE /reviews/:id           - Xóa review
 ```
 
 ### Wishlist
-
 ```
 GET    /wishlist          - Danh sách wishlist
 POST   /wishlist/:tourId  - Thêm vào wishlist
@@ -224,7 +208,6 @@ DELETE /wishlist/:tourId  - Xóa khỏi wishlist
 ```
 
 ### Notifications
-
 ```
 GET    /notifications      - Danh sách notifications
 PUT    /notifications/:id/read - Đánh dấu đã đọc
@@ -235,7 +218,6 @@ DELETE /notifications/:id      - Xóa notification
 ## 🔐 Authentication
 
 Tất cả API (trừ auth) yêu cầu header:
-
 ```
 Authorization: Bearer <access_token>
 ```
@@ -245,7 +227,6 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 ## 📊 Database Schema
 
 ### User
-
 ```typescript
 {
   name: string
@@ -258,7 +239,6 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 ```
 
 ### Tour
-
 ```typescript
 {
   title: string
@@ -283,7 +263,6 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 ```
 
 ### Booking
-
 ```typescript
 {
   tourId: ObjectId (ref: Tour)
@@ -300,7 +279,6 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 ```
 
 ### Review
-
 ```typescript
 {
   tourId: ObjectId (ref: Tour)
@@ -315,7 +293,6 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 ```
 
 ### Wishlist
-
 ```typescript
 {
   userId: ObjectId (ref: User)
@@ -324,7 +301,6 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 ```
 
 ### Notification
-
 ```typescript
 {
   userId: ObjectId (ref: User)
@@ -339,13 +315,11 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 ## 🎨 Screens
 
 ### Auth
-
 - Login
 - Register
 - OTP Verification (placeholder)
 
 ### Main Tabs
-
 - Home - Featured tours
 - Bookings - My bookings
 - History - Booking history
@@ -353,7 +327,6 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 - Profile - User profile
 
 ### Other Screens
-
 - All Tours - Browse all tours
 - Tour Detail - Tour details with reviews
 - Booking Detail - Booking information
@@ -365,7 +338,6 @@ Token được lưu trong AsyncStorage và tự động thêm vào mọi request
 ## 📝 Seed Data
 
 Chạy `npm run seed` trong thư mục backend để tạo:
-
 - 5 tours mẫu (Đà Lạt, Phú Quốc, Hạ Long, Hội An, Sa Pa)
 - 1 admin user:
   - Email: `admin@travel.com`
@@ -398,7 +370,6 @@ curl http://localhost:4000/tours/featured
 ## 🔧 Environment Variables
 
 ### Backend (.env)
-
 ```env
 MONGODB_URI=mongodb://localhost:27017/travel-app
 JWT_SECRET=your-secret-key-here
@@ -406,9 +377,7 @@ PORT=4000
 ```
 
 ### Frontend
-
 Cấu hình trong `services/api.ts`:
-
 ```typescript
 const API_URL = "http://localhost:4000";
 ```
@@ -445,3 +414,4 @@ Travel App Development Team
 ---
 
 **Made with ❤️ for travelers**
+
