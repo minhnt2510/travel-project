@@ -112,22 +112,24 @@ export default function HomeScreen() {
           <SectionHeader
             title="Điểm đến phổ biến"
             subtitle="Khám phá ngay"
+            delay={400}
             onViewAll={() =>
               router.push("/screens/destinations/AllDestinations")
             }
           />
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingRight: 16 }}
+          >
             {TOP_DESTINATIONS.map((destination, idx) => (
-              <Animated.View
+              <DestinationCard
                 key={destination.id}
-                entering={FadeInDown.delay(idx * 100).duration(500)}
-              >
-                <DestinationCard
-                  destination={destination}
-                  onPress={openDetail}
-                />
-              </Animated.View>
+                destination={destination}
+                onPress={openDetail}
+                index={idx}
+              />
             ))}
           </ScrollView>
         </View>
@@ -137,6 +139,7 @@ export default function HomeScreen() {
           <SectionHeader
             title="Tour nổi bật"
             subtitle="Được yêu thích nhất"
+            delay={500}
             onViewAll={() => router.push("/screens/tours/AllTours")}
           />
 
@@ -167,6 +170,7 @@ export default function HomeScreen() {
             <SectionHeader
               title="Ưu đãi hot 🔥"
               subtitle="Đặt ngay để nhận ưu đãi"
+              delay={600}
               onViewAll={() => router.push("/screens/deals/AllDeals")}
             />
 

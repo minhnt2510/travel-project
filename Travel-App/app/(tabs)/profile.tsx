@@ -19,6 +19,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
+import { LinearGradient } from "expo-linear-gradient";
 import { useUser } from "../_layout";
 
 export default function ProfileScreen() {
@@ -172,72 +173,97 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ThemedView className="flex-1">
-      <ScrollView>
-        {/* Header hồ sơ */}
-        <Animated.View style={[fadeAnimatedStyle]} className="bg-blue-600 p-6">
-          <View className="items-center">
-            <View className="relative">
-              <Image
-                source={{
-                  uri:
-                    user.avatar ||
-                    "https://m.yodycdn.com/blog/anh-cho-meme-yody-vn51.jpg",
-                }}
-                className="w-24 h-24 rounded-full"
-              />
-              <TouchableOpacity
-                onPress={handleEditProfile}
-                className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg"
-              >
-                <IconSymbol name="camera" size={16} color="#2563eb" />
-              </TouchableOpacity>
-            </View>
-            <ThemedText className="text-white text-xl font-bold mt-4">
-              {user.name}
-            </ThemedText>
-            <ThemedText className="text-blue-100">{user.email}</ThemedText>
-            {user.phone && (
-              <ThemedText className="text-blue-100 text-sm mt-1">
-                {user.phone}
-              </ThemedText>
-            )}
-          </View>
-
-          {/* Thống kê */}
-          <View className="flex-row justify-between mt-6 bg-white/10 rounded-lg p-4">
-            {userStats.map((stat, idx) => (
-              <View key={idx} className="items-center">
-                <ThemedText className="text-white text-lg font-bold">
-                  {stat.value}
-                </ThemedText>
-                <ThemedText className="text-blue-100">{stat.label}</ThemedText>
+    <ThemedView className="flex-1 bg-gray-50">
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header hồ sơ với gradient đẹp */}
+        <Animated.View style={[fadeAnimatedStyle]}>
+          <LinearGradient
+            colors={['#667eea', '#764ba2', '#f093fb']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            className="p-6 pt-16 rounded-b-3xl"
+          >
+            <View className="items-center">
+              <View className="relative">
+                <Image
+                  source={{
+                    uri:
+                      user.avatar ||
+                      "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name) + "&background=667eea&color=fff&size=128",
+                  }}
+                  className="w-28 h-28 rounded-full border-4 border-white shadow-2xl"
+                />
+                <TouchableOpacity
+                  onPress={handleEditProfile}
+                  className="absolute bottom-0 right-0 bg-white rounded-full p-2.5 shadow-xl border-2 border-purple-200"
+                >
+                  <IconSymbol name="camera" size={18} color="#667eea" />
+                </TouchableOpacity>
               </View>
-            ))}
-          </View>
+              <ThemedText className="text-white text-2xl font-extrabold mt-4">
+                {user.name}
+              </ThemedText>
+              <ThemedText className="text-white/90 mt-1">{user.email}</ThemedText>
+              {user.phone && (
+                <View className="flex-row items-center mt-2">
+                  <IconSymbol name="phone" size={14} color="#FFF" />
+                  <ThemedText className="text-white/90 text-sm ml-1">
+                    {user.phone}
+                  </ThemedText>
+                </View>
+              )}
+            </View>
+
+            {/* Thống kê */}
+            <View className="flex-row justify-around mt-8 pt-6 border-t border-white/20">
+              {userStats.map((stat, idx) => (
+                <View key={idx} className="items-center">
+                  <ThemedText className="text-white text-2xl font-extrabold">
+                    {stat.value}
+                  </ThemedText>
+                  <ThemedText className="text-white/80 text-xs mt-1 font-medium">
+                    {stat.label}
+                  </ThemedText>
+                </View>
+              ))}
+            </View>
+          </LinearGradient>
         </Animated.View>
 
         {/* Menu */}
-        <View className="p-4">
+        <View className="px-4 py-4">
           {menuItems.map((item, idx) => (
             <Link key={idx} href={item.href as any} asChild>
-              <TouchableOpacity className="flex-row items-center py-4 border-b border-gray-100">
-                <IconSymbol name={item.icon} size={24} color="#4B5563" />
-                <ThemedText className="flex-1 ml-4">{item.label}</ThemedText>
-                <IconSymbol name="chevron-right" size={24} color="#9CA3AF" />
+              <TouchableOpacity 
+                activeOpacity={0.7}
+                className="flex-row items-center py-4 px-3 mb-2 bg-white rounded-2xl shadow-sm border border-gray-100"
+              >
+                <View className="w-10 h-10 rounded-xl bg-purple-50 items-center justify-center mr-3">
+                  <IconSymbol name={item.icon} size={20} color="#667eea" />
+                </View>
+                <ThemedText className="flex-1 font-semibold text-gray-900">{item.label}</ThemedText>
+                <IconSymbol name="chevron-right" size={20} color="#9CA3AF" />
               </TouchableOpacity>
             </Link>
           ))}
         </View>
 
         {/* Đăng xuất */}
-        <View className="p-4">
+        <View className="p-4 pb-8">
           <TouchableOpacity
-            className="flex-row items-center justify-center py-3 bg-red-600 rounded-lg"
+            activeOpacity={0.9}
+            className="rounded-2xl overflow-hidden shadow-lg"
             onPress={handleLogout}
           >
-            <IconSymbol name="log-out" size={20} color="#FFF" />
-            <ThemedText className="text-white ml-2">Đăng xuất</ThemedText>
+            <LinearGradient
+              colors={['#ef4444', '#dc2626']}
+              className="flex-row items-center justify-center py-4"
+            >
+              <IconSymbol name="log-out" size={20} color="#FFF" />
+              <ThemedText className="text-white ml-2 font-extrabold text-base">
+                Đăng xuất
+              </ThemedText>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -249,19 +275,22 @@ export default function ProfileScreen() {
         presentationStyle="pageSheet"
       >
         <ThemedView className="flex-1">
-          <View className="p-4 border-b border-gray-200">
+          <LinearGradient
+            colors={['#667eea', '#764ba2']}
+            className="p-6 pt-12"
+          >
             <View className="flex-row justify-between items-center">
-              <ThemedText className="text-xl font-bold">
+              <ThemedText className="text-2xl font-extrabold text-white">
                 Chỉnh sửa thông tin
               </ThemedText>
               <TouchableOpacity
                 onPress={() => setIsModalVisible(false)}
-                className="p-2"
+                className="w-10 h-10 rounded-full bg-white/20 items-center justify-center"
               >
-                <IconSymbol name="x" size={24} color="#6B7280" />
+                <IconSymbol name="x" size={20} color="#FFF" />
               </TouchableOpacity>
             </View>
-          </View>
+          </LinearGradient>
 
           <ScrollView className="p-4">
             <View className="mb-4">
@@ -269,8 +298,9 @@ export default function ProfileScreen() {
                 Họ và tên
               </ThemedText>
               <TextInput
-                className="border border-gray-300 rounded-lg p-3 text-gray-700"
+                className="border border-gray-300 rounded-xl p-4 text-gray-900 bg-white text-base"
                 placeholder="Nhập họ và tên"
+                placeholderTextColor="#9ca3af"
                 value={name}
                 onChangeText={setName}
               />
@@ -281,8 +311,9 @@ export default function ProfileScreen() {
                 Email
               </ThemedText>
               <TextInput
-                className="border border-gray-300 rounded-lg p-3 text-gray-700"
+                className="border border-gray-300 rounded-xl p-4 text-gray-900 bg-white text-base"
                 placeholder="Nhập email"
+                placeholderTextColor="#9ca3af"
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
@@ -295,8 +326,9 @@ export default function ProfileScreen() {
                 Số điện thoại
               </ThemedText>
               <TextInput
-                className="border border-gray-300 rounded-lg p-3 text-gray-700"
+                className="border border-gray-300 rounded-xl p-4 text-gray-900 bg-white text-base"
                 placeholder="Nhập số điện thoại"
+                placeholderTextColor="#9ca3af"
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
@@ -308,15 +340,21 @@ export default function ProfileScreen() {
             <TouchableOpacity
               onPress={handleSaveProfile}
               disabled={isUpdating}
-              className="bg-blue-600 py-4 rounded-lg items-center"
+              activeOpacity={0.9}
+              className="rounded-2xl overflow-hidden shadow-lg"
             >
-              {isUpdating ? (
-                <ActivityIndicator size="small" color="#FFF" />
-              ) : (
-                <ThemedText className="text-white font-bold text-lg">
-                  Lưu thay đổi
-                </ThemedText>
-              )}
+              <LinearGradient
+                colors={['#667eea', '#764ba2']}
+                className="py-4 items-center"
+              >
+                {isUpdating ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <ThemedText className="text-white font-extrabold text-lg">
+                    Lưu thay đổi
+                  </ThemedText>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </ThemedView>
