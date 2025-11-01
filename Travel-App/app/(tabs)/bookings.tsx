@@ -379,13 +379,6 @@ export default function BookingsScreen() {
                   })
                 }
                 onDelete={() => handleDeleteTrip(trip.id)}
-                onPay={() =>
-                  router.push({
-                    pathname: "/screens/cart/Checkout",
-                    params: { tripId: trip.id },
-                  })
-                }
-                showPayButton={trip.status === "pending"}
               />
             ))}
           </ScrollView>

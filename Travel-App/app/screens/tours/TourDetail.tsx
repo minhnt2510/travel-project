@@ -137,6 +137,14 @@ export default function TourDetail() {
   const loadTour = async () => {
     try {
       setLoading(true);
+      
+      // Validate MongoDB ObjectId format (24 hex characters)
+      if (!destinationId || !destinationId.match(/^[0-9a-fA-F]{24}$/)) {
+        Alert.alert("Lỗi", "ID tour không hợp lệ");
+        router.back();
+        return;
+      }
+      
       const data = await api.getTourById(destinationId!);
       if (data) {
         // Merge với mock data

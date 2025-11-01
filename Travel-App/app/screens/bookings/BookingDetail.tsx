@@ -320,51 +320,7 @@ export default function BookingDetail() {
             </View>
           </View>
 
-          {/* Actions */}
-          {(booking.status === "pending" || booking.status === "confirmed") && (
-            <View className={`px-6 py-4 ${isDark ? "bg-slate-800" : "bg-white"} mt-2`}>
-              <TouchableOpacity
-                onPress={async () => {
-                  try {
-                    // Ensure user is logged in
-                    if (!user) {
-                      Alert.alert(
-                        "Cần đăng nhập",
-                        "Vui lòng đăng nhập để thanh toán",
-                        [
-                          { text: "Hủy", style: "cancel" },
-                          {
-                            text: "Đăng nhập",
-                            onPress: () => router.push("/(auth)/login"),
-                          },
-                        ]
-                      );
-                      return;
-                    }
-
-                    // Navigate to checkout
-                    router.push({
-                      pathname: "/screens/cart/Checkout",
-                      params: { tripId: booking._id },
-                    });
-                  } catch (error: any) {
-                    console.error("Error navigating to checkout:", error);
-                    Alert.alert("Lỗi", "Không thể mở trang thanh toán. Vui lòng thử lại.");
-                  }
-                }}
-                className="bg-blue-600 py-4 rounded-xl items-center shadow-lg"
-                style={{
-                  shadowColor: "#3b82f6",
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 4,
-                  elevation: 4,
-                }}
-              >
-                <ThemedText className="text-white font-bold text-lg">Thanh toán</ThemedText>
-              </TouchableOpacity>
-            </View>
-          )}
+          {/* Actions - Removed payment button, only show status */}
         </ScrollView>
       </ThemedView>
     </SafeAreaView>

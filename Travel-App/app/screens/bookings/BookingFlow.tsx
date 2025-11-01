@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   ScrollView,
@@ -7,12 +7,41 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { ThemedText } from "@/ui-components/themed-text";
 import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { api } from "@/services/api";
 import { useUser } from "@/app/_layout";
+
+interface PaymentMethod {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+}
+
+const paymentMethods: PaymentMethod[] = [
+  {
+    id: "momo",
+    name: "Ví MoMo",
+    icon: "smartphone",
+    description: "Thanh toán nhanh chóng và an toàn",
+  },
+  {
+    id: "bank",
+    name: "Chuyển khoản ngân hàng",
+    icon: "credit-card",
+    description: "Chuyển khoản qua ngân hàng",
+  },
+  {
+    id: "cash",
+    name: "Tiền mặt",
+    icon: "dollar-sign",
+    description: "Thanh toán khi nhận dịch vụ",
+  },
+];
 
 interface BookingFlowProps {
   tourId: string;
@@ -48,11 +77,27 @@ export default function BookingFlow({
   const [adults, setAdults] = useState(1);
   const [children, setChildren] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("");
   const [contactInfo, setContactInfo] = useState({
     fullName: user?.name || "",
     email: user?.email || "",
     phone: user?.phone || "",
   });
+
+  // Load saved payment method on mount
+  useEffect(() => {
+    const loadSavedPaymentMethod = async () => {
+      try {
+        const saved = await AsyncStorage.getItem("default_payment_method");
+        if (saved) {
+          setSelectedPaymentMethod(saved);
+        }
+      } catch (error) {
+        console.error("Error loading saved payment method:", error);
+      }
+    };
+    loadSavedPaymentMethod();
+  }, []);
 
   const calculateTotal = () => {
     const adultPrice = basePrice * adults;
@@ -112,12 +157,20 @@ export default function BookingFlow({
       return;
     }
 
+    if (!selectedPaymentMethod) {
+      Alert.alert("Lỗi", "Vui lòng chọn phương thức thanh toán");
+      return;
+    }
+
     setIsProcessing(true);
     try {
       const totals = calculateTotal();
       const totalTravelers = adults + children;
 
-      // Create travelers array
+      // Step 1: Process payment (simulate 2s delay)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      // Step 2: Create travelers array
       const travelers = [];
       for (let i = 0; i < adults; i++) {
         travelers.push({ name: `Người lớn ${i + 1}`, age: 25 });
@@ -126,7 +179,7 @@ export default function BookingFlow({
         travelers.push({ name: `Trẻ em ${i + 1}`, age: 10 });
       }
 
-      // Create booking
+      // Step 3: Create booking with "confirmed" status (payment already processed)
       const bookingData = {
         tourId: tourId,
         quantity: totalTravelers,
@@ -138,14 +191,21 @@ export default function BookingFlow({
           phone: contactInfo.phone,
           email: contactInfo.email,
         },
-        specialRequests: `Slot: ${selectedSlot.time}, Điểm đón: ${selectedPickupPoint?.name || "Không"}`,
+        specialRequests: `Slot: ${selectedSlot.time}, Điểm đón: ${selectedPickupPoint?.name || "Không"}, Thanh toán: ${paymentMethods.find(p => p.id === selectedPaymentMethod)?.name || selectedPaymentMethod}`,
       };
 
       await api.createBooking(bookingData);
 
+      // Save payment method as default
+      try {
+        await AsyncStorage.setItem("default_payment_method", selectedPaymentMethod);
+      } catch (error) {
+        console.error("Error saving payment method:", error);
+      }
+
       Alert.alert(
         "Đặt tour thành công!",
-        `Tour "${tourTitle}" đã được đặt thành công.\nThời gian: ${selectedSlot.time}\nTổng tiền: ${totals.total.toLocaleString()}₫`,
+        `Tour "${tourTitle}" đã được đặt và thanh toán thành công.\nPhương thức: ${paymentMethods.find(p => p.id === selectedPaymentMethod)?.name}\nThời gian: ${selectedSlot.time}\nTổng tiền: ${totals.total.toLocaleString()}₫`,
         [
           {
             text: "Xem chuyến đi",
@@ -351,6 +411,48 @@ export default function BookingFlow({
             </View>
           </View>
         </View>
+
+        {/* Payment Method Selection */}
+        <View className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-200">
+          <ThemedText className="text-lg font-bold mb-4">Phương thức thanh toán *</ThemedText>
+          
+          {paymentMethods.map((method) => (
+            <TouchableOpacity
+              key={method.id}
+              onPress={() => setSelectedPaymentMethod(method.id)}
+              className={`flex-row items-center p-4 rounded-xl mb-3 border-2 ${
+                selectedPaymentMethod === method.id
+                  ? "border-blue-600 bg-blue-50"
+                  : "border-gray-200 bg-gray-50"
+              }`}
+            >
+              <View
+                className={`w-5 h-5 rounded-full border-2 mr-3 items-center justify-center ${
+                  selectedPaymentMethod === method.id
+                    ? "border-blue-600 bg-blue-600"
+                    : "border-gray-400"
+                }`}
+              >
+                {selectedPaymentMethod === method.id && (
+                  <View className="w-3 h-3 rounded-full bg-white" />
+                )}
+              </View>
+              <IconSymbol
+                name={method.icon as any}
+                size={24}
+                color={selectedPaymentMethod === method.id ? "#2563eb" : "#6b7280"}
+              />
+              <View className="ml-3 flex-1">
+                <ThemedText className="font-semibold text-gray-900">
+                  {method.name}
+                </ThemedText>
+                <ThemedText className="text-sm text-gray-500">
+                  {method.description}
+                </ThemedText>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
 
       {/* Confirm Button */}
@@ -369,7 +471,7 @@ export default function BookingFlow({
             </View>
           ) : (
             <ThemedText className="text-white font-bold text-lg">
-              Xác nhận đặt tour
+              Xác nhận và thanh toán
             </ThemedText>
           )}
         </TouchableOpacity>

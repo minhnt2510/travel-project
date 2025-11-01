@@ -203,8 +203,11 @@ const tours = [
     duration: 3,
     category: "mountain",
     featured: false,
-    imageUrl: "https://static.sggp.org.vn/images/2024/06/28/17/sapa.jpg",
-    images: ["https://static.sggp.org.vn/images/2024/06/28/17/sapa.jpg"],
+    imageUrl:
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop",
+    ],
     availableSeats: 10,
     maxSeats: 16,
     rating: 4.8,
@@ -355,9 +358,9 @@ const tours = [
     category: "beach",
     featured: false,
     imageUrl:
-      "https://images.unsplash.com/photo-1507525421304-331d5e3f5fe2?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
     images: [
-      "https://images.unsplash.com/photo-1507525421304-331d5e3f5fe2?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
     ],
     availableSeats: 20,
     maxSeats: 28,

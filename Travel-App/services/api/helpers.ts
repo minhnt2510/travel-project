@@ -24,6 +24,11 @@ export const helpersApi = {
 
   getDestinationById: async (id: string): Promise<Destination | null> => {
     try {
+      // Validate MongoDB ObjectId format before making API call
+      if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+        throw new Error("Invalid tour ID format");
+      }
+      
       const tour = await toursApi.getTourById(id);
       if (!tour || !tour._id) {
         throw new Error("Tour không tồn tại");

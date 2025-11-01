@@ -40,6 +40,10 @@ export const toursApi = {
   },
 
   getTourById: async (id: string): Promise<Tour> => {
+    // Validate MongoDB ObjectId format before making API call
+    if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
+      throw new Error("Invalid tour ID format");
+    }
     return await apiRequest(`/tours/${id}`);
   },
 };

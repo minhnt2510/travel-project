@@ -34,6 +34,14 @@ export default function HotelDetail() {
   const loadDestination = async () => {
     try {
       setLoading(true);
+      
+      // Validate MongoDB ObjectId format (24 hex characters)
+      if (!destinationId || !destinationId.match(/^[0-9a-fA-F]{24}$/)) {
+        Alert.alert("Lỗi", "ID tour không hợp lệ");
+        router.back();
+        return;
+      }
+      
       const data = await api.getDestinationById(destinationId!);
       if (data) {
         setDestination(data);

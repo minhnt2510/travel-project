@@ -369,26 +369,92 @@ export default function HomeScreen() {
         </View>
 
         {/* Hot Deals */}
-        {allTours.length > 0 && (
-          <View className="px-4 py-4">
-            <SectionHeader
-              title="Ưu đãi hot 🔥"
-              subtitle="Đặt ngay để nhận ưu đãi"
-              delay={600}
-              onViewAll={() => router.push("/screens/deals/AllDeals")}
-            />
+        {allTours.length > 0 &&
+          (() => {
+            const hotDeals = allTours
+              .filter(
+                (tour) => tour.originalPrice && tour.originalPrice > tour.price
+              )
+              .slice(0, 3);
 
-            {allTours.slice(0, 3).map((tour) => (
-              <TourCard
-                key={tour._id}
-                tour={tour}
-                onPress={openDetail}
-                onWishlistPress={addToWishlist}
-                variant="horizontal"
-              />
-            ))}
-          </View>
-        )}
+            return hotDeals.length > 0 ? (
+              <View className="px-4 py-4">
+                <SectionHeader
+                  title="Ưu đãi hot 🔥"
+                  subtitle="Đặt ngay để nhận ưu đãi"
+                  delay={600}
+                  onViewAll={() => router.push("/screens/deals/AllDeals")}
+                />
+
+                {hotDeals.map((tour) => (
+                  <TourCard
+                    key={tour._id}
+                    tour={tour}
+                    onPress={openDetail}
+                    onWishlistPress={addToWishlist}
+                    variant="horizontal"
+                  />
+                ))}
+              </View>
+            ) : null;
+          })()}
+
+        {/* Trending Now */}
+        {allTours.length > 0 &&
+          (() => {
+            const trendingTours = [...allTours]
+              .sort((a, b) => b.rating - a.rating)
+              .slice(0, 6);
+
+            return trendingTours.length > 0 ? (
+              <View className="px-4 py-4">
+                <SectionHeader
+                  title="Đang thịnh hành 📈"
+                  subtitle="Tour được tìm kiếm nhiều nhất"
+                  delay={700}
+                  onViewAll={() => router.push("/screens/tours/AllTours")}
+                />
+
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {trendingTours.slice(0, 5).map((tour) => (
+                    <TourCard
+                      key={tour._id}
+                      tour={tour}
+                      onPress={openDetail}
+                      onWishlistPress={addToWishlist}
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            ) : null;
+          })()}
+
+        {/* Recommended For You */}
+        {allTours.length > 0 &&
+          (() => {
+            const recommendedTours = allTours.slice(0, 4);
+
+            return recommendedTours.length > 0 ? (
+              <View className="px-4 py-4">
+                <SectionHeader
+                  title="Gợi ý cho bạn ⭐"
+                  subtitle="Dựa trên sở thích"
+                  delay={800}
+                  onViewAll={() => router.push("/screens/tours/AllTours")}
+                />
+
+                {recommendedTours.map((tour) => (
+                  <TourCard
+                    key={tour._id}
+                    tour={tour}
+                    onPress={openDetail}
+                    onWishlistPress={addToWishlist}
+                    variant="horizontal"
+                  />
+                ))}
+              </View>
+            ) : null;
+          })()}
 
         <View className="h-24" />
       </ScrollView>

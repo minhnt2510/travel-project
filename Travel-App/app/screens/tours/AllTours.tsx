@@ -3,6 +3,7 @@ import { ThemedText } from "@/ui-components/themed-text";
 import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ScrollView,
@@ -97,21 +98,33 @@ export default function AllToursScreen() {
 
   return (
     <ThemedView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 pt-12">
+      {/* Header with Gradient */}
+      <LinearGradient
+        colors={["#2563eb", "#1d4ed8", "#1e40af"] as [string, string, ...string[]]}
+        className="p-4 pt-12"
+      >
         <View className="flex-row items-center mb-4">
           <TouchableOpacity onPress={() => router.back()}>
-            <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center">
-              <IconSymbol name="arrow-left" size={24} color="" />
+            <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center backdrop-blur-sm">
+              <IconSymbol name="arrow-left" size={24} color="#FFF" />
             </View>
           </TouchableOpacity>
-          <ThemedText className="text-black text-xl font-bold ml-4 flex-1">
+          <ThemedText className="text-white text-2xl font-bold ml-4 flex-1">
             Tất cả tour ({tours.length})
           </ThemedText>
         </View>
 
         {/* Search Bar */}
-        <View className="bg-white rounded-2xl px-4 py-3 flex-row items-center mb-3">
+        <View 
+          className="bg-white rounded-2xl px-4 py-3.5 flex-row items-center shadow-xl"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 12,
+            elevation: 8,
+          }}
+        >
           <IconSymbol name="search" size={20} color="#6B7280" />
           <TextInput
             className="flex-1 ml-3 text-gray-900"
@@ -128,24 +141,44 @@ export default function AllToursScreen() {
           )}
           <TouchableOpacity
             onPress={handleSearch}
-            className="ml-2 bg-blue-600 px-4 py-2 rounded-xl"
+            className="ml-2 bg-blue-600 px-4 py-2.5 rounded-xl shadow-lg"
+            style={{
+              shadowColor: "#2563eb",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.3,
+              shadowRadius: 4,
+              elevation: 4,
+            }}
           >
             <IconSymbol name="arrow-right" size={18} color="#FFF" />
           </TouchableOpacity>
         </View>
-      </View>
+      </LinearGradient>
 
       {/* Category Filter */}
-      <View className="bg-white p-4 border-b border-gray-200">
+      <View className="bg-white p-4 border-b border-gray-100 shadow-sm">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row space-x-3">
             {categories.map((cat) => (
               <TouchableOpacity
                 key={cat.id}
-                className={`px-4 py-2 rounded-full flex-row items-center ${
-                  selectedCategory === cat.id ? "bg-blue-600" : "bg-gray-100"
+                className={`px-5 py-2.5 rounded-full flex-row items-center ${
+                  selectedCategory === cat.id 
+                    ? "bg-blue-600 shadow-lg" 
+                    : "bg-gray-100 border border-gray-200"
                 }`}
                 onPress={() => setSelectedCategory(cat.id)}
+                style={
+                  selectedCategory === cat.id
+                    ? {
+                        shadowColor: "#2563eb",
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 4,
+                        elevation: 4,
+                      }
+                    : {}
+                }
               >
                 <IconSymbol
                   name={cat.icon}
@@ -153,7 +186,7 @@ export default function AllToursScreen() {
                   color={selectedCategory === cat.id ? "#FFF" : "#6B7280"}
                 />
                 <ThemedText
-                  className={`ml-2 font-semibold ${
+                  className={`ml-2 font-bold text-sm ${
                     selectedCategory === cat.id ? "text-white" : "text-gray-700"
                   }`}
                 >
@@ -166,7 +199,7 @@ export default function AllToursScreen() {
       </View>
 
       {/* Tours List */}
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1 bg-gray-50">
         <View className="p-4">
           {tours.length === 0 ? (
             <View className="items-center py-20">
@@ -185,8 +218,16 @@ export default function AllToursScreen() {
                 entering={FadeInDown.delay(idx * 50).duration(500)}
               >
                 <TouchableOpacity
-                  className="mb-4 bg-white rounded-2xl shadow-lg overflow-hidden"
+                  className="mb-4 bg-white rounded-2xl overflow-hidden shadow-xl"
                   onPress={() => openDetail(tour._id)}
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 12,
+                    elevation: 8,
+                  }}
+                  activeOpacity={0.9}
                 >
                   <View className="relative">
                     <Image
@@ -196,8 +237,21 @@ export default function AllToursScreen() {
                       className="w-full h-56"
                       contentFit="cover"
                     />
+                    <LinearGradient
+                      colors={["transparent", "rgba(0,0,0,0.4)"] as [string, string, ...string[]]}
+                      className="absolute bottom-0 left-0 right-0 h-24"
+                    />
                     <View className="absolute top-4 left-4">
-                      <View className="bg-white px-3 py-2 rounded-full flex-row items-center shadow-md">
+                      <View 
+                        className="bg-white/95 px-3 py-2 rounded-full flex-row items-center shadow-lg backdrop-blur-sm"
+                        style={{
+                          shadowColor: "#000",
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.2,
+                          shadowRadius: 4,
+                          elevation: 4,
+                        }}
+                      >
                         <IconSymbol name="star" size={14} color="#FFB800" />
                         <ThemedText className="text-gray-900 font-bold text-xs ml-1">
                           {tour.rating.toFixed(1)}
@@ -209,14 +263,33 @@ export default function AllToursScreen() {
                     </View>
                     <View className="absolute top-4 right-4">
                       <TouchableOpacity
-                        onPress={() => addToWishlist(tour._id)}
-                        className="bg-white/90 w-10 h-10 rounded-full items-center justify-center shadow-md"
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          addToWishlist(tour._id);
+                        }}
+                        className="bg-white/95 w-10 h-10 rounded-full items-center justify-center shadow-lg backdrop-blur-sm"
+                        style={{
+                          shadowColor: "#000",
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.2,
+                          shadowRadius: 4,
+                          elevation: 4,
+                        }}
                       >
                         <IconSymbol name="heart" size={20} color="#EF4444" />
                       </TouchableOpacity>
                     </View>
                     {tour.originalPrice && (
-                      <View className="absolute bottom-4 left-4 bg-red-500 px-3 py-1.5 rounded-full shadow-md">
+                      <View 
+                        className="absolute bottom-4 left-4 bg-red-500 px-3 py-1.5 rounded-full shadow-xl"
+                        style={{
+                          shadowColor: "#ef4444",
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.4,
+                          shadowRadius: 4,
+                          elevation: 6,
+                        }}
+                      >
                         <ThemedText className="text-white font-bold text-sm">
                           -
                           {Math.round(
@@ -286,8 +359,15 @@ export default function AllToursScreen() {
                         )}
                       </View>
                       <TouchableOpacity
-                        className="bg-blue-600 px-6 py-3 rounded-full flex-row items-center"
+                        className="bg-blue-600 px-6 py-3 rounded-full flex-row items-center shadow-lg"
                         onPress={() => openDetail(tour._id)}
+                        style={{
+                          shadowColor: "#2563eb",
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.3,
+                          shadowRadius: 4,
+                          elevation: 4,
+                        }}
                       >
                         <ThemedText className="text-white font-bold mr-2">
                           Xem chi tiết

@@ -22,8 +22,6 @@ type Props = {
   getStatusText: (s: string) => string;
   onPress?: () => void; // Nhấn vào card để xem detail
   onDelete: () => void;
-  onPay?: () => void;
-  showPayButton?: boolean;  
 };
 
 export default function TripCard({
@@ -33,8 +31,6 @@ export default function TripCard({
   getStatusText,
   onPress,
   onDelete,
-  onPay,
-  showPayButton = trip.status === "pending",
 }: Props) {
   return (
     <TouchableOpacity
@@ -155,31 +151,8 @@ export default function TripCard({
               </ThemedText>
             </View>
 
-            {/* Nhóm nút: thanh toán và xóa */}
+            {/* Nhóm nút: chỉ có xóa */}
             <View className="flex-row items-center gap-2">
-              {showPayButton && onPay && (
-                <TouchableOpacity
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    onPay();
-                  }}
-                  className="px-4 py-2.5 rounded-xl bg-blue-600 flex-row items-center shadow-lg"
-                  style={{
-                    shadowColor: "#3b82f6",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 4,
-                    elevation: 4,
-                  }}
-                  hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-                >
-                  <IconSymbol name="credit-card" size={16} color="#FFF" />
-                  <ThemedText className="text-white font-bold ml-2 text-sm">
-                    Thanh toán
-                  </ThemedText>
-                </TouchableOpacity>
-              )}
-
               <TouchableOpacity
                 onPress={(e) => {
                   e.stopPropagation();
