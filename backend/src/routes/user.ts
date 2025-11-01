@@ -1,4 +1,5 @@
 import { Router } from "express";
+import bcrypt from "bcryptjs";
 import { requireAuth, requireAdmin, type AuthRequest } from "../middleware/auth";
 import { z } from "zod";
 import { IUser, User } from "../models/User";
@@ -9,6 +10,11 @@ const updateUserSchema = z.object({
   name: z.string().min(1).optional(),
   phone: z.string().optional(),
   avatar: z.string().optional(),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(6),
 });
 
 router.get("/me", requireAuth, async (req: AuthRequest, res) => {
@@ -24,13 +30,46 @@ router.put("/me", requireAuth, async (req: AuthRequest, res) => {
   const parsed = updateUserSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
 
+  // Log avatar update for debugging
+  if (parsed.data.avatar) {
+    console.log("Updating user avatar, length:", parsed.data.avatar.length);
+  }
+
   const user = await User.findByIdAndUpdate(req.userId, parsed.data, {
     new: true,
     projection: "-passwordHash",
   }).lean<IUser>();
 
   if (!user) return res.status(404).json({ message: "User not found" });
+  
+  // Log result
+  if (user.avatar) {
+    console.log("User avatar updated successfully, length:", user.avatar.length);
+  }
+  
   return res.json(user);
+});
+
+// Change password
+router.put("/me/password", requireAuth, async (req: AuthRequest, res) => {
+  const parsed = changePasswordSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json(parsed.error.flatten());
+
+  const { currentPassword, newPassword } = parsed.data;
+  const user = await User.findById(req.userId);
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  // Verify current password
+  const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!isValid) {
+    return res.status(400).json({ message: "Mật khẩu hiện tại không đúng" });
+  }
+
+  // Update password
+  const newPasswordHash = await bcrypt.hash(newPassword, 10);
+  await User.findByIdAndUpdate(req.userId, { passwordHash: newPasswordHash });
+
+  res.json({ message: "Đổi mật khẩu thành công" });
 });
 
 // Admin: Get all users

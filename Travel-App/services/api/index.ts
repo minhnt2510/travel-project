@@ -43,6 +43,7 @@ export const api = {
   getCurrentUser: usersApi.getCurrentUser,
   getUser: usersApi.getCurrentUser, // Alias
   updateUser: usersApi.updateUser,
+  changePassword: usersApi.changePassword,
 
   // Admin Users
   getAllUsers: usersApi.getAllUsers,
@@ -65,6 +66,8 @@ export const api = {
   createReview: reviewsApi.createReview,
   updateReview: reviewsApi.updateReview,
   deleteReview: reviewsApi.deleteReview,
+  getAllReviews: reviewsApi.getAllReviews, // Admin
+  getTourReviewsForAdmin: reviewsApi.getTourReviews, // Admin alias
 
   // Wishlist
   getWishlist: wishlistApi.getWishlist,

@@ -14,17 +14,19 @@ import notificationRouter from "./routes/notification";
 const app = express();
 
 app.use(cors({ origin: "*" }));
-app.use(express.json());
+// Increase body parser limit to handle base64 images (up to 50MB)
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.get("/", (_req, res) => res.json({ ok: true, service: "travel-backend" }));
 app.use("/auth", authRouter);
-app.use("/", userRouter);  
-app.use("/", tourRouter);  
-app.use("/", bookingRouter);  
-app.use("/", reviewRouter);  
-app.use("/", wishlistRouter);  
-app.use("/", notificationRouter);  
-app.use("/", hotelRouter);  
+app.use("/", userRouter);
+app.use("/", tourRouter);
+app.use("/", bookingRouter);
+app.use("/", reviewRouter);
+app.use("/", wishlistRouter);
+app.use("/", notificationRouter);
+app.use("/", hotelRouter);
 
 const port = Number(process.env.PORT || 4000);
 

@@ -1,13 +1,15 @@
 import { Router } from "express";
 import { z } from "zod";
-import { requireAuth, AuthRequest } from "../middleware/auth";
+import { requireAuth, requireAdmin, AuthRequest } from "../middleware/auth";
 import { Review } from "../models/Review";
 import { Tour } from "../models/Tour";
+import { Booking } from "../models/Booking";
 
 const router = Router();
 
 const createReviewSchema = z.object({
   tourId: z.string(),
+  bookingId: z.string().optional(), // Optional for now, will be required later
   rating: z.number().min(1).max(5),
   comment: z.string().max(500).optional(),
   images: z.array(z.string()).optional(),
@@ -28,20 +30,39 @@ router.post("/reviews", requireAuth, async (req: AuthRequest, res) => {
   const parsed = createReviewSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
 
-  const { tourId, rating, comment, images, pros, cons } = parsed.data;
+  const { tourId, bookingId, rating, comment, images, pros, cons } = parsed.data;
 
   // Check if tour exists
   const tour = await Tour.findById(tourId);
   if (!tour) return res.status(404).json({ message: "Tour not found" });
 
-  // Check if user already reviewed
-  const existingReview = await Review.findOne({ userId: req.userId, tourId });
+  // If bookingId is provided, verify the booking is completed and belongs to user
+  if (bookingId) {
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    if (booking.userId.toString() !== req.userId) {
+      return res.status(403).json({ message: "Forbidden - Booking does not belong to you" });
+    }
+    if (booking.status !== "completed") {
+      return res.status(400).json({ message: "Can only review completed bookings" });
+    }
+  }
+
+  // Check if user already reviewed this tour (prevent duplicate)
+  const existingReview = await Review.findOne({ 
+    userId: req.userId, 
+    tourId,
+    ...(bookingId ? { bookingId } : {})
+  });
   if (existingReview) {
     return res.status(400).json({ message: "You have already reviewed this tour" });
   }
 
   const review = await Review.create({
     tourId,
+    bookingId: bookingId || undefined,
     userId: req.userId!,
     rating,
     comment,
@@ -111,6 +132,27 @@ router.delete("/reviews/:id", requireAuth, async (req: AuthRequest, res) => {
   });
 
   res.json({ success: true });
+});
+
+// Admin: Get all reviews
+router.get("/admin/reviews", requireAdmin, async (req: AuthRequest, res) => {
+  const reviews = await Review.find()
+    .populate("userId", "name avatar email")
+    .populate("tourId", "title imageUrl location")
+    .populate("bookingId", "travelDate quantity")
+    .sort({ createdAt: -1 })
+    .lean();
+  res.json(reviews);
+});
+
+// Admin: Get reviews for a specific tour
+router.get("/admin/reviews/tour/:tourId", requireAdmin, async (req: AuthRequest, res) => {
+  const reviews = await Review.find({ tourId: req.params.tourId })
+    .populate("userId", "name avatar email")
+    .populate("bookingId", "travelDate quantity")
+    .sort({ createdAt: -1 })
+    .lean();
+  res.json(reviews);
 });
 
 export default router;

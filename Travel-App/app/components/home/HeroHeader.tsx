@@ -4,6 +4,8 @@ import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import SearchBar from "../common/SearchBar";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { Image } from "expo-image";
+import { useUser } from "@/app/_layout";
 
 interface HeroHeaderProps {
   onSearchPress: () => void;
@@ -14,6 +16,8 @@ export default function HeroHeader({
   onSearchPress,
   onMenuPress,
 }: HeroHeaderProps) {
+  const { user } = useUser();
+  
   return (
     <LinearGradient
       colors={['#667eea', '#764ba2', '#f093fb']}
@@ -35,9 +39,18 @@ export default function HeroHeader({
         </View>
         <TouchableOpacity
           onPress={onMenuPress}
-          className="w-12 h-12 rounded-full items-center justify-center bg-white/20 backdrop-blur-md border border-white/30"
+          className="w-12 h-12 rounded-full items-center justify-center bg-white/20 backdrop-blur-md border border-white/30 overflow-hidden"
         >
-          <IconSymbol name="user" size={24} color="#FFF" />
+          {user?.avatar ? (
+            <Image
+              source={{ uri: user.avatar }}
+              className="w-full h-full rounded-full"
+              contentFit="cover"
+              cachePolicy="memory"
+            />
+          ) : (
+            <IconSymbol name="user" size={24} color="#FFF" />
+          )}
         </TouchableOpacity>
       </Animated.View>
 

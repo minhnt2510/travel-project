@@ -132,6 +132,12 @@ export default function AdminDashboard() {
       route: "/screens/admin/Statistics", 
       color: ["#f59e0b", "#d97706"] 
     },
+    { 
+      icon: "message-square", 
+      label: "Quản lý đánh giá", 
+      route: "/screens/admin/AdminReviews", 
+      color: ["#ec4899", "#be185d"] 
+    },
   ];
 
   if (loading && !refreshing) {

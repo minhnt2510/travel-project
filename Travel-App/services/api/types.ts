@@ -70,14 +70,16 @@ export interface Booking {
 
 export interface Review {
   _id: string;
-  tourId: string;
-  userId: string | { name: string; avatar?: string };
+  tourId: string | { _id: string; title: string; imageUrl?: string; location?: string };
+  bookingId?: string | { _id: string; travelDate?: string; quantity?: number };
+  userId: string | { _id?: string; name: string; avatar?: string; email?: string };
   rating: number;
   comment?: string;
   images?: string[];
   pros?: string[];
   cons?: string[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Wishlist {

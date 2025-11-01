@@ -9,6 +9,7 @@ export const reviewsApi = {
 
   createReview: async (reviewData: {
     tourId: string;
+    bookingId?: string;
     rating: number;
     comment?: string;
     images?: string[];
@@ -35,6 +36,15 @@ export const reviewsApi = {
     await apiRequest(`/reviews/${id}`, {
       method: "DELETE",
     });
+  },
+
+  // Admin endpoints
+  getAllReviews: async (): Promise<Review[]> => {
+    return await apiRequest("/admin/reviews");
+  },
+
+  getTourReviews: async (tourId: string): Promise<Review[]> => {
+    return await apiRequest(`/admin/reviews/tour/${tourId}`);
   },
 };
 

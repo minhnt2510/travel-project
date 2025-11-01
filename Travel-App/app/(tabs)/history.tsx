@@ -192,10 +192,9 @@ function TripCard({ trip }: { trip: Trip }) {
           <View className="flex-row mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
             <TouchableOpacity
               onPress={() => {
-                const tourId = typeof trip.tourId === "object" ? trip.tourId._id : trip.tourId;
                 router.push({
                   pathname: "/screens/reviews/ReviewCreate",
-                  params: { bookingId: trip.id, tourId },
+                  params: { bookingId: trip.id, tourId: trip.destinationId },
                 });
               }}
               className="flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-3 rounded-xl items-center shadow-lg"
