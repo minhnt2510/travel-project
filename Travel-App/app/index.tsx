@@ -55,7 +55,7 @@ export default function GuestHomeScreen() {
       setLoading(true);
       const [featured, all] = await Promise.all([
         api.getFeaturedTours(),
-        api.getTours({ limit: 30 }),
+        api.getTours({ limit: 20 }), // Reduced from 30 to 20 for faster initial load
       ]);
       setFeaturedTours(featured);
       setAllTours(all.tours);

@@ -56,7 +56,7 @@ export default function HomeScreen() {
       setLoading(true);
       const [featured, all] = await Promise.all([
         api.getFeaturedTours(),
-        api.getTours({ limit: 50 }),
+        api.getTours({ limit: 30 }), // Reduced from 50 to 30 for faster loading
       ]);
       setFeaturedTours(featured);
       setAllTours(all.tours);

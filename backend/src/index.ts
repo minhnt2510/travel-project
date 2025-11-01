@@ -33,7 +33,7 @@ const port = Number(process.env.PORT || 4000);
 connectDB()
   .then(() => {
     app.listen(port, () =>
-      console.log(`API listening on http://192.168.137.150:${port}`)
+      console.log(`API listening on http://192.168.142.226:${port}`)
     );
   })
   .catch((e) => {

@@ -49,10 +49,10 @@ export const apiRequest = async (
   // Helper function to make a single request attempt
   const makeRequest = async (attempt: number): Promise<Response> => {
     const controller = new AbortController();
-    // Increased timeout to 45 seconds for slow connections
+    // Optimized timeout: 15 seconds (reduced from 45s for faster feedback)
     const timeoutId = setTimeout(() => {
       controller.abort();
-    }, 45000);
+    }, 15000);
 
     try {
       const url = `${API_URL}${endpoint}`;
@@ -79,12 +79,13 @@ export const apiRequest = async (
     }
   };
 
-  // Retry logic
-  for (let attempt = 0; attempt <= retries; attempt++) {
+  // Retry logic (reduced retries from 2 to 1 for faster failures)
+  const maxRetries = Math.min(retries, 1); // Max 1 retry (2 total attempts)
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       if (attempt > 0) {
-        // Wait before retry: exponential backoff (1s, 2s, 4s...)
-        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+        // Wait before retry: exponential backoff (1s max)
+        const delay = Math.min(1000 * Math.pow(2, attempt - 1), 1000);
         await new Promise((resolve) => setTimeout(resolve, delay));
         // Retrying silently
       }
@@ -178,7 +179,7 @@ export const apiRequest = async (
 
         // For server errors (5xx) or 408, retry if attempts remain
         if (
-          attempt < retries &&
+          attempt < maxRetries &&
           (response.status >= 500 || response.status === 408)
         ) {
           continue;
@@ -191,34 +192,75 @@ export const apiRequest = async (
         );
       }
 
-      const data = await response.json();
-      return data;
+      try {
+        const data = await response.json();
+        return data;
+      } catch (jsonError) {
+        // JSON parsing error
+        if (attempt === maxRetries) {
+          throw new Error(
+            `Server trả về dữ liệu không hợp lệ cho ${endpoint}. Vui lòng thử lại sau.`
+          );
+        }
+        // Retry on JSON error (might be server issue)
+        continue;
+      }
     } catch (error: any) {
       // Don't retry client errors (4xx) - throw immediately
       if (error.isClientError) {
         throw error;
       }
 
-      // If this was the last attempt, throw the error
-      if (attempt === retries) {
-        if (error.name === "AbortError") {
+      // Handle network errors (fetch failed, no connection, etc.)
+      if (error.name === "TypeError" && error.message?.includes("fetch")) {
+        if (attempt === maxRetries) {
           throw new Error(
-            `Kết nối timeout sau ${
-              retries + 1
-            } lần thử. Vui lòng kiểm tra kết nối mạng và đảm bảo backend đang chạy tại ${API_URL}`
+            `Không thể kết nối đến server tại ${API_URL}. Vui lòng kiểm tra:\n- Backend có đang chạy không?\n- IP address có đúng không?\n- Kết nối mạng có ổn định không?`
           );
         }
+        // Retry network errors
+        continue;
+      }
+
+      // Handle timeout errors
+      if (error.name === "AbortError") {
+        if (attempt === maxRetries) {
+          throw new Error(
+            `Kết nối timeout sau ${
+              maxRetries + 1
+            } lần thử (15 giây/lần). Vui lòng kiểm tra kết nối mạng và đảm bảo backend đang chạy tại ${API_URL}`
+          );
+        }
+        // Retry timeout
+        continue;
+      }
+
+      // If this was the last attempt, throw the error with details
+      if (attempt === maxRetries) {
         if (error.message) {
           throw error;
         }
+        // Generic error with more context
+        if (__DEV__) {
+          console.error(`API Error for ${endpoint}:`, error);
+        }
         throw new Error(
-          "Có lỗi xảy ra khi kết nối đến server. Vui lòng kiểm tra kết nối mạng."
+          `Có lỗi xảy ra khi kết nối đến server ${API_URL}${endpoint}. Vui lòng kiểm tra kết nối mạng và thử lại sau.`
         );
       }
       // Otherwise, continue to next retry (only for network errors or server errors)
+      continue;
     }
   }
 
   // This should never be reached, but TypeScript needs it
-  throw new Error("Unexpected error in API request");
+  // If we get here, something went very wrong
+  if (__DEV__) {
+    console.error(
+      `⚠️ Unexpected: API request for ${endpoint} completed without returning or throwing`
+    );
+  }
+  throw new Error(
+    `Lỗi không xác định khi gọi API ${endpoint}. Vui lòng thử lại hoặc liên hệ hỗ trợ.`
+  );
 };

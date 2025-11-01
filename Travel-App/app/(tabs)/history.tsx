@@ -33,30 +33,9 @@ export default function HistoryScreen() {
         (t) => t.status === "completed" || t.status === "cancelled"
       );
 
-      // Enrich trips with tour images if missing
-      const enrichedTrips = await Promise.all(
-        historyTrips.map(async (trip) => {
-          // If destinationImage is missing and we have destinationId, try to fetch tour
-          if (!trip.destinationImage && trip.destinationId) {
-            try {
-              const tour = await api.getTourById(trip.destinationId);
-              if (tour) {
-                return {
-                  ...trip,
-                  destinationImage:
-                    tour.imageUrl || tour.images?.[0] || trip.destinationImage,
-                  destinationName: tour.title || trip.destinationName,
-                };
-              }
-            } catch (error) {
-              // Silent fail - use existing data
-            }
-          }
-          return trip;
-        })
-      );
-
-      setTrips(enrichedTrips);
+      // Skip individual tour fetches for performance - use existing data only
+      // If images are missing, they'll show placeholder from TripCard component
+      setTrips(historyTrips);
     } catch (error: any) {
       console.error("Error loading history:", error);
     } finally {

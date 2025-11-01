@@ -235,7 +235,7 @@ export default function AllDealsScreen() {
       const deals: Deal[] = [];
 
       // Fetch tours có originalPrice (có discount)
-      const { tours } = await api.getTours({ limit: 100 });
+      const { tours } = await api.getTours({ limit: 50 }); // Reduced from 100 to 50 for faster loading
       tours.forEach((tour: Tour) => {
         if (tour.originalPrice && tour.originalPrice > tour.price) {
           const discountPercent = Math.round(

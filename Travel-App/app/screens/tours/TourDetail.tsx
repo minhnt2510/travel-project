@@ -68,13 +68,20 @@ export default function TourDetail() {
   const { user } = useUser();
   const isDark = useColorScheme() === "dark";
 
-  // Mock data - sẽ được thay bằng API
-  const mockSlots: TimeSlot[] = [
-    { id: "1", time: "08:00", availableSeats: 15, price: 500000, isWeekend: false },
-    { id: "2", time: "09:00", availableSeats: 20, price: 550000, isWeekend: false },
-    { id: "3", time: "14:00", availableSeats: 10, price: 600000, isWeekend: false },
-    { id: "4", time: "09:00", availableSeats: 12, price: 700000, isWeekend: true }, // Weekend
-  ];
+  // Helper function to generate time slots based on tour base price
+  const generateTimeSlots = (basePrice: number): TimeSlot[] => {
+    // Slots should be based on tour price, with small variations for different times
+    // Weekend slots are typically 15-20% more expensive
+    const weekdayPrice = basePrice;
+    const weekendPrice = Math.round(basePrice * 1.15); // 15% more for weekend
+    
+    return [
+      { id: "1", time: "08:00", availableSeats: 15, price: weekdayPrice, isWeekend: false },
+      { id: "2", time: "09:00", availableSeats: 20, price: weekdayPrice, isWeekend: false },
+      { id: "3", time: "14:00", availableSeats: 10, price: Math.round(weekdayPrice * 0.95), isWeekend: false }, // Slightly cheaper afternoon
+      { id: "4", time: "09:00", availableSeats: 12, price: weekendPrice, isWeekend: true }, // Weekend more expensive
+    ];
+  };
 
   const mockPickupPoints: PickupPoint[] = [
     {
@@ -147,20 +154,23 @@ export default function TourDetail() {
       
       const data = await api.getTourById(destinationId!);
       if (data) {
+        // Generate time slots based on tour's base price (not hardcoded)
+        const generatedSlots = generateTimeSlots(data.price);
+        
         // Merge với mock data
         setTour({
           ...data,
-          timeSlots: mockSlots,
+          timeSlots: generatedSlots,
           pickupPoints: mockPickupPoints,
           addOns: mockAddOns,
           hasGuide: true,
           hasPickup: true,
           cancellationPolicy: "Hủy miễn phí trước 24h",
         });
-        // Select first slot by default
-        if (mockSlots.length > 0) {
-          setSelectedSlot(mockSlots[0]);
-        }
+        // Don't auto-select slot - show tour base price first
+        // User will select slot manually if needed
+        setSelectedSlot(null);
+        
         if (mockPickupPoints.length > 0) {
           setSelectedPickupPoint(mockPickupPoints[0]);
         }
@@ -174,8 +184,9 @@ export default function TourDetail() {
   };
 
   const calculateTotalPrice = () => {
-    if (!selectedSlot) return 0;
-    let total = selectedSlot.price;
+    // Use selected slot price if available, otherwise use tour base price
+    const basePrice = selectedSlot ? selectedSlot.price : tour.price;
+    let total = basePrice;
     selectedAddOns.forEach((addOnId) => {
       const addOn = mockAddOns.find((a) => a.id === addOnId);
       if (addOn) total += addOn.price;
@@ -192,10 +203,12 @@ export default function TourDetail() {
       return;
     }
 
-    if (!selectedSlot) {
-      Alert.alert("Lỗi", "Vui lòng chọn thời gian khởi hành");
-      return;
-    }
+    // Slot selection is optional - use tour base price if not selected
+    // If user wants to require slot selection, uncomment below:
+    // if (!selectedSlot) {
+    //   Alert.alert("Lỗi", "Vui lòng chọn thời gian khởi hành");
+    //   return;
+    // }
 
     setShowBookingModal(true);
   };
@@ -312,7 +325,7 @@ export default function TourDetail() {
             <View className="mb-4">
               <View className="flex-row items-baseline">
                 <ThemedText className={`text-3xl font-extrabold ${isDark ? "text-blue-400" : "text-blue-600"}`}>
-                  {selectedSlot ? selectedSlot.price.toLocaleString() : tour.price.toLocaleString()}₫
+                  {(selectedSlot ? selectedSlot.price : tour.price).toLocaleString("vi-VN")}₫
                 </ThemedText>
                 <ThemedText className={`ml-2 text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
                   /người
@@ -320,7 +333,12 @@ export default function TourDetail() {
               </View>
               {tour.originalPrice && tour.originalPrice > (selectedSlot?.price || tour.price) && (
                 <ThemedText className="text-gray-400 text-sm line-through mt-1">
-                  {tour.originalPrice.toLocaleString()}₫
+                  {tour.originalPrice.toLocaleString("vi-VN")}₫
+                </ThemedText>
+              )}
+              {selectedSlot && selectedSlot.price !== tour.price && (
+                <ThemedText className={`text-xs mt-1 ${isDark ? "text-blue-300" : "text-blue-600"}`}>
+                  {selectedSlot.isWeekend ? "Giá cuối tuần" : "Giá đã chọn theo slot"}
                 </ThemedText>
               )}
             </View>
@@ -371,7 +389,7 @@ export default function TourDetail() {
                             : isDark ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
-                        {slot.price.toLocaleString()}₫
+                        {slot.price.toLocaleString("vi-VN")}₫
                       </ThemedText>
                       <ThemedText
                         className={`text-xs text-center mt-1 ${
