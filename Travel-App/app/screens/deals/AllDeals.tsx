@@ -91,7 +91,7 @@ export default function AllDealsScreen() {
       name: "Phố cổ Hội An - Ánh đèn lung linh",
       type: "Tour",
       image:
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSubIRulzd54wWhkW5arL9YQnSoC2Xo0IgLXw&s",
+        "https://mia.vn/media/uploads/blog-du-lich/pho-co-hoi-an-11-1722915372.jpg",
       price: "1,800,000đ",
       originalPrice: "2,200,000đ",
       discount: "18%",
@@ -104,7 +104,7 @@ export default function AllDealsScreen() {
       id: "tour5",
       name: "Sa Pa - Mùa vàng ruộng bậc thang",
       type: "Tour",
-      image: "https://static.sggp.org.vn/images/2024/06/28/17/sapa.jpg",
+      image: "https://media.loveitopcdn.com/38104/dinh-nui-fansipan.jpg",
       price: "4,200,000đ",
       originalPrice: "5,000,000đ",
       discount: "16%",

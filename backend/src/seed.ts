@@ -163,9 +163,9 @@ const tours = [
     category: "culture",
     featured: false,
     imageUrl:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=600&fit=crop",
+      "https://mia.vn/media/uploads/blog-du-lich/pho-co-hoi-an-11-1722915372.jpg",
     images: [
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800&h=600&fit=crop",
+      "https://mia.vn/media/uploads/blog-du-lich/pho-co-hoi-an-11-1722915372.jpg",
     ],
     availableSeats: 20,
     maxSeats: 25,
@@ -204,9 +204,9 @@ const tours = [
     category: "mountain",
     featured: false,
     imageUrl:
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop",
+      "https://media.loveitopcdn.com/38104/dinh-nui-fansipan.jpg",
     images: [
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop",
+      "https://media.loveitopcdn.com/38104/dinh-nui-fansipan.jpg",
     ],
     availableSeats: 10,
     maxSeats: 16,
@@ -331,9 +331,9 @@ const tours = [
     category: "mountain",
     featured: true,
     imageUrl:
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop",
+      "https://bcp.cdnchinhphu.vn/Uploaded/buithuhuong/2018_11_09/doi-nui-ha-giang-600x400.jpg",
     images: [
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&h=600&fit=crop",
+      "https://bcp.cdnchinhphu.vn/Uploaded/buithuhuong/2018_11_09/doi-nui-ha-giang-600x400.jpg",
     ],
     availableSeats: 12,
     maxSeats: 18,
