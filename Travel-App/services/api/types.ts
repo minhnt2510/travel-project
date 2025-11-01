@@ -104,7 +104,8 @@ export interface User {
   email: string;
   avatar?: string;
   phone?: string;
-  role?: string;
+  role?: "user" | "admin";
+  createdAt?: string;
 }
 
 export interface Trip {

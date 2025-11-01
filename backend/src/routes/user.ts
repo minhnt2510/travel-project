@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { requireAuth, AuthRequest } from "../middleware/auth";
+import { requireAuth, requireAdmin, type AuthRequest } from "../middleware/auth";
 import { z } from "zod";
 import { IUser, User } from "../models/User";
 
@@ -32,5 +32,63 @@ router.put("/me", requireAuth, async (req: AuthRequest, res) => {
   if (!user) return res.status(404).json({ message: "User not found" });
   return res.json(user);
 });
+
+// Admin: Get all users
+router.get("/admin/users", requireAdmin, async (req: AuthRequest, res) => {
+  const users = await User.find()
+    .select("-passwordHash")
+    .sort({ createdAt: -1 })
+    .lean<IUser[]>();
+  res.json(users);
+});
+
+// Admin: Get user by id
+router.get("/admin/users/:id", requireAdmin, async (req: AuthRequest, res) => {
+  const user = await User.findById(req.params.id)
+    .select("-passwordHash")
+    .lean<IUser>();
+  if (!user) return res.status(404).json({ message: "User not found" });
+  res.json(user);
+});
+
+// Admin: Delete user
+router.delete("/admin/users/:id", requireAdmin, async (req: AuthRequest, res) => {
+  // Prevent deleting self
+  if (req.params.id === req.userId) {
+    return res.status(400).json({ message: "Cannot delete your own account" });
+  }
+  
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) return res.status(404).json({ message: "User not found" });
+  res.json({ message: "User deleted successfully" });
+});
+
+// Admin: Update user role
+router.put(
+  "/admin/users/:id/role",
+  requireAdmin,
+  async (req: AuthRequest, res) => {
+    const { role } = req.body;
+    if (!["user", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+    
+    // Prevent changing own role
+    if (req.params.id === req.userId) {
+      return res.status(400).json({ message: "Cannot change your own role" });
+    }
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true }
+    )
+      .select("-passwordHash")
+      .lean<IUser>();
+    
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  }
+);
 
 export default router;

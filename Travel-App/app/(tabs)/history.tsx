@@ -15,7 +15,7 @@ import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { api, type Trip } from "@/services/api";
 
-type FilterKey = "all" | "confirmed" | "cancelled";
+type FilterKey = "all" | "completed" | "cancelled";
 
 export default function HistoryScreen() {
   const [loading, setLoading] = useState(true);
@@ -25,12 +25,18 @@ export default function HistoryScreen() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const data = await api.getTrips();
-    const past = data.filter(
-      (t) => t.status === "confirmed" || t.status === "cancelled"
-    );
-    setTrips(past);
-    setLoading(false);
+    try {
+      const data = await api.getTrips();
+      // History tab chỉ hiển thị completed và cancelled bookings
+      const historyTrips = data.filter(
+        (t) => t.status === "completed" || t.status === "cancelled"
+      );
+      setTrips(historyTrips);
+    } catch (error: any) {
+      console.error("Error loading history:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   // Reload mỗi lần màn hình focus
@@ -55,7 +61,7 @@ export default function HistoryScreen() {
     <View className="px-5 pt-2 pb-4">
       <ThemedText className="text-2xl font-extrabold">Lịch sử</ThemedText>
       <ThemedText className="text-gray-500 mt-1">
-        Các chuyến đã hoàn tất hoặc đã hủy
+        Các chuyến đã hoàn thành hoặc đã hủy
       </ThemedText>
 
       {/* Bộ lọc nhanh */}
@@ -66,9 +72,9 @@ export default function HistoryScreen() {
           onPress={() => setFilter("all")}
         />
         <FilterChip
-          label="Đã xác nhận"
-          active={filter === "confirmed"}
-          onPress={() => setFilter("confirmed")}
+          label="Đã hoàn thành"
+          active={filter === "completed"}
+          onPress={() => setFilter("completed")}
         />
         <FilterChip
           label="Đã hủy"
@@ -96,7 +102,7 @@ export default function HistoryScreen() {
           <View className="p-8 rounded-3xl bg-white/70 dark:bg-slate-800 shadow-xl">
             <IconSymbol name="archive" size={56} color="#9ca3af" />
             <ThemedText className="mt-4 text-center text-base text-gray-600 dark:text-gray-300">
-              Chưa có chuyến đã xác nhận hoặc đã hủy.
+              Chưa có chuyến đã hoàn thành hoặc đã hủy.
             </ThemedText>
           </View>
         </ThemedView>
@@ -216,11 +222,11 @@ function FilterChip({
 }
 
 function statusStyle(status: Trip["status"]) {
-  if (status === "confirmed") {
+  if (status === "completed") {
     return {
-      badgeBg: "bg-emerald-100 dark:bg-emerald-900/40",
-      badgeText: "text-emerald-700 dark:text-emerald-300",
-      label: "Đã xác nhận",
+      badgeBg: "bg-blue-100 dark:bg-blue-900/40",
+      badgeText: "text-blue-700 dark:text-blue-300",
+      label: "Đã hoàn thành",
     };
   }
   if (status === "cancelled") {

@@ -44,6 +44,12 @@ export const api = {
   getUser: usersApi.getCurrentUser, // Alias
   updateUser: usersApi.updateUser,
 
+  // Admin Users
+  getAllUsers: usersApi.getAllUsers,
+  getUserById: usersApi.getUserById,
+  deleteUser: usersApi.deleteUser,
+  updateUserRole: usersApi.updateUserRole,
+
   // Bookings
   getBookings: bookingsApi.getBookings,
   createBooking: bookingsApi.createBooking,

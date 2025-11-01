@@ -78,9 +78,11 @@ export default function BookingsScreen() {
     try {
       setLoading(true);
       const data = await api.getTrips();
-      // Filter out cancelled bookings - only show active bookings in "My Trips"
-      // Cancelled bookings should only appear in "History" tabr
-      const activeTrips = data.filter((trip) => trip.status !== "cancelled");
+      // Filter out cancelled and completed bookings - only show active bookings in "My Trips"
+      // Cancelled and completed bookings should only appear in "History" tab
+      const activeTrips = data.filter(
+        (trip) => trip.status !== "cancelled" && trip.status !== "completed"
+      );
       setTrips(activeTrips);
     } catch (error: any) {
       console.error("Error loading trips:", error);
