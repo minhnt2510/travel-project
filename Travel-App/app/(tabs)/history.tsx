@@ -6,9 +6,10 @@ import {
   View,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 
 import { ThemedText } from "@/ui-components/themed-text";
 import { ThemedView } from "@/ui-components/themed-view";
@@ -58,9 +59,14 @@ export default function HistoryScreen() {
   }, [trips, filter]);
 
   const renderHeader = () => (
-    <View className="px-5 pt-2 pb-4">
-      <ThemedText className="text-2xl font-extrabold">Lịch sử</ThemedText>
-      <ThemedText className="text-gray-500 mt-1">
+    <LinearGradient
+      colors={["#667eea", "#764ba2"] as [string, string, ...string[]]}
+      className="px-5 pt-2 pb-6 rounded-b-3xl"
+    >
+      <ThemedText className="text-white text-3xl font-extrabold">
+        Lịch sử
+      </ThemedText>
+      <ThemedText className="text-white/90 mt-1 text-base">
         Các chuyến đã hoàn thành hoặc đã hủy
       </ThemedText>
 
@@ -82,7 +88,7 @@ export default function HistoryScreen() {
           onPress={() => setFilter("cancelled")}
         />
       </View>
-    </View>
+    </LinearGradient>
   );
 
   if (loading) {
@@ -181,12 +187,35 @@ function TripCard({ trip }: { trip: Trip }) {
           </View>
         </View>
 
-        {/* Hành động phụ (nếu muốn mở chi tiết hóa đơn / đánh giá) */}
-        {/* <View className="flex-row mt-3">
-          <TouchableOpacity className="px-3 py-2 rounded-xl bg-blue-50 dark:bg-slate-700">
-            <ThemedText className="text-blue-600 dark:text-blue-300 text-sm font-semibold">Xem chi tiết</ThemedText>
-          </TouchableOpacity>
-        </View> */}
+        {/* Action buttons for completed trips */}
+        {trip.status === "completed" && (
+          <View className="flex-row mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
+            <TouchableOpacity
+              onPress={() => {
+                const tourId = typeof trip.tourId === "object" ? trip.tourId._id : trip.tourId;
+                router.push({
+                  pathname: "/screens/reviews/ReviewCreate",
+                  params: { bookingId: trip.id, tourId },
+                });
+              }}
+              className="flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-3 rounded-xl items-center shadow-lg"
+              style={{
+                shadowColor: "#f59e0b",
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.3,
+                shadowRadius: 4,
+                elevation: 4,
+              }}
+            >
+              <View className="flex-row items-center">
+                <IconSymbol name="star" size={18} color="#FFF" />
+                <ThemedText className="text-white font-bold ml-2">
+                  Đánh giá
+                </ThemedText>
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </View>
   );
