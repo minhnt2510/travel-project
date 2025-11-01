@@ -203,11 +203,8 @@ const tours = [
     duration: 3,
     category: "mountain",
     featured: false,
-    imageUrl:
-      "https://media.loveitopcdn.com/38104/dinh-nui-fansipan.jpg",
-    images: [
-      "https://media.loveitopcdn.com/38104/dinh-nui-fansipan.jpg",
-    ],
+    imageUrl: "https://media.loveitopcdn.com/38104/dinh-nui-fansipan.jpg",
+    images: ["https://media.loveitopcdn.com/38104/dinh-nui-fansipan.jpg"],
     availableSeats: 10,
     maxSeats: 16,
     rating: 4.8,
@@ -501,8 +498,6 @@ async function seed() {
       },
       { upsert: true, new: true }
     );
-    console.log("Created admin user:", adminUser.email);
-
     console.log("✅ Seeding completed!");
     process.exit(0);
   } catch (error) {

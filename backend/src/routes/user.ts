@@ -30,22 +30,12 @@ router.put("/me", requireAuth, async (req: AuthRequest, res) => {
   const parsed = updateUserSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json(parsed.error.flatten());
 
-  // Log avatar update for debugging
-  if (parsed.data.avatar) {
-    console.log("Updating user avatar, length:", parsed.data.avatar.length);
-  }
-
   const user = await User.findByIdAndUpdate(req.userId, parsed.data, {
     new: true,
     projection: "-passwordHash",
   }).lean<IUser>();
 
   if (!user) return res.status(404).json({ message: "User not found" });
-  
-  // Log result
-  if (user.avatar) {
-    console.log("User avatar updated successfully, length:", user.avatar.length);
-  }
   
   return res.json(user);
 });

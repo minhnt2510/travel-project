@@ -44,8 +44,6 @@ export const apiRequest = async (
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
-  } else if (__DEV__) {
-    console.warn(`⚠️ No token found for request: ${endpoint}`);
   }
 
   // Helper function to make a single request attempt
@@ -58,10 +56,8 @@ export const apiRequest = async (
 
     try {
       const url = `${API_URL}${endpoint}`;
-      if (__DEV__ && attempt === 0) {
-        console.log(`🌐 API Request [${options.method || 'GET'}]: ${url}`);
-      }
-      
+      // Removed verbose logging
+
       const response = await fetch(url, {
         ...options,
         headers,
@@ -72,12 +68,12 @@ export const apiRequest = async (
       return response;
     } catch (error: any) {
       clearTimeout(timeoutId);
-      
+
       // If it's an abort error (timeout) and we have retries left, throw to retry
-      if (error.name === 'AbortError' && attempt < retries) {
+      if (error.name === "AbortError" && attempt < retries) {
         throw error;
       }
-      
+
       // Re-throw to be handled by outer catch
       throw error;
     }
@@ -89,19 +85,19 @@ export const apiRequest = async (
       if (attempt > 0) {
         // Wait before retry: exponential backoff (1s, 2s, 4s...)
         const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-        await new Promise(resolve => setTimeout(resolve, delay));
-        if (__DEV__) {
-          console.log(`🔄 Retrying request (attempt ${attempt + 1}/${retries + 1}):`, endpoint);
-        }
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        // Retrying silently
       }
 
       const response = await makeRequest(attempt);
 
       if (!response.ok) {
         // Try to get error details from response
-        let error: any = { message: `Request failed with status ${response.status}` };
+        let error: any = {
+          message: `Request failed with status ${response.status}`,
+        };
         const contentType = response.headers.get("content-type");
-        
+
         try {
           if (contentType && contentType.includes("application/json")) {
             error = await response.json();
@@ -115,10 +111,11 @@ export const apiRequest = async (
             console.warn(`⚠️ Could not parse error response for ${endpoint}`);
           }
         }
-        
+
         // Extract error message from various possible formats
-        let errorMessage = error.message || error.error || `Request failed: ${response.status}`;
-        
+        let errorMessage =
+          error.message || error.error || `Request failed: ${response.status}`;
+
         // Handle Zod validation errors (fieldErrors format)
         if (error.fieldErrors) {
           const fieldErrors: string[] = [];
@@ -132,28 +129,45 @@ export const apiRequest = async (
             errorMessage = fieldErrors.join(", ");
           }
         }
-        
+
         // Don't retry on client errors (4xx) except 408 (Request Timeout)
         // These should be thrown immediately without retrying
-        if (response.status >= 400 && response.status < 500 && response.status !== 408) {
-          const errorMsg = typeof errorMessage === 'string' 
-            ? errorMessage 
-            : JSON.stringify(errorMessage) || `Request failed: ${response.status}`;
-          
+        if (
+          response.status >= 400 &&
+          response.status < 500 &&
+          response.status !== 408
+        ) {
+          const errorMsg =
+            typeof errorMessage === "string"
+              ? errorMessage
+              : JSON.stringify(errorMessage) ||
+                `Request failed: ${response.status}`;
+
           // Don't log "already cancelled" errors as they're handled gracefully
-          const isAlreadyCancelled = errorMsg.includes("already cancelled") || 
-                                    errorMsg.includes("Booking already cancelled");
-          
-          // For Forbidden (403) on booking endpoints, don't log as ERROR since we have fallback
-          // Only log if it's not a booking detail request (which has fallback mechanism)
-          const isBookingForbidden = response.status === 403 && 
-                                     (endpoint.includes('/bookings/') && !endpoint.includes('/cancel'));
-          
-          if (__DEV__ && !isAlreadyCancelled && !isBookingForbidden) {
-            console.error(`❌ API Error ${response.status} for ${endpoint}:`, errorMsg);
-            console.error(`📄 Full error response:`, error);
+          const isAlreadyCancelled =
+            errorMsg.includes("already cancelled") ||
+            errorMsg.includes("Booking already cancelled");
+
+          // For Forbidden (403) on booking/review endpoints, don't log as ERROR since we have fallback
+          // Only log if it's not a detail request (which has fallback mechanism)
+          const isBookingForbidden =
+            response.status === 403 &&
+            endpoint.includes("/bookings/") &&
+            !endpoint.includes("/cancel");
+          const isReviewForbidden =
+            response.status === 403 && endpoint.includes("/reviews");
+
+          // Only log server errors (5xx) - client errors are expected and handled
+          if (
+            __DEV__ &&
+            !isAlreadyCancelled &&
+            !isBookingForbidden &&
+            !isReviewForbidden &&
+            response.status >= 500
+          ) {
+            console.error(`API Error ${response.status} for ${endpoint}`);
           }
-          
+
           const clientError = new Error(errorMsg);
           (clientError as any).statusCode = response.status;
           (clientError as any).isClientError = true; // Mark as client error to prevent retry
@@ -161,13 +175,20 @@ export const apiRequest = async (
           (clientError as any).isBookingForbidden = isBookingForbidden; // Mark for silent fallback
           throw clientError;
         }
-        
+
         // For server errors (5xx) or 408, retry if attempts remain
-        if (attempt < retries && (response.status >= 500 || response.status === 408)) {
+        if (
+          attempt < retries &&
+          (response.status >= 500 || response.status === 408)
+        ) {
           continue;
         }
-        
-        throw new Error(typeof errorMessage === 'string' ? errorMessage : `Request failed: ${response.status}`);
+
+        throw new Error(
+          typeof errorMessage === "string"
+            ? errorMessage
+            : `Request failed: ${response.status}`
+        );
       }
 
       const data = await response.json();
@@ -177,18 +198,22 @@ export const apiRequest = async (
       if (error.isClientError) {
         throw error;
       }
-      
+
       // If this was the last attempt, throw the error
       if (attempt === retries) {
-        if (error.name === 'AbortError') {
-          console.error("API Error: Request timed out after retries", endpoint);
-          throw new Error(`Kết nối timeout sau ${retries + 1} lần thử. Vui lòng kiểm tra kết nối mạng và đảm bảo backend đang chạy tại ${API_URL}`);
+        if (error.name === "AbortError") {
+          throw new Error(
+            `Kết nối timeout sau ${
+              retries + 1
+            } lần thử. Vui lòng kiểm tra kết nối mạng và đảm bảo backend đang chạy tại ${API_URL}`
+          );
         }
         if (error.message) {
           throw error;
         }
-        console.error("API Error:", error, endpoint);
-        throw new Error("Có lỗi xảy ra khi kết nối đến server. Vui lòng kiểm tra kết nối mạng.");
+        throw new Error(
+          "Có lỗi xảy ra khi kết nối đến server. Vui lòng kiểm tra kết nối mạng."
+        );
       }
       // Otherwise, continue to next retry (only for network errors or server errors)
     }

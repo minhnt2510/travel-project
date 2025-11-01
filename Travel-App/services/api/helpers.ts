@@ -46,7 +46,6 @@ export const helpersApi = {
         coordinates: tour.coordinates || { latitude: 0, longitude: 0 },
       };
     } catch (error: any) {
-      console.error("Error in getDestinationById:", error);
       if (error.message) {
         throw error;
       }
@@ -128,7 +127,6 @@ export const helpersApi = {
         };
       });
     } catch (error: any) {
-      console.error("Error in getTrips:", error);
       throw error;
     }
   },

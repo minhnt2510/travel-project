@@ -32,7 +32,31 @@ export default function HistoryScreen() {
       const historyTrips = data.filter(
         (t) => t.status === "completed" || t.status === "cancelled"
       );
-      setTrips(historyTrips);
+
+      // Enrich trips with tour images if missing
+      const enrichedTrips = await Promise.all(
+        historyTrips.map(async (trip) => {
+          // If destinationImage is missing and we have destinationId, try to fetch tour
+          if (!trip.destinationImage && trip.destinationId) {
+            try {
+              const tour = await api.getTourById(trip.destinationId);
+              if (tour) {
+                return {
+                  ...trip,
+                  destinationImage:
+                    tour.imageUrl || tour.images?.[0] || trip.destinationImage,
+                  destinationName: tour.title || trip.destinationName,
+                };
+              }
+            } catch (error) {
+              // Silent fail - use existing data
+            }
+          }
+          return trip;
+        })
+      );
+
+      setTrips(enrichedTrips);
     } catch (error: any) {
       console.error("Error loading history:", error);
     } finally {
@@ -140,11 +164,21 @@ function TripCard({ trip }: { trip: Trip }) {
   return (
     <View className="rounded-3xl overflow-hidden bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-md">
       {/* Ảnh + badge trạng thái */}
-      <View className="relative">
+      <View className="relative bg-gray-200">
         <Image
-          source={{ uri: trip.destinationImage }}
+          source={{
+            uri:
+              trip.destinationImage ||
+              "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop",
+          }}
           className="w-full h-44"
           contentFit="cover"
+          placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
+          transition={200}
+          cachePolicy="memory-disk"
+          onError={() => {
+            // Error handled by fallback URI
+          }}
         />
         <View className="absolute inset-0 bg-black/10" />
         <View className="absolute top-3 right-3">
@@ -197,7 +231,7 @@ function TripCard({ trip }: { trip: Trip }) {
                   params: { bookingId: trip.id, tourId: trip.destinationId },
                 });
               }}
-              className="flex-1 bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-3 rounded-xl items-center shadow-lg"
+              className="flex-1 px-4 py-3 rounded-xl items-center shadow-lg"
               style={{
                 shadowColor: "#f59e0b",
                 shadowOffset: { width: 0, height: 2 },
@@ -206,9 +240,21 @@ function TripCard({ trip }: { trip: Trip }) {
                 elevation: 4,
               }}
             >
-              <View className="flex-row items-center">
-                <IconSymbol name="star" size={18} color="#FFF" />
-                <ThemedText className="text-white font-bold ml-2">
+              <LinearGradient
+                colors={
+                  ["#ea580c", "#c2410c", "#9a3412"] as [
+                    string,
+                    string,
+                    ...string[]
+                  ]
+                }
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                className="absolute inset-0 rounded-xl"
+              />
+              <View className="flex-row items-center z-10">
+                <IconSymbol name="star" size={20} color="#FFF" />
+                <ThemedText className="text-white font-extrabold ml-2 text-base">
                   Đánh giá
                 </ThemedText>
               </View>

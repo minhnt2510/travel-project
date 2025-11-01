@@ -40,7 +40,6 @@ export default function LoginScreen() {
     setIsLoading(true);
     try {
       const result = await api.login(email.trim(), password);
-      console.log("Login result:", result); // Debug log
 
       if (result.success && result.user && result.accessToken) {
         const userData = {
@@ -54,19 +53,13 @@ export default function LoginScreen() {
           phone: result.user.phone,
         };
 
-        console.log("User data:", userData); // Debug log
-        console.log("User role:", userData.role); // Debug log
-
         login(userData, result.accessToken);
 
         // Redirect based on role - using push instead of replace for better navigation
         if (userData.role === "admin") {
-          console.log("Redirecting to Admin Dashboard");
-          // Use push and then clear history
           router.dismissAll();
           router.push("/screens/AdminDashboard" as any);
         } else {
-          console.log("Redirecting to tabs");
           router.replace("/(tabs)" as any);
         }
       } else {

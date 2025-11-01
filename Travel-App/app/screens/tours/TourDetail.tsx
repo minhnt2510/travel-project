@@ -222,11 +222,14 @@ export default function TourDetail() {
       <ThemedView className="flex-1">
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
           {/* Header Image */}
-          <View className="relative">
+          <View className="relative bg-gray-200">
             <ExpoImage
-              source={{ uri: tour.imageUrl || "https://via.placeholder.com/800" }}
+              source={{ uri: tour.imageUrl || tour.images?.[0] || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&h=600&fit=crop" }}
               className="w-full h-80"
               contentFit="cover"
+              placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
+              transition={200}
+              cachePolicy="memory-disk"
             />
             <View className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent" />
 

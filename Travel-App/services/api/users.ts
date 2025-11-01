@@ -8,14 +8,6 @@ export const usersApi = {
   },
 
   updateUser: async (userData: Partial<User>): Promise<User> => {
-    // Log avatar data length for debugging
-    if (userData.avatar) {
-      console.log("Sending avatar update, length:", userData.avatar.length);
-      // Truncate log if too long
-      if (userData.avatar.length > 100) {
-        console.log("Avatar preview:", userData.avatar.substring(0, 100) + "...");
-      }
-    }
     return await apiRequest("/me", {
       method: "PUT",
       body: JSON.stringify(userData),

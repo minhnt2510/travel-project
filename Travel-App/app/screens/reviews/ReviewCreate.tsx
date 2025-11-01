@@ -26,23 +26,54 @@ export default function ReviewCreate() {
     try {
       setLoadingData(true);
       if (bookingId) {
-        const bookingData = await api.getBookingById(bookingId);
-        setBooking(bookingData);
-        const tourIdFromBooking = typeof bookingData.tourId === "object" 
-          ? bookingData.tourId._id 
-          : bookingData.tourId;
-        if (tourIdFromBooking) {
-          const tourData = await api.getTourById(tourIdFromBooking);
-          setTour(tourData);
+        // Try to get booking detail from API
+        try {
+          const bookingData = await api.getBookingById(bookingId);
+          setBooking(bookingData);
+          const tourIdFromBooking = typeof bookingData.tourId === "object" 
+            ? bookingData.tourId._id 
+            : bookingData.tourId;
+          if (tourIdFromBooking) {
+            const tourData = await api.getTourById(tourIdFromBooking);
+            setTour(tourData);
+          }
+        } catch (apiError: any) {
+          // If Forbidden, try to get from bookings list (fallback)
+          if (apiError.message?.includes("Forbidden") || apiError.message?.includes("403")) {
+            try {
+              const bookings = await api.getBookings();
+              const matchingBooking = bookings.find((b) => b._id === bookingId);
+              
+              if (matchingBooking) {
+                // Fallback successful - use it silently
+                setBooking(matchingBooking);
+                const tourIdFromBooking = typeof matchingBooking.tourId === "object" 
+                  ? matchingBooking.tourId._id 
+                  : matchingBooking.tourId;
+                if (tourIdFromBooking) {
+                  const tourData = await api.getTourById(tourIdFromBooking);
+                  setTour(tourData);
+                }
+                return;
+              }
+            } catch (fallbackError) {
+              // Only log if fallback also fails
+              // Silent error - will show alert below
+            }
+          }
+          // If not Forbidden or fallback failed, throw original error
+          throw apiError;
         }
       } else if (tourId) {
         const tourData = await api.getTourById(tourId);
         setTour(tourData);
       }
     } catch (error: any) {
-      console.error("Error loading review data:", error);
-      Alert.alert("Lỗi", "Không thể tải thông tin tour");
-      router.back();
+      // Only show error if it's not a Forbidden that was handled by fallback
+      if (!error.message?.includes("Forbidden") && !error.message?.includes("403")) {
+        Alert.alert("Lỗi", "Không thể tải thông tin tour");
+        router.back();
+      }
     } finally {
       setLoadingData(false);
     }

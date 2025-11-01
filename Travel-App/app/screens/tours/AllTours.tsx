@@ -229,13 +229,19 @@ export default function AllToursScreen() {
                   }}
                   activeOpacity={0.9}
                 >
-                  <View className="relative">
+                  <View className="relative bg-gray-200">
                     <Image
                       source={{
-                        uri: tour.imageUrl || "https://via.placeholder.com/400",
+                        uri: tour.imageUrl || tour.images?.[0] || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop",
                       }}
                       className="w-full h-56"
                       contentFit="cover"
+                      placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
+                      transition={200}
+                      cachePolicy="memory-disk"
+                      onError={() => {
+                        // Error handled by fallback
+                      }}
                     />
                     <LinearGradient
                       colors={["transparent", "rgba(0,0,0,0.4)"] as [string, string, ...string[]]}
