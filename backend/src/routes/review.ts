@@ -17,6 +17,22 @@ const createReviewSchema = z.object({
   cons: z.array(z.string()).optional(),
 });
 
+/**
+ * @swagger
+ * /tours/{tourId}/reviews:
+ *   get:
+ *     summary: Lấy reviews của tour
+ *     tags: [Reviews]
+ *     parameters:
+ *       - in: path
+ *         name: tourId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of reviews
+ */
 // Get reviews for a tour
 router.get("/tours/:tourId/reviews", async (req, res) => {
   const reviews = await Review.find({ tourId: req.params.tourId })
@@ -25,6 +41,44 @@ router.get("/tours/:tourId/reviews", async (req, res) => {
   res.json(reviews);
 });
 
+/**
+ * @swagger
+ * /reviews:
+ *   post:
+ *     summary: Tạo review
+ *     tags: [Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - tourId
+ *               - rating
+ *             properties:
+ *               tourId:
+ *                 type: string
+ *               bookingId:
+ *                 type: string
+ *               rating:
+ *                 type: number
+ *                 minimum: 1
+ *                 maximum: 5
+ *               comment:
+ *                 type: string
+ *               images:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       201:
+ *         description: Review created
+ *       400:
+ *         description: Already reviewed or booking not completed
+ */
 // Create review
 router.post("/reviews", requireAuth, async (req: AuthRequest, res) => {
   const parsed = createReviewSchema.safeParse(req.body);
@@ -83,6 +137,26 @@ router.post("/reviews", requireAuth, async (req: AuthRequest, res) => {
   res.status(201).json(await review.populate("userId", "name avatar"));
 });
 
+/**
+ * @swagger
+ * /reviews/{id}:
+ *   put:
+ *     summary: Cập nhật review
+ *     tags: [Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Review updated
+ *       403:
+ *         description: Forbidden - Not owner
+ */
 // Update review
 router.put("/reviews/:id", requireAuth, async (req: AuthRequest, res) => {
   const review = await Review.findById(req.params.id);
@@ -108,6 +182,26 @@ router.put("/reviews/:id", requireAuth, async (req: AuthRequest, res) => {
   res.json(await review.populate("userId", "name avatar"));
 });
 
+/**
+ * @swagger
+ * /reviews/{id}:
+ *   delete:
+ *     summary: Xóa review
+ *     tags: [Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Review deleted
+ *       403:
+ *         description: Forbidden
+ */
 // Delete review
 router.delete("/reviews/:id", requireAuth, async (req: AuthRequest, res) => {
   const review = await Review.findById(req.params.id);
@@ -134,6 +228,18 @@ router.delete("/reviews/:id", requireAuth, async (req: AuthRequest, res) => {
   res.json({ success: true });
 });
 
+/**
+ * @swagger
+ * /admin/reviews:
+ *   get:
+ *     summary: Lấy tất cả reviews (Admin only)
+ *     tags: [Admin - Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All reviews
+ */
 // Admin: Get all reviews
 router.get("/admin/reviews", requireAdmin, async (req: AuthRequest, res) => {
   const reviews = await Review.find()
@@ -145,6 +251,24 @@ router.get("/admin/reviews", requireAdmin, async (req: AuthRequest, res) => {
   res.json(reviews);
 });
 
+/**
+ * @swagger
+ * /admin/reviews/tour/{tourId}:
+ *   get:
+ *     summary: Lấy reviews theo tour (Admin only)
+ *     tags: [Admin - Reviews]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: tourId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Reviews for tour
+ */
 // Admin: Get reviews for a specific tour
 router.get("/admin/reviews/tour/:tourId", requireAdmin, async (req: AuthRequest, res) => {
   const reviews = await Review.find({ tourId: req.params.tourId })

@@ -3,6 +3,37 @@ import { Hotel } from "../models/Hotel";
 
 const router = Router();
 
+/**
+ * @swagger
+ * /hotels:
+ *   get:
+ *     summary: Lấy danh sách hotels
+ *     tags: [Hotels]
+ *     parameters:
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: featured
+ *         schema:
+ *           type: boolean
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of hotels
+ */
 // Get hotels with filters
 router.get("/hotels", async (req, res) => {
   const {
@@ -60,6 +91,24 @@ router.get("/hotels/featured", async (_req, res) => {
   res.json(hotels);
 });
 
+/**
+ * @swagger
+ * /hotels/{id}:
+ *   get:
+ *     summary: Lấy chi tiết hotel
+ *     tags: [Hotels]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Hotel details
+ *       404:
+ *         description: Hotel not found
+ */
 // Get hotel by id
 router.get("/hotels/:id", async (req, res) => {
   const { id } = req.params as any;
@@ -71,6 +120,16 @@ router.get("/hotels/:id", async (req, res) => {
   res.json(hotel);
 });
 
+/**
+ * @swagger
+ * /hotels:
+ *   post:
+ *     summary: Tạo hotel mới
+ *     tags: [Hotels]
+ *     responses:
+ *       201:
+ *         description: Hotel created
+ */
 // Create hotel
 router.post("/hotels", async (req, res) => {
   try {

@@ -25,6 +25,26 @@ const createBookingSchema = z.object({
   specialRequests: z.string().optional(),
 });
 
+/**
+ * @swagger
+ * /bookings:
+ *   get:
+ *     summary: Lấy danh sách bookings của user
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Danh sách bookings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Booking'
+ *       401:
+ *         description: Unauthorized
+ */
 // Get user's bookings
 router.get("/bookings", requireAuth, async (req: AuthRequest, res) => {
   const bookings = await Booking.find({ userId: req.userId })
@@ -33,6 +53,70 @@ router.get("/bookings", requireAuth, async (req: AuthRequest, res) => {
   res.json(bookings);
 });
 
+/**
+ * @swagger
+ * /bookings:
+ *   post:
+ *     summary: Tạo booking mới
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - tourId
+ *               - quantity
+ *               - travelDate
+ *               - travelers
+ *               - contactInfo
+ *             properties:
+ *               tourId:
+ *                 type: string
+ *               quantity:
+ *                 type: number
+ *                 minimum: 1
+ *               travelDate:
+ *                 type: string
+ *                 format: date
+ *               travelers:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     age:
+ *                       type: number
+ *                     idCard:
+ *                       type: string
+ *               contactInfo:
+ *                 type: object
+ *                 properties:
+ *                   phone:
+ *                     type: string
+ *                   email:
+ *                     type: string
+ *                     format: email
+ *               specialRequests:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Booking created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Booking'
+ *       400:
+ *         description: Validation error or not enough seats
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Tour not found
+ */
 // Create booking
 router.post("/bookings", requireAuth, async (req: AuthRequest, res) => {
   const parsed = createBookingSchema.safeParse(req.body);
@@ -79,6 +163,28 @@ router.post("/bookings", requireAuth, async (req: AuthRequest, res) => {
   res.status(201).json(await booking.populate("tourId"));
 });
 
+/**
+ * @swagger
+ * /bookings/{id}:
+ *   get:
+ *     summary: Lấy chi tiết booking
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Booking details
+ *       403:
+ *         description: Forbidden - Not owner
+ *       404:
+ *         description: Booking not found
+ */
 // Get booking by id
 router.get("/bookings/:id", requireAuth, async (req: AuthRequest, res) => {
   const booking = await Booking.findById(req.params.id)
@@ -94,6 +200,28 @@ router.get("/bookings/:id", requireAuth, async (req: AuthRequest, res) => {
   res.json(booking);
 });
 
+/**
+ * @swagger
+ * /bookings/{id}/cancel:
+ *   put:
+ *     summary: Hủy booking
+ *     tags: [Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Booking cancelled
+ *       400:
+ *         description: Already cancelled
+ *       403:
+ *         description: Forbidden
+ */
 // Cancel booking
 router.put(
   "/bookings/:id/cancel",
@@ -124,6 +252,20 @@ router.put(
   }
 );
 
+/**
+ * @swagger
+ * /admin/bookings:
+ *   get:
+ *     summary: Lấy tất cả bookings (Admin only)
+ *     tags: [Admin - Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All bookings
+ *       403:
+ *         description: Forbidden - Admin only
+ */
 // Admin: Get all bookings
 router.get("/admin/bookings", requireAdmin, async (req: AuthRequest, res) => {
   const bookings = await Booking.find()
@@ -133,6 +275,40 @@ router.get("/admin/bookings", requireAdmin, async (req: AuthRequest, res) => {
   res.json(bookings);
 });
 
+/**
+ * @swagger
+ * /admin/bookings/{id}/status:
+ *   put:
+ *     summary: Cập nhật status booking (Admin only)
+ *     tags: [Admin - Bookings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [pending, confirmed, in_progress, completed, cancelled]
+ *     responses:
+ *       200:
+ *         description: Status updated
+ *       400:
+ *         description: Invalid status
+ *       403:
+ *         description: Forbidden - Admin only
+ */
 // Admin: Update booking status
 router.put(
   "/admin/bookings/:id/status",

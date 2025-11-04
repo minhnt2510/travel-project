@@ -1,7 +1,9 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import swaggerUi from "swagger-ui-express";
 import { connectDB } from "./db";
+import { swaggerSpec } from "./config/swagger";
 import authRouter from "./routes/auth";
 import userRouter from "./routes/user";
 import tourRouter from "./routes/tour";
@@ -19,6 +21,17 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 app.get("/", (_req, res) => res.json({ ok: true, service: "travel-backend" }));
+
+// Swagger UI
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Travel App API Documentation",
+  })
+);
+
 app.use("/auth", authRouter);
 app.use("/", userRouter);
 app.use("/", tourRouter);
@@ -33,7 +46,7 @@ const port = Number(process.env.PORT || 4000);
 connectDB()
   .then(() => {
     app.listen(port, () =>
-      console.log(`API listening on http://192.168.142.226:${port}`)
+      console.log(`API listening on http://192.168.137.150:${port}`)
     );
   })
   .catch((e) => {

@@ -5,6 +5,18 @@ import { Tour } from "../models/Tour";
 
 const router = Router();
 
+/**
+ * @swagger
+ * /wishlist:
+ *   get:
+ *     summary: Lấy danh sách yêu thích
+ *     tags: [Wishlist]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Wishlist items
+ */
 // Get user's wishlist
 router.get("/wishlist", requireAuth, async (req: AuthRequest, res) => {
   const wishlist = await Wishlist.find({ userId: req.userId })
@@ -13,6 +25,26 @@ router.get("/wishlist", requireAuth, async (req: AuthRequest, res) => {
   res.json(wishlist);
 });
 
+/**
+ * @swagger
+ * /wishlist/{tourId}:
+ *   post:
+ *     summary: Thêm vào wishlist
+ *     tags: [Wishlist]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: tourId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       201:
+ *         description: Added to wishlist
+ *       400:
+ *         description: Already in wishlist
+ */
 // Add to wishlist
 router.post("/wishlist/:tourId", requireAuth, async (req: AuthRequest, res) => {
   const { tourId } = req.params;
@@ -33,6 +65,26 @@ router.post("/wishlist/:tourId", requireAuth, async (req: AuthRequest, res) => {
   res.status(201).json(await wishlist.populate("tourId"));
 });
 
+/**
+ * @swagger
+ * /wishlist/{tourId}:
+ *   delete:
+ *     summary: Xóa khỏi wishlist
+ *     tags: [Wishlist]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: tourId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Removed from wishlist
+ *       404:
+ *         description: Not found
+ */
 // Remove from wishlist
 router.delete("/wishlist/:tourId", requireAuth, async (req: AuthRequest, res) => {
   const wishlist = await Wishlist.findOneAndDelete({ 

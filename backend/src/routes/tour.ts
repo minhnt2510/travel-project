@@ -3,6 +3,74 @@ import { Tour } from "../models/Tour";
 
 const router = Router();
 
+/**
+ * @swagger
+ * /tours:
+ *   get:
+ *     summary: Lấy danh sách tours
+ *     tags: [Tours]
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *         description: Lọc theo category
+ *       - in: query
+ *         name: location
+ *         schema:
+ *           type: string
+ *         description: Lọc theo location
+ *       - in: query
+ *         name: featured
+ *         schema:
+ *           type: boolean
+ *         description: Lấy tours nổi bật
+ *       - in: query
+ *         name: minPrice
+ *         schema:
+ *           type: number
+ *         description: Giá tối thiểu
+ *       - in: query
+ *         name: maxPrice
+ *         schema:
+ *           type: number
+ *         description: Giá tối đa
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Tìm kiếm
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
+ *           default: 50
+ *         description: Số lượng kết quả
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: number
+ *           default: 0
+ *         description: Phân trang
+ *     responses:
+ *       200:
+ *         description: Danh sách tours
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 tours:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Tour'
+ *                 total:
+ *                   type: number
+ *                 limit:
+ *                   type: number
+ *                 offset:
+ *                   type: number
+ */
 // Get all tours with filters
 router.get("/tours", async (req, res) => {
   const {
@@ -73,6 +141,22 @@ router.get("/tours", async (req, res) => {
   res.json({ tours, total, limit: Number(limit), offset: Number(offset) });
 });
 
+/**
+ * @swagger
+ * /tours/featured:
+ *   get:
+ *     summary: Lấy tours nổi bật
+ *     tags: [Tours]
+ *     responses:
+ *       200:
+ *         description: Featured tours
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Tour'
+ */
 // Get featured tours
 router.get("/tours/featured", async (req, res) => {
   const tours = await Tour.find({ featured: true })
@@ -81,6 +165,31 @@ router.get("/tours/featured", async (req, res) => {
   res.json(tours);
 });
 
+/**
+ * @swagger
+ * /tours/{id}:
+ *   get:
+ *     summary: Lấy chi tiết tour
+ *     tags: [Tours]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Tour ID (MongoDB ObjectId)
+ *     responses:
+ *       200:
+ *         description: Chi tiết tour
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Tour'
+ *       400:
+ *         description: Invalid tour ID format
+ *       404:
+ *         description: Tour not found
+ */
 // Get tour by id
 router.get("/tours/:id", async (req, res) => {
   try {
@@ -113,6 +222,24 @@ router.post("/tours", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /tours/{id}:
+ *   put:
+ *     summary: Cập nhật tour
+ *     tags: [Tours]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Tour updated
+ *       404:
+ *         description: Tour not found
+ */
 // Update tour
 router.put("/tours/:id", async (req, res) => {
   const { id } = req.params;
@@ -121,6 +248,24 @@ router.put("/tours/:id", async (req, res) => {
   res.json(tour);
 });
 
+/**
+ * @swagger
+ * /tours/{id}:
+ *   delete:
+ *     summary: Xóa tour
+ *     tags: [Tours]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Tour deleted
+ *       404:
+ *         description: Tour not found
+ */
 // Delete tour
 router.delete("/tours/:id", async (req, res) => {
   const { id } = req.params;

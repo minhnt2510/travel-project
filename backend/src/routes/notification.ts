@@ -4,6 +4,18 @@ import { Notification } from "../models/Notification";
 
 const router = Router();
 
+/**
+ * @swagger
+ * /notifications:
+ *   get:
+ *     summary: Lấy notifications
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of notifications
+ */
 // Get user's notifications
 router.get("/notifications", requireAuth, async (req: AuthRequest, res) => {
   const notifications = await Notification.find({ userId: req.userId })
@@ -12,6 +24,24 @@ router.get("/notifications", requireAuth, async (req: AuthRequest, res) => {
   res.json(notifications);
 });
 
+/**
+ * @swagger
+ * /notifications/{id}/read:
+ *   put:
+ *     summary: Đánh dấu notification đã đọc
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Notification marked as read
+ */
 // Mark notification as read
 router.put(
   "/notifications/:id/read",
@@ -30,6 +60,18 @@ router.put(
   }
 );
 
+/**
+ * @swagger
+ * /notifications/read-all:
+ *   put:
+ *     summary: Đánh dấu tất cả notifications đã đọc
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All marked as read
+ */
 // Mark all as read
 router.put(
   "/notifications/read-all",
@@ -44,6 +86,24 @@ router.put(
   }
 );
 
+/**
+ * @swagger
+ * /notifications/{id}:
+ *   delete:
+ *     summary: Xóa notification
+ *     tags: [Notifications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Notification deleted
+ */
 // Delete notification
 router.delete(
   "/notifications/:id",
