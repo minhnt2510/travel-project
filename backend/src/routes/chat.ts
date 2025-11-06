@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireAuth, type AuthRequest } from "../middleware/auth";
 import { Tour } from "../models/Tour";
 import { Booking } from "../models/Booking";
+import { getGeminiResponse } from "../services/gemini";
 
 const router = Router();
 
@@ -157,7 +158,17 @@ router.post("/chat", requireAuth, async (req: AuthRequest, res) => {
     }
 
     const { message } = parsed.data;
-    const response = await getChatbotResponse(message, req.userId);
+    
+    // Try Gemini AI first, fallback to rule-based if not available
+    let response: string;
+    const geminiResponse = await getGeminiResponse(message, req.userId);
+    
+    if (geminiResponse) {
+      response = geminiResponse;
+    } else {
+      // Fallback to rule-based chatbot
+      response = await getChatbotResponse(message, req.userId);
+    }
 
     res.json({ response });
   } catch (error: any) {

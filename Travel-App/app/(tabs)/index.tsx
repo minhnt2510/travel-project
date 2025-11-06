@@ -15,6 +15,7 @@ import { api, type Tour } from "@/services/api";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useUser } from "../_layout";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
+import { LinearGradient } from "expo-linear-gradient";
 
 // Components
 import HeroHeader from "@/app/components/home/HeroHeader";
@@ -458,6 +459,28 @@ export default function HomeScreen() {
 
         <View className="h-24" />
       </ScrollView>
+
+      {/* Floating Chatbot Button */}
+      {user && (
+        <TouchableOpacity
+          onPress={() => router.push("/screens/chat/Chat")}
+          className="absolute bottom-24 right-4"
+          style={{
+            shadowColor: "#667eea",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 8,
+          }}
+        >
+          <LinearGradient
+            colors={["#667eea", "#764ba2"]}
+            className="w-16 h-16 rounded-full items-center justify-center"
+          >
+            <IconSymbol name="sparkles" size={28} color="#FFF" />
+          </LinearGradient>
+        </TouchableOpacity>
+      )}
 
       <UserMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />
 
