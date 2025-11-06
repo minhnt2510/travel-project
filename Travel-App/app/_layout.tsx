@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { Slot } from "expo-router";
+import { connectSocket, disconnectSocket } from "@/services/socket";
 
 export type User = {
   _id: string;
@@ -31,16 +32,27 @@ export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
-  const login = (u: User, t: string) => {
+  const login = async (u: User, t: string) => {
     setUser(u);
     setToken(t);
-    // TODO: persist token (AsyncStorage/SecureStore etc)
+    // Connect Socket.IO after login
+    await connectSocket();
   };
   const logout = () => {
     setUser(null);
     setToken(null);
-    // TODO: clear token from storage
+    // Disconnect Socket.IO on logout
+    disconnectSocket();
   };
+
+  // Connect socket when user exists (on app start if already logged in)
+  useEffect(() => {
+    if (user && token) {
+      connectSocket();
+    } else {
+      disconnectSocket();
+    }
+  }, [user, token]);
   return (
     <AuthContext.Provider
       value={{ user, token, setUser, setToken, login, logout }}

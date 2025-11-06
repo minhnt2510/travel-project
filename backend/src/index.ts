@@ -2,8 +2,10 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import swaggerUi from "swagger-ui-express";
+import { createServer } from "http";
 import { connectDB } from "./db";
 import { swaggerSpec } from "./config/swagger";
+import { initializeSocket } from "./socket";
 import authRouter from "./routes/auth";
 import userRouter from "./routes/user";
 import tourRouter from "./routes/tour";
@@ -14,6 +16,7 @@ import hotelRouter from "./routes/hotel";
 import notificationRouter from "./routes/notification";
 
 const app = express();
+const httpServer = createServer(app);
 
 app.use(cors({ origin: "*" }));
 // Increase body parser limit to handle base64 images (up to 50MB)
@@ -45,9 +48,13 @@ const port = Number(process.env.PORT || 4000);
 
 connectDB()
   .then(() => {
-    app.listen(port, () =>
-      console.log(`API listening on http://192.168.137.150:${port}`)
-    );
+    // Initialize Socket.IO
+    initializeSocket(httpServer);
+
+    httpServer.listen(port, () => {
+      console.log(`🚀 API listening on http://192.168.137.150:${port}`);
+      console.log(`📡 Socket.IO server initialized`);
+    });
   })
   .catch((e) => {
     console.error("Failed to connect to DB", e);

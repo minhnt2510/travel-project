@@ -13,6 +13,7 @@ import { api } from "@/services/api";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useUser } from "@/app/_layout";
+import { getSocket } from "@/services/socket";
 
 interface Notification {
   _id: string;
@@ -32,10 +33,30 @@ export default function NotificationsScreen() {
   useEffect(() => {
     if (user) {
       loadNotifications();
+      setupSocketListeners();
     } else {
       setLoading(false);
     }
+
+    // Cleanup on unmount
+    return () => {
+      const socket = getSocket();
+      if (socket) {
+        socket.off("notification");
+      }
+    };
   }, [user]);
+
+  const setupSocketListeners = () => {
+    const socket = getSocket();
+    if (!socket) return;
+
+    // Listen for new notifications
+    socket.on("notification", (newNotification: Notification) => {
+      // Add new notification to the top of the list
+      setNotifications((prev) => [newNotification, ...prev]);
+    });
+  };
 
   const loadNotifications = async () => {
     try {

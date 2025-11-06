@@ -4,6 +4,7 @@ import { requireAuth, requireAdmin, type AuthRequest } from "../middleware/auth"
 import { Booking } from "../models/Booking";
 import { Tour } from "../models/Tour";
 import { Notification } from "../models/Notification";
+import { emitNotification, emitToAdmins } from "../socket";
 
 const router = Router();
 
@@ -151,13 +152,25 @@ router.post("/bookings", requireAuth, async (req: AuthRequest, res) => {
     specialRequests,
   });
 
-  // Create notification
-  await Notification.create({
+  // Create notification in DB
+  const notification = await Notification.create({
     userId: req.userId!,
     type: "booking",
     title: "Đặt tour thành công",
     message: `Bạn đã đặt tour "${tour.title}" thành công!`,
     link: `/bookings/${booking._id}`,
+  });
+
+  // Emit real-time notification via Socket.IO
+  emitNotification(req.userId!, notification.toObject());
+
+  // Notify admins about new booking
+  emitToAdmins("new_booking", {
+    bookingId: booking._id,
+    userId: req.userId!,
+    tourTitle: tour.title,
+    quantity,
+    totalPrice,
   });
 
   res.status(201).json(await booking.populate("tourId"));
@@ -248,6 +261,19 @@ router.put(
       $inc: { availableSeats: booking.quantity },
     });
 
+    // Create notification for cancellation
+    const tour = await Tour.findById(booking.tourId);
+    const notification = await Notification.create({
+      userId: booking.userId,
+      type: "booking",
+      title: "Hủy đặt tour thành công",
+      message: `Bạn đã hủy đặt tour "${tour?.title || "N/A"}" thành công.`,
+      link: `/bookings/${booking._id}`,
+    });
+
+    // Emit real-time notification
+    emitNotification(booking.userId.toString(), notification.toObject());
+
     res.json(booking);
   }
 );
@@ -336,13 +362,16 @@ router.put(
     await booking.save();
 
     // Create notification for user
-    await Notification.create({
+    const notification = await Notification.create({
       userId: booking.userId,
       type: "booking",
       title: `Trạng thái đơn hàng đã được cập nhật`,
       message: `Đơn hàng của bạn đã được chuyển từ "${oldStatus}" sang "${status}"`,
       link: `/bookings/${booking._id}`,
     });
+
+    // Emit real-time notification
+    emitNotification(booking.userId.toString(), notification.toObject());
 
     res.json(await booking.populate("tourId"));
   }

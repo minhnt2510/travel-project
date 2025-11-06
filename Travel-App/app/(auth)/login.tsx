@@ -53,7 +53,7 @@ export default function LoginScreen() {
           phone: result.user.phone,
         };
 
-        login(userData, result.accessToken);
+        await login(userData, result.accessToken);
 
         // Redirect based on role - using push instead of replace for better navigation
         if (userData.role === "admin") {
