@@ -61,7 +61,12 @@ export const initializeSocket = (httpServer: HTTPServer) => {
     // Join user's personal room for notifications
     socket.join(`user:${userId}`);
 
-    // If admin, also join admin room
+    // If staff or admin, join staff room (for operational notifications)
+    if ((socket as any).userRole === "staff" || (socket as any).userRole === "admin") {
+      socket.join("staff");
+    }
+
+    // If admin, also join admin room (for system-level notifications)
     if ((socket as any).userRole === "admin") {
       socket.join("admin");
     }

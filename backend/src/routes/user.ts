@@ -259,7 +259,7 @@ router.put(
   requireAdmin,
   async (req: AuthRequest, res) => {
     const { role } = req.body;
-    if (!["user", "admin"].includes(role)) {
+    if (!["client", "staff", "admin"].includes(role)) {
       return res.status(400).json({ message: "Invalid role" });
     }
     

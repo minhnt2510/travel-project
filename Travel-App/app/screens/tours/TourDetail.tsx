@@ -254,6 +254,52 @@ export default function TourDetail() {
                 <IconSymbol name="arrow-left" size={22} color="#FFF" />
               </TouchableOpacity>
               <View className="flex-row gap-2">
+                {/* Staff/Admin Actions */}
+                {(user?.role === "staff" || user?.role === "admin") && (
+                  <>
+                    <TouchableOpacity
+                      onPress={() => {
+                        Alert.alert(
+                          "Chỉnh sửa Tour",
+                          "Tính năng chỉnh sửa tour sẽ được thêm vào sau",
+                          [{ text: "OK" }]
+                        );
+                        // TODO: Navigate to edit tour screen
+                        // router.push(`/screens/tours/EditTour?id=${tour._id}`);
+                      }}
+                      className="bg-green-500/80 backdrop-blur-md rounded-full p-3.5"
+                    >
+                      <IconSymbol name="edit" size={22} color="#FFF" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        Alert.alert(
+                          "Xóa Tour",
+                          `Bạn có chắc chắn muốn xóa tour "${tour.title}"?`,
+                          [
+                            { text: "Hủy", style: "cancel" },
+                            {
+                              text: "Xóa",
+                              style: "destructive",
+                              onPress: async () => {
+                                try {
+                                  await api.deleteTour(tour._id);
+                                  Alert.alert("Thành công", "Đã xóa tour");
+                                  router.back();
+                                } catch (error: any) {
+                                  Alert.alert("Lỗi", error.message || "Không thể xóa tour");
+                                }
+                              },
+                            },
+                          ]
+                        );
+                      }}
+                      className="bg-red-500/80 backdrop-blur-md rounded-full p-3.5"
+                    >
+                      <IconSymbol name="trash-2" size={22} color="#FFF" />
+                    </TouchableOpacity>
+                  </>
+                )}
                 <TouchableOpacity className="bg-black/50 backdrop-blur-md rounded-full p-3.5">
                   <IconSymbol name="share-2" size={22} color="#FFF" />
                 </TouchableOpacity>
@@ -587,36 +633,73 @@ export default function TourDetail() {
           </View>
         </ScrollView>
 
-        {/* Bottom Booking Bar */}
-        <View
-          className={`absolute bottom-0 left-0 right-0 p-6 ${
-            isDark ? "bg-slate-900" : "bg-white"
-          } border-t ${isDark ? "border-slate-700" : "border-gray-200"}`}
-        >
-          <View className="flex-row items-center justify-between">
-            <View className="flex-1">
-              <ThemedText className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                Tổng cộng
-              </ThemedText>
-              <ThemedText className={`text-2xl font-extrabold ${isDark ? "text-blue-400" : "text-blue-600"}`}>
-                {calculateTotalPrice().toLocaleString()}₫
-              </ThemedText>
-              {selectedAddOns.length > 0 && (
-                <ThemedText className={`text-xs mt-1 ${isDark ? "text-gray-500" : "text-gray-400"}`}>
-                  Bao gồm {selectedAddOns.length} dịch vụ bổ sung
+        {/* Bottom Booking Bar - Only show for clients */}
+        {user?.role === "client" && (
+          <View
+            className={`absolute bottom-0 left-0 right-0 p-6 ${
+              isDark ? "bg-slate-900" : "bg-white"
+            } border-t ${isDark ? "border-slate-700" : "border-gray-200"}`}
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <ThemedText className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                  Tổng cộng
                 </ThemedText>
-              )}
+                <ThemedText className={`text-2xl font-extrabold ${isDark ? "text-blue-400" : "text-blue-600"}`}>
+                  {calculateTotalPrice().toLocaleString()}₫
+                </ThemedText>
+                {selectedAddOns.length > 0 && (
+                  <ThemedText className={`text-xs mt-1 ${isDark ? "text-gray-500" : "text-gray-400"}`}>
+                    Bao gồm {selectedAddOns.length} dịch vụ bổ sung
+                  </ThemedText>
+                )}
+              </View>
+              <TouchableOpacity
+                onPress={handleBookNow}
+                disabled={!selectedSlot}
+                className="bg-orange-500 px-8 py-4 rounded-2xl ml-4"
+                style={{ opacity: selectedSlot ? 1 : 0.6 }}
+              >
+                <ThemedText className="text-white font-bold text-lg">Đặt ngay</ThemedText>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={handleBookNow}
-              disabled={!selectedSlot}
-              className="bg-orange-500 px-8 py-4 rounded-2xl ml-4"
-              style={{ opacity: selectedSlot ? 1 : 0.6 }}
-            >
-              <ThemedText className="text-white font-bold text-lg">Đặt ngay</ThemedText>
-            </TouchableOpacity>
           </View>
-        </View>
+        )}
+        
+        {/* Staff/Admin Info Bar */}
+        {(user?.role === "staff" || user?.role === "admin") && (
+          <View
+            className={`absolute bottom-0 left-0 right-0 p-6 ${
+              isDark ? "bg-slate-900" : "bg-white"
+            } border-t ${isDark ? "border-slate-700" : "border-gray-200"}`}
+          >
+            <View className={`rounded-2xl p-4 ${
+              user?.role === "admin" 
+                ? "bg-purple-50 border-2 border-purple-200" 
+                : "bg-yellow-50 border-2 border-yellow-200"
+            }`}>
+              <View className="flex-row items-center mb-2">
+                <IconSymbol 
+                  name={user?.role === "admin" ? "shield" : "briefcase"} 
+                  size={20} 
+                  color={user?.role === "admin" ? "#8b5cf6" : "#d97706"} 
+                />
+                <ThemedText className={`font-extrabold ml-2 ${
+                  user?.role === "admin" ? "text-purple-900" : "text-yellow-900"
+                }`}>
+                  {user?.role === "admin" ? "Admin" : "Staff"} View
+                </ThemedText>
+              </View>
+              <ThemedText className={`text-sm ${
+                user?.role === "admin" ? "text-purple-800" : "text-yellow-800"
+              }`}>
+                {user?.role === "admin" 
+                  ? "Bạn có quyền chỉnh sửa và xóa tour này"
+                  : "Bạn chỉ quản lý tours, không thể đặt tour"}
+              </ThemedText>
+            </View>
+          </View>
+        )}
       </ThemedView>
 
       {/* Booking Modal */}

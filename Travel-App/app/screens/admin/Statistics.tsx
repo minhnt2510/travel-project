@@ -12,8 +12,21 @@ import { ThemedView } from "@/ui-components/themed-view";
 import { IconSymbol } from "@/ui-components/ui/icon-symbol";
 import { LinearGradient } from "expo-linear-gradient";
 import { api } from "@/services/api";
+import { useUser } from "@/app/_layout";
+
+import RoleGuard from "@/app/components/common/RoleGuard";
 
 export default function StatisticsScreen() {
+  return (
+    <RoleGuard allowedRoles={["admin"]}>
+      <StatisticsContent />
+    </RoleGuard>
+  );
+}
+
+function StatisticsContent() {
+  const { user } = useUser();
+  
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({

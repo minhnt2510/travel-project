@@ -14,8 +14,17 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { api, type Review } from "@/services/api";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import RoleGuard from "@/app/components/common/RoleGuard";
 
 export default function AdminReviewsScreen() {
+  return (
+    <RoleGuard allowedRoles={["admin"]}>
+      <AdminReviewsContent />
+    </RoleGuard>
+  );
+}
+
+function AdminReviewsContent() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);

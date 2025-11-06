@@ -35,6 +35,10 @@ export const api = {
   getTours: toursApi.getTours,
   getFeaturedTours: toursApi.getFeaturedTours,
   getTourById: toursApi.getTourById,
+  deleteTour: toursApi.deleteTour,
+  createTour: toursApi.createTour,
+  getPendingTours: toursApi.getPendingTours,
+  updateTourStatus: toursApi.updateTourStatus,
 
   // Hotels
   getHotels: hotelsApi.getHotels,

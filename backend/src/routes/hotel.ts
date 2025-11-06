@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Hotel } from "../models/Hotel";
+import { requireStaff, type AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
@@ -130,8 +131,8 @@ router.get("/hotels/:id", async (req, res) => {
  *       201:
  *         description: Hotel created
  */
-// Create hotel
-router.post("/hotels", async (req, res) => {
+// Create hotel (Staff + Admin only)
+router.post("/hotels", requireStaff, async (req: AuthRequest, res) => {
   try {
     const hotel = await Hotel.create(req.body);
     res.status(201).json(hotel);
@@ -140,16 +141,16 @@ router.post("/hotels", async (req, res) => {
   }
 });
 
-// Update hotel
-router.put("/hotels/:id", async (req, res) => {
+// Update hotel (Staff + Admin only)
+router.put("/hotels/:id", requireStaff, async (req: AuthRequest, res) => {
   const { id } = req.params as any;
   const hotel = await Hotel.findByIdAndUpdate(id, req.body, { new: true });
   if (!hotel) return res.status(404).json({ message: "Not found" });
   res.json(hotel);
 });
 
-// Delete hotel
-router.delete("/hotels/:id", async (req, res) => {
+// Delete hotel (Staff + Admin only)
+router.delete("/hotels/:id", requireStaff, async (req: AuthRequest, res) => {
   const { id } = req.params as any;
   const hotel = await Hotel.findByIdAndDelete(id);
   if (!hotel) return res.status(404).json({ message: "Not found" });

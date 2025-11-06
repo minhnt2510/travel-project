@@ -6,7 +6,7 @@ export interface IUser {
   passwordHash: string;
   phone?: string;
   avatar?: string;
-  role: "user" | "admin";
+  role: "client" | "staff" | "admin";
 }
 
 const userSchema = new Schema<IUser>(
@@ -16,7 +16,7 @@ const userSchema = new Schema<IUser>(
     passwordHash: { type: String, required: true },
     phone: String,
     avatar: String,
-    role: { type: String, enum: ["user", "admin"], default: "user" },
+    role: { type: String, enum: ["client", "staff", "admin"], default: "client" },
   },
   { timestamps: true }
 );

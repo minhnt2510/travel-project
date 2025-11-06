@@ -486,19 +486,50 @@ async function seed() {
     await Hotel.insertMany(hotels);
     console.log(`Created ${hotels.length} hotels`);
 
+    // Create sample users with different roles
+    const passwordHash = await bcrypt.hash("123123", 10);
+    
+    // Create client user
+    await User.findOneAndUpdate(
+      { email: "client@travel.com" },
+      {
+        email: "client@travel.com",
+        name: "Client User",
+        passwordHash,
+        role: "client",
+      },
+      { upsert: true, new: true }
+    );
+    
+    // Create staff user
+    await User.findOneAndUpdate(
+      { email: "staff@travel.com" },
+      {
+        email: "staff@travel.com",
+        name: "Staff User",
+        passwordHash,
+        role: "staff",
+      },
+      { upsert: true, new: true }
+    );
+    
     // Create admin user
-    const adminPasswordHash = await bcrypt.hash("admin123", 10);
-    const adminUser = await User.findOneAndUpdate(
+    await User.findOneAndUpdate(
       { email: "admin@travel.com" },
       {
         email: "admin@travel.com",
-        name: "Admin Travel",
-        passwordHash: adminPasswordHash,
+        name: "Admin User",
+        passwordHash,
         role: "admin",
       },
       { upsert: true, new: true }
     );
+    
     console.log("✅ Seeding completed!");
+    console.log("📧 Test accounts:");
+    console.log("   - client@travel.com / 123123 (Client)");
+    console.log("   - staff@travel.com / 123123 (Staff)");
+    console.log("   - admin@travel.com / 123123 (Admin)");
     process.exit(0);
   } catch (error) {
     console.error("❌ Seeding failed:", error);

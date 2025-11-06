@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { requireAuth, requireAdmin, type AuthRequest } from "../middleware/auth";
+import { requireAuth, requireStaff, requireAdmin, type AuthRequest } from "../middleware/auth";
 import { Booking } from "../models/Booking";
 import { Tour } from "../models/Tour";
 import { Notification } from "../models/Notification";
@@ -292,8 +292,8 @@ router.put(
  *       403:
  *         description: Forbidden - Admin only
  */
-// Admin: Get all bookings
-router.get("/admin/bookings", requireAdmin, async (req: AuthRequest, res) => {
+// Staff + Admin: Get all bookings
+router.get("/admin/bookings", requireStaff, async (req: AuthRequest, res) => {
   const bookings = await Booking.find()
     .populate("tourId")
     .populate("userId")
@@ -335,10 +335,10 @@ router.get("/admin/bookings", requireAdmin, async (req: AuthRequest, res) => {
  *       403:
  *         description: Forbidden - Admin only
  */
-// Admin: Update booking status
+// Staff + Admin: Update booking status
 router.put(
   "/admin/bookings/:id/status",
-  requireAdmin,
+  requireStaff,
   async (req: AuthRequest, res) => {
     const { status } = req.body;
     

@@ -62,6 +62,13 @@ export default function MoreScreen() {
           route: "/(tabs)/history",
           color: ['#10b981', '#059669'],
         },
+        ...(user?.role === "staff" ? [{
+          icon: "briefcase",
+          label: "Staff Dashboard",
+          description: "Quản lý vận hành",
+          route: "/screens/StaffDashboard",
+          color: ['#10b981', '#059669'],
+        }] : []),
         ...(user?.role === "admin" ? [{
           icon: "shield",
           label: "Admin Dashboard",

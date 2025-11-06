@@ -39,7 +39,7 @@ const options: swaggerJsdoc.Options = {
             email: { type: "string" },
             phone: { type: "string" },
             avatar: { type: "string" },
-            role: { type: "string", enum: ["user", "admin"] },
+            role: { type: "string", enum: ["client", "staff", "admin"] },
             createdAt: { type: "string", format: "date-time" },
             updatedAt: { type: "string", format: "date-time" },
           },

@@ -17,25 +17,19 @@ interface StatCard {
   color: string[];
 }
 
-export default function AdminDashboard() {
+export default function StaffDashboard() {
   const { user, logout } = useUser();
   
-  // Only admin can access this screen
-  if (user?.role !== "admin") {
+  // Only staff or admin can access this screen
+  if (user?.role !== "staff" && user?.role !== "admin") {
     return (
       <ThemedView className="flex-1 justify-center items-center bg-gray-50 px-6">
         <IconSymbol name="lock" size={64} color="#9ca3af" />
         <ThemedText className="text-gray-600 text-lg font-semibold mt-4 text-center">
-          Chỉ Admin mới có quyền truy cập trang này
+          Chỉ Staff hoặc Admin mới có quyền truy cập trang này
         </ThemedText>
         <TouchableOpacity
-          onPress={() => {
-            if (user?.role === "staff") {
-              router.replace("/screens/StaffDashboard" as any);
-            } else {
-              router.replace("/(tabs)" as any);
-            }
-          }}
+          onPress={() => router.replace("/(tabs)" as any)}
           className="mt-6 bg-blue-600 px-6 py-3 rounded-full"
         >
           <ThemedText className="text-white font-semibold">Quay lại</ThemedText>
@@ -60,27 +54,34 @@ export default function AdminDashboard() {
   const loadStats = async () => {
     try {
       setLoading(true);
-      // Fetch real data từ API
-      const [bookings, toursData] = await Promise.all([
-        api.getAllBookings().catch(() => []),
-        api.getTours({ limit: 1000 }).catch(() => ({ tours: [], total: 0 })),
-      ]);
+      // Fetch real data từ API - Operations focus
+      const bookings = await api.getAllBookings().catch(() => []);
+      
+      // Today's date
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      // Today's orders
+      const todayOrders = bookings.filter((b: any) => {
+        const bookingDate = new Date(b.createdAt);
+        bookingDate.setHours(0, 0, 0, 0);
+        return bookingDate.getTime() === today.getTime();
+      });
 
-      const totalRevenue = bookings.reduce((sum: number, b: any) => {
-        const price = typeof b.totalPrice === "number" ? b.totalPrice : parseFloat(String(b.totalPrice || 0).replace(/[^\d.]/g, ""));
-        return sum + price;
-      }, 0);
-
-      // Count pending bookings
+      // Pending confirmations
       const pendingBookings = bookings.filter((b: any) => b.status === "pending").length;
-      const confirmedBookings = bookings.filter((b: any) => b.status === "confirmed").length;
+      
+      // Assigned tasks (pending + in_progress bookings)
+      const assignedTasks = bookings.filter((b: any) => 
+        b.status === "pending" || b.status === "in_progress"
+      ).length;
 
       setStats({
-        totalRevenue,
-        newOrders: bookings.length,
-        totalTours: toursData.tours?.length || 0,
+        totalRevenue: 0, // Not shown in staff dashboard
+        newOrders: todayOrders.length,
+        totalTours: 0, // Not shown in staff dashboard
         pendingBookings,
-        confirmedBookings,
+        confirmedBookings: assignedTasks,
       });
     } catch (error) {
       console.error("Error loading stats:", error);
@@ -100,69 +101,63 @@ export default function AdminDashboard() {
     router.replace("/(auth)/login");
   };
 
-  // Admin KPIs: Governance metrics only
+  // Staff KPIs: Operations metrics only
   const statCards: StatCard[] = [
     {
-      title: "Tổng doanh thu",
-      value: `${(stats.totalRevenue / 1000000).toFixed(1)}M`,
-      change: "+12.3%",
-      icon: "trending-up",
-      color: ["#8b5cf6", "#7c3aed"], // Purple theme for admin
-    },
-    {
-      title: "Tổng đơn hàng",
+      title: "Đơn hàng hôm nay",
       value: `${stats.newOrders}`,
-      change: "+8.1%",
-      icon: "shopping-bag",
-      color: ["#667eea", "#764ba2"], // Purple-blue theme
+      change: "Hôm nay",
+      icon: "calendar",
+      color: ["#10b981", "#059669"], // Green theme for staff
     },
     {
-      title: "Tổng tour",
-      value: `${stats.totalTours}`,
-      change: "+5.4%",
-      icon: "map",
-      color: ["#a855f7", "#9333ea"], // Darker purple
+      title: "Chờ xác nhận",
+      value: `${stats.pendingBookings}`,
+      change: "Cần xử lý",
+      icon: "clock",
+      color: ["#3b82f6", "#2563eb"], // Blue
+    },
+    {
+      title: "Nhiệm vụ được giao",
+      value: `${stats.confirmedBookings}`,
+      change: "Đang xử lý",
+      icon: "check-circle",
+      color: ["#f59e0b", "#d97706"], // Orange
     },
   ];
 
-  // Admin Quick Actions: Governance features only
+  // Staff Quick Actions: Operations only
   const quickActions = [
     { 
-      icon: "users", 
-      label: "Quản lý Users", 
-      route: "/screens/admin/ManageUsers", 
+      icon: "plus-circle", 
+      label: "Thêm Tour", 
+      route: "/screens/staff/CreateTour", 
       color: ["#10b981", "#059669"] 
     },
     { 
-      icon: "user-check", 
-      label: "Quản lý Staff", 
-      route: "/screens/admin/ManageStaff", 
-      color: ["#8b5cf6", "#7c3aed"] 
+      icon: "calendar-check", 
+      label: "Quản lý đơn hàng", 
+      route: "/screens/admin/ManageBookings", 
+      color: ["#3b82f6", "#2563eb"] 
     },
     { 
-      icon: "check-circle", 
-      label: "Duyệt Tours", 
-      route: "/screens/admin/ApproveTours", 
-      color: ["#f59e0b", "#d97706"] 
+      icon: "map", 
+      label: "Quản lý Tours", 
+      route: "/screens/tours/AllTours", 
+      color: ["#667eea", "#764ba2"] 
     },
     { 
-      icon: "settings", 
-      label: "Cài đặt hệ thống", 
-      route: "/screens/admin/SystemSettings", 
-      color: ["#6366f1", "#4f46e5"] 
-    },
-    { 
-      icon: "bar-chart", 
-      label: "Phân tích", 
-      route: "/screens/admin/Analytics", 
-      color: ["#ec4899", "#be185d"] 
+      icon: "x-circle", 
+      label: "Xem hủy đơn", 
+      route: "/screens/staff/ViewCancellations", 
+      color: ["#ef4444", "#dc2626"] 
     },
   ];
 
   if (loading && !refreshing) {
     return (
       <ThemedView className="flex-1 justify-center items-center bg-gray-50">
-        <ActivityIndicator size="large" color="#667eea" />
+        <ActivityIndicator size="large" color="#10b981" />
         <ThemedText className="mt-4 text-gray-600">Đang tải...</ThemedText>
       </ThemedView>
     );
@@ -170,21 +165,21 @@ export default function AdminDashboard() {
 
   return (
     <ThemedView className="flex-1 bg-gray-50">
-      {/* Header with gradient - Purple theme for Admin */}
+      {/* Header with gradient - Green theme for Staff */}
       <LinearGradient
-        colors={["#8b5cf6", "#7c3aed", "#6d28d9"]}
+        colors={["#10b981", "#059669", "#047857"]}
         className="px-4 pt-16 pb-8 rounded-b-3xl shadow-xl"
       >
         <View className="flex-row items-center justify-between mb-4">
           <View className="flex-1">
             <View className="flex-row items-center mb-1">
-              <IconSymbol name="shield" size={32} color="#FFF" />
+              <IconSymbol name="briefcase" size={32} color="#FFF" />
               <ThemedText className="text-white text-3xl font-extrabold ml-2">
-                Dashboard Admin
+                Dashboard Staff
               </ThemedText>
             </View>
             <ThemedText className="text-white/90 text-base font-medium">
-              Quản trị hệ thống • Chào mừng, {user?.name || "Admin"}
+              Quản lý vận hành • Chào mừng, {user?.name || "Staff"}
             </ThemedText>
           </View>
           <TouchableOpacity
@@ -273,9 +268,9 @@ export default function AdminDashboard() {
             </View>
             <View className="flex-row items-center justify-between py-2 border-b border-gray-100">
               <ThemedText className="text-gray-600 font-medium">Vai trò</ThemedText>
-              <View className="bg-purple-100 px-3 py-1 rounded-full">
-                <ThemedText className="text-purple-700 font-extrabold text-xs">
-                  {user?.role?.toUpperCase() || "ADMIN"}
+              <View className="bg-green-100 px-3 py-1 rounded-full border border-green-300">
+                <ThemedText className="text-green-700 font-extrabold text-xs">
+                  💼 STAFF
                 </ThemedText>
               </View>
             </View>
@@ -287,15 +282,15 @@ export default function AdminDashboard() {
         </View>
 
         {/* System Info */}
-        <View className="bg-purple-50 border-2 border-purple-300 rounded-2xl p-5 mb-6">
-          <ThemedText className="text-lg font-extrabold text-purple-900 mb-2">
-            🛡️ Quyền hạn Admin
+        <View className="bg-green-50 border-2 border-green-300 rounded-2xl p-5 mb-6">
+          <ThemedText className="text-lg font-extrabold text-green-900 mb-2">
+            💼 Nhiệm vụ Staff
           </ThemedText>
-          <ThemedText className="text-purple-800 text-sm leading-6">
-            • Quản lý users và staff{"\n"}
-            • Cấu hình hệ thống{"\n"}
-            • Xem phân tích và thống kê{"\n"}
-            • Quản trị toàn bộ nền tảng
+          <ThemedText className="text-green-800 text-sm leading-6">
+            • Xử lý đơn hàng và xác nhận{"\n"}
+            • Quản lý tours và cập nhật thông tin{"\n"}
+            • Theo dõi đơn hủy và xử lý{"\n"}
+            • Hỗ trợ khách hàng
           </ThemedText>
         </View>
 
@@ -304,3 +299,4 @@ export default function AdminDashboard() {
     </ThemedView>
   );
 }
+

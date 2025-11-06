@@ -46,5 +46,29 @@ export const toursApi = {
     }
     return await apiRequest(`/tours/${id}`);
   },
+
+  deleteTour: async (id: string): Promise<{ message: string }> => {
+    return await apiRequest(`/tours/${id}`, {
+      method: "DELETE",
+    });
+  },
+
+  createTour: async (tourData: any): Promise<Tour> => {
+    return await apiRequest("/tours", {
+      method: "POST",
+      body: JSON.stringify(tourData),
+    });
+  },
+
+  getPendingTours: async (): Promise<Tour[]> => {
+    return await apiRequest("/tours/pending");
+  },
+
+  updateTourStatus: async (id: string, status: "pending" | "approved" | "rejected"): Promise<Tour> => {
+    return await apiRequest(`/tours/${id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ status }),
+    });
+  },
 };
 

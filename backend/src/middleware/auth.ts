@@ -34,6 +34,42 @@ export const requireAuth = async (
   }
 };
 
+// Require Staff or Admin (for operational management)
+export const requireStaff = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    // First check auth
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+      sub: string;
+      email: string;
+      role?: string;
+    };
+    
+    const userRole = payload.role;
+    
+    if (userRole !== "staff" && userRole !== "admin") {
+      return res.status(403).json({ message: "Forbidden: Staff or Admin access required" });
+    }
+
+    req.userId = payload.sub;
+    req.userEmail = payload.email;
+    req.userRole = userRole;
+    
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
+// Require Admin only (for system management)
 export const requireAdmin = async (
   req: AuthRequest,
   res: Response,

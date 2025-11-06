@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { z } from "zod";
-import { requireAuth, requireAdmin, AuthRequest } from "../middleware/auth";
+import { requireAuth, requireStaff, requireAdmin, AuthRequest } from "../middleware/auth";
 import { Review } from "../models/Review";
 import { Tour } from "../models/Tour";
 import { Booking } from "../models/Booking";
@@ -241,7 +241,7 @@ router.delete("/reviews/:id", requireAuth, async (req: AuthRequest, res) => {
  *         description: All reviews
  */
 // Admin: Get all reviews
-router.get("/admin/reviews", requireAdmin, async (req: AuthRequest, res) => {
+router.get("/admin/reviews", requireStaff, async (req: AuthRequest, res) => {
   const reviews = await Review.find()
     .populate("userId", "name avatar email")
     .populate("tourId", "title imageUrl location")
@@ -270,7 +270,7 @@ router.get("/admin/reviews", requireAdmin, async (req: AuthRequest, res) => {
  *         description: Reviews for tour
  */
 // Admin: Get reviews for a specific tour
-router.get("/admin/reviews/tour/:tourId", requireAdmin, async (req: AuthRequest, res) => {
+router.get("/admin/reviews/tour/:tourId", requireStaff, async (req: AuthRequest, res) => {
   const reviews = await Review.find({ tourId: req.params.tourId })
     .populate("userId", "name avatar email")
     .populate("bookingId", "travelDate quantity")

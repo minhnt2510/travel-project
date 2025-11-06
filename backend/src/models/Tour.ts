@@ -18,6 +18,16 @@ const tourSchema = new mongoose.Schema(
     rating: { type: Number, default: 0 },
     reviewCount: { type: Number, default: 0 },
     featured: { type: Boolean, default: false },
+    status: { 
+      type: String, 
+      enum: ['pending', 'approved', 'rejected'], 
+      default: 'approved' // Admin tours are auto-approved, staff tours start as pending
+    },
+    createdBy: { 
+      type: mongoose.Schema.Types.ObjectId, 
+      ref: 'User',
+      required: false // For tracking who created the tour
+    },
     coordinates: {
       latitude: { type: Number },
       longitude: { type: Number }

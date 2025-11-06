@@ -460,26 +460,63 @@ export default function HomeScreen() {
         <View className="h-24" />
       </ScrollView>
 
-      {/* Floating Chatbot Button */}
+      {/* Floating Action Buttons */}
       {user && (
-        <TouchableOpacity
-          onPress={() => router.push("/screens/chat/Chat")}
-          className="absolute bottom-24 right-4"
-          style={{
-            shadowColor: "#667eea",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
-          }}
-        >
-          <LinearGradient
-            colors={["#667eea", "#764ba2"]}
-            className="w-16 h-16 rounded-full items-center justify-center"
+        <View className="absolute bottom-24 right-4 gap-3">
+          {/* Quick Actions for Staff/Admin */}
+          {(user.role === "staff" || user.role === "admin") && (
+            <TouchableOpacity
+              onPress={() => {
+                router.push(
+                  user.role === "admin"
+                    ? "/screens/AdminDashboard"
+                    : "/screens/StaffDashboard"
+                );
+              }}
+              style={{
+                shadowColor: user.role === "admin" ? "#8b5cf6" : "#10b981",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: 8,
+              }}
+            >
+              <LinearGradient
+                colors={
+                  user.role === "admin"
+                    ? ["#8b5cf6", "#7c3aed"]
+                    : ["#10b981", "#059669"]
+                }
+                className="w-16 h-16 rounded-full items-center justify-center"
+              >
+                <IconSymbol
+                  name={user.role === "admin" ? "shield" : "briefcase"}
+                  size={28}
+                  color="#FFF"
+                />
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+          
+          {/* Chatbot Button */}
+          <TouchableOpacity
+            onPress={() => router.push("/screens/chat/Chat")}
+            style={{
+              shadowColor: "#667eea",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 8,
+            }}
           >
-            <IconSymbol name="sparkles" size={28} color="#FFF" />
-          </LinearGradient>
-        </TouchableOpacity>
+            <LinearGradient
+              colors={["#667eea", "#764ba2"]}
+              className="w-16 h-16 rounded-full items-center justify-center"
+            >
+              <IconSymbol name="sparkles" size={28} color="#FFF" />
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       )}
 
       <UserMenu visible={menuVisible} onClose={() => setMenuVisible(false)} />

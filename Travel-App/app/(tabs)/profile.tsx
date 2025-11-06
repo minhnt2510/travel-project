@@ -98,7 +98,7 @@ export default function ProfileScreen() {
       // Update user context (for display in header)
       const updatedUserData = {
         ...userData,
-        role: userData.role === "admin" ? "admin" : "user",
+        role: (userData.role || "client") as "client" | "staff" | "admin",
       };
       
       // Load user data
@@ -330,7 +330,7 @@ export default function ProfileScreen() {
       const updatedUserData = {
         ...updatedUser,
         avatar: finalAvatar, // Use the final avatar
-        role: updatedUser.role === "admin" ? "admin" : "user",
+        role: (updatedUser.role || "client") as "client" | "staff" | "admin",
       };
       
       setUser(updatedUserData);
@@ -499,9 +499,38 @@ export default function ProfileScreen() {
                   cachePolicy="memory"
                 />
               </View>
-              <ThemedText className="text-white text-2xl font-extrabold mt-4">
-                {user.name}
-              </ThemedText>
+              <View className="flex-row items-center mt-4">
+                <ThemedText className="text-white text-2xl font-extrabold">
+                  {user.name}
+                </ThemedText>
+                {user.role && (
+                  <View
+                    className={`ml-3 px-3 py-1 rounded-full ${
+                      user.role === "admin"
+                        ? "bg-purple-500/30 border border-purple-300/50"
+                        : user.role === "staff"
+                        ? "bg-green-500/30 border border-green-300/50"
+                        : "bg-blue-500/30 border border-blue-300/50"
+                    }`}
+                  >
+                    <ThemedText
+                      className={`text-xs font-bold ${
+                        user.role === "admin"
+                          ? "text-purple-100"
+                          : user.role === "staff"
+                          ? "text-green-100"
+                          : "text-blue-100"
+                      }`}
+                    >
+                      {user.role === "admin"
+                        ? "🛡️ ADMIN"
+                        : user.role === "staff"
+                        ? "💼 STAFF"
+                        : "👤 CLIENT"}
+                    </ThemedText>
+                  </View>
+                )}
+              </View>
               <ThemedText className="text-white/90 mt-1">{user.email}</ThemedText>
               {user.phone && (
                 <View className="flex-row items-center mt-2">
@@ -509,6 +538,36 @@ export default function ProfileScreen() {
                   <ThemedText className="text-white/90 text-sm ml-1">
                     {user.phone}
                   </ThemedText>
+                </View>
+              )}
+              
+              {/* Quick Actions for Staff/Admin */}
+              {(user.role === "staff" || user.role === "admin") && (
+                <View className="flex-row gap-2 mt-4">
+                  <TouchableOpacity
+                    onPress={() => {
+                      router.push(
+                        user.role === "admin"
+                          ? "/screens/AdminDashboard"
+                          : "/screens/StaffDashboard"
+                      );
+                    }}
+                    className="flex-1 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30"
+                  >
+                    <ThemedText className="text-white text-xs font-bold text-center">
+                      {user.role === "admin" ? "🛡️ Admin Dashboard" : "💼 Staff Dashboard"}
+                    </ThemedText>
+                  </TouchableOpacity>
+                  {user.role === "admin" && (
+                    <TouchableOpacity
+                      onPress={() => router.push("/screens/admin/ManageUsers")}
+                      className="flex-1 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30"
+                    >
+                      <ThemedText className="text-white text-xs font-bold text-center">
+                        👥 Quản lý Users
+                      </ThemedText>
+                    </TouchableOpacity>
+                  )}
                 </View>
               )}
             </View>

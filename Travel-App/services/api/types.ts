@@ -106,7 +106,7 @@ export interface User {
   email: string;
   avatar?: string;
   phone?: string;
-  role?: "user" | "admin";
+  role?: "client" | "staff" | "admin";
   createdAt?: string;
 }
 

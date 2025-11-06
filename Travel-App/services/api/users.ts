@@ -31,7 +31,7 @@ export const usersApi = {
 
   updateUserRole: async (
     id: string,
-    role: "user" | "admin"
+    role: "client" | "staff" | "admin"
   ): Promise<User> => {
     return await apiRequest(`/admin/users/${id}/role`, {
       method: "PUT",

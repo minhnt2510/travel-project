@@ -26,7 +26,7 @@ interface User {
   createdAt: string;
 }
 
-export default function ManageUsersScreen() {
+export default function ManageStaffScreen() {
   const { user: currentUser } = useUser();
   
   // Only admin can access this screen
@@ -46,31 +46,27 @@ export default function ManageUsersScreen() {
       </ThemedView>
     );
   }
-  const [users, setUsers] = useState<User[]>([]);
+  
+  const [staff, setStaff] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    loadUsers();
+    loadStaff();
   }, []);
 
-  const loadUsers = async () => {
+  const loadStaff = async () => {
     try {
       setLoading(true);
-      const data = await usersApi.getAllUsers();
-      setUsers(data);
+      const allUsers = await usersApi.getAllUsers();
+      // Filter only staff and admin
+      const staffUsers = allUsers.filter((u: User) => u.role === "staff" || u.role === "admin");
+      setStaff(staffUsers);
     } catch (error: any) {
-      console.error("Error loading users:", error);
-      if (error.message?.includes("Forbidden") || error.message?.includes("403")) {
-        Alert.alert(
-          "Không có quyền",
-          "Bạn không có quyền truy cập tính năng này. Chỉ admin mới có thể quản lý users."
-        );
-      } else {
-        Alert.alert("Lỗi", error.message || "Không thể tải danh sách users");
-      }
-      setUsers([]);
+      console.error("Error loading staff:", error);
+      Alert.alert("Lỗi", error.message || "Không thể tải danh sách staff");
+      setStaff([]);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -79,27 +75,35 @@ export default function ManageUsersScreen() {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadUsers();
+    await loadStaff();
   };
 
-  const filteredUsers = users.filter(
+  const filteredStaff = staff.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const userCounts = {
-    total: users.length,
-    clients: users.filter((u) => u.role === "client").length,
-    staff: users.filter((u) => u.role === "staff").length,
-    admins: users.filter((u) => u.role === "admin").length,
+  const staffCounts = {
+    total: staff.length,
+    staff: staff.filter((u) => u.role === "staff").length,
+    admins: staff.filter((u) => u.role === "admin").length,
   };
+
+  if (loading && !refreshing) {
+    return (
+      <ThemedView className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#8b5cf6" />
+        <ThemedText className="mt-4 text-gray-600">Đang tải...</ThemedText>
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView className="flex-1 bg-gray-50">
       {/* Header */}
       <LinearGradient
-        colors={["#10b981", "#059669"]}
+        colors={["#8b5cf6", "#7c3aed"]}
         className="px-4 pt-16 pb-8 rounded-b-3xl shadow-xl"
       >
         <View className="flex-row items-center justify-between mb-4">
@@ -107,7 +111,7 @@ export default function ManageUsersScreen() {
             <IconSymbol name="arrow-left" size={24} color="#FFF" />
           </TouchableOpacity>
           <ThemedText className="text-white text-2xl font-extrabold flex-1 ml-4">
-            Quản lý Users
+            Quản lý Staff
           </ThemedText>
         </View>
 
@@ -115,25 +119,19 @@ export default function ManageUsersScreen() {
         <View className="flex-row justify-around mt-4 pt-4 border-t border-white/20">
           <View className="items-center">
             <ThemedText className="text-white text-2xl font-extrabold">
-              {userCounts.total}
+              {staffCounts.total}
             </ThemedText>
             <ThemedText className="text-white/80 text-xs">Tổng</ThemedText>
           </View>
           <View className="items-center">
             <ThemedText className="text-white text-2xl font-extrabold">
-              {userCounts.clients}
-            </ThemedText>
-            <ThemedText className="text-white/80 text-xs">Client</ThemedText>
-          </View>
-          <View className="items-center">
-            <ThemedText className="text-white text-2xl font-extrabold">
-              {userCounts.staff}
+              {staffCounts.staff}
             </ThemedText>
             <ThemedText className="text-white/80 text-xs">Staff</ThemedText>
           </View>
           <View className="items-center">
             <ThemedText className="text-white text-2xl font-extrabold">
-              {userCounts.admins}
+              {staffCounts.admins}
             </ThemedText>
             <ThemedText className="text-white/80 text-xs">Admin</ThemedText>
           </View>
@@ -145,58 +143,43 @@ export default function ManageUsersScreen() {
         <View className="bg-white rounded-2xl px-4 py-3 flex-row items-center shadow-sm">
           <IconSymbol name="search" size={20} color="#9ca3af" />
           <TextInput
-            placeholder="Tìm kiếm user..."
+            className="flex-1 ml-3 text-base"
+            placeholder="Tìm kiếm staff..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            className="flex-1 ml-3 text-gray-900"
             placeholderTextColor="#9ca3af"
           />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery("")}>
-              <IconSymbol name="x" size={18} color="#9ca3af" />
-            </TouchableOpacity>
-          )}
         </View>
       </View>
 
-      {loading ? (
-        <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="#10b981" />
-          <ThemedText className="mt-4 text-gray-600">Đang tải...</ThemedText>
-        </View>
-      ) : (
-        <ScrollView
-          className="flex-1 px-4 pt-4"
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
-          {filteredUsers.length === 0 ? (
-            <View className="items-center py-12">
-              <IconSymbol name="users" size={64} color="#d1d5db" />
-              <ThemedText className="text-gray-500 mt-4 text-center">
-                {searchQuery
-                  ? "Không tìm thấy user nào"
-                  : "Chưa có users trong hệ thống."}
-              </ThemedText>
-            </View>
-          ) : (
-            filteredUsers.map((user) => (
-              <UserCard
-                key={user._id}
-                user={user}
-                onRefresh={loadUsers}
-              />
-            ))
-          )}
-        </ScrollView>
-      )}
+      {/* Staff List */}
+      <ScrollView
+        className="flex-1 px-4 pt-4"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        {filteredStaff.length === 0 ? (
+          <View className="items-center justify-center py-20">
+            <IconSymbol name="users" size={64} color="#9ca3af" />
+            <ThemedText className="text-gray-600 text-lg font-semibold mt-4">
+              {searchQuery ? "Không tìm thấy staff" : "Chưa có staff nào"}
+            </ThemedText>
+          </View>
+        ) : (
+          filteredStaff.map((user) => (
+            <StaffCard key={user._id} user={user} onRefresh={loadStaff} />
+          ))
+        )}
+        <View className="h-8" />
+      </ScrollView>
     </ThemedView>
   );
 }
 
-// User Card Component with actions
-function UserCard({
+// Staff Card Component
+function StaffCard({
   user,
   onRefresh,
 }: {
@@ -205,52 +188,14 @@ function UserCard({
 }) {
   const [loading, setLoading] = useState(false);
 
-  const handleDelete = () => {
-    Alert.alert(
-      "Xác nhận xóa",
-      `Bạn có chắc chắn muốn xóa user "${user.name}"?`,
-      [
-        { text: "Hủy", style: "cancel" },
-        {
-          text: "Xóa",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              setLoading(true);
-              await usersApi.deleteUser(user._id);
-              Alert.alert("Thành công", "User đã được xóa");
-              onRefresh();
-            } catch (error: any) {
-              console.error("Error deleting user:", error);
-              Alert.alert(
-                "Lỗi",
-                error.message || "Không thể xóa user. Vui lòng thử lại."
-              );
-            } finally {
-              setLoading(false);
-            }
-          },
-        },
-      ]
-    );
-  };
-
   const handleChangeRole = () => {
-    // Determine next role in cycle: client -> staff -> admin -> client
-    const roleCycle: ("client" | "staff" | "admin")[] = ["client", "staff", "admin"];
-    const currentIndex = roleCycle.indexOf(user.role);
-    const nextIndex = (currentIndex + 1) % roleCycle.length;
-    const newRole = roleCycle[nextIndex];
-    const roleLabels: Record<string, string> = {
-      client: "Client",
-      staff: "Staff",
-      admin: "Admin",
-    };
-    const roleLabel = roleLabels[newRole];
+    // Toggle between staff and admin (not client)
+    const newRole = user.role === "admin" ? "staff" : "admin";
+    const roleLabel = newRole === "admin" ? "Admin" : "Staff";
     
     Alert.alert(
       "Thay đổi quyền",
-      `Bạn có muốn thay đổi quyền của "${user.name}" từ ${roleLabels[user.role]} thành ${roleLabel}?`,
+      `Bạn có muốn thay đổi quyền của "${user.name}" từ ${user.role.toUpperCase()} thành ${roleLabel}?`,
       [
         { text: "Hủy", style: "cancel" },
         {
@@ -301,18 +246,14 @@ function UserCard({
           className={`px-3 py-1 rounded-full mb-2 ${
             user.role === "admin"
               ? "bg-purple-100"
-              : user.role === "staff"
-              ? "bg-green-100"
-              : "bg-blue-100"
+              : "bg-green-100"
           }`}
         >
           <ThemedText
             className={`font-extrabold text-xs ${
               user.role === "admin"
                 ? "text-purple-700"
-                : user.role === "staff"
-                ? "text-green-700"
-                : "text-blue-700"
+                : "text-green-700"
             }`}
           >
             {user.role.toUpperCase()}
@@ -320,7 +261,7 @@ function UserCard({
         </View>
       </View>
 
-      {/* Action Buttons */}
+      {/* Action Button */}
       <View className="flex-row mt-3 gap-2">
         <TouchableOpacity
           onPress={handleChangeRole}
@@ -328,19 +269,8 @@ function UserCard({
           className="flex-1 py-2 px-4 rounded-xl bg-purple-50 border border-purple-200"
         >
           <ThemedText className="text-center font-semibold text-sm text-purple-700">
-            🔄 Đổi quyền
+            {user.role === "admin" ? "⬇️ Chuyển thành Staff" : "⬆️ Chuyển thành Admin"}
           </ThemedText>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={handleDelete}
-          disabled={loading}
-          className="px-4 py-2 rounded-xl bg-red-50 border border-red-200"
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color="#ef4444" />
-          ) : (
-            <IconSymbol name="trash-2" size={18} color="#ef4444" />
-          )}
         </TouchableOpacity>
       </View>
     </View>

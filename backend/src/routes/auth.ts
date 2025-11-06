@@ -131,7 +131,7 @@ router.post("/login", async (req, res) => {
   }
 
   const accessToken = jwt.sign(
-    { sub: user._id, email: user.email, role: user.role || "user" },
+    { sub: user._id, email: user.email, role: user.role || "client" },
     process.env.JWT_SECRET!,
     { expiresIn: "7d" }
   );
@@ -144,7 +144,7 @@ router.post("/login", async (req, res) => {
       id: user._id,
       email: user.email, 
       name: user.name,
-      role: user.role || "user",
+      role: user.role || "client",
       avatar: user.avatar,
       phone: user.phone,
     },

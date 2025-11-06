@@ -46,19 +46,20 @@ export default function LoginScreen() {
           _id: result.user._id || (result.user as any).id,
           name: result.user.name,
           email: result.user.email,
-          role: (result.user.role === "admin" ? "admin" : "user") as
-            | "admin"
-            | "user",
+          role: (result.user.role || "client") as "client" | "staff" | "admin",
           avatar: result.user.avatar,
           phone: result.user.phone,
         };
 
         await login(userData, result.accessToken);
 
-        // Redirect based on role - using push instead of replace for better navigation
+        // Redirect based on role
         if (userData.role === "admin") {
           router.dismissAll();
           router.push("/screens/AdminDashboard" as any);
+        } else if (userData.role === "staff") {
+          router.dismissAll();
+          router.push("/screens/StaffDashboard" as any);
         } else {
           router.replace("/(tabs)" as any);
         }

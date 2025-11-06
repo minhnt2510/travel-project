@@ -14,6 +14,7 @@ import { router } from "expo-router";
 import { Image } from "expo-image";
 import { api } from "@/services/api";
 import { useColorScheme } from "react-native";
+import { useUser } from "@/app/_layout";
 
 // Helper function to format date
 const formatDate = (dateString: string): string => {
@@ -39,6 +40,26 @@ interface Booking {
 }
 
 export default function ManageBookings() {
+  const { user } = useUser();
+  
+  // Only staff or admin can access
+  if (user?.role !== "staff" && user?.role !== "admin") {
+    return (
+      <ThemedView className="flex-1 justify-center items-center bg-gray-50 px-6">
+        <IconSymbol name="lock" size={64} color="#9ca3af" />
+        <ThemedText className="text-gray-600 text-lg font-semibold mt-4 text-center">
+          Chỉ Staff hoặc Admin mới có quyền truy cập trang này
+        </ThemedText>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="mt-6 bg-blue-600 px-6 py-3 rounded-full"
+        >
+          <ThemedText className="text-white font-semibold">Quay lại</ThemedText>
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  }
+  
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
