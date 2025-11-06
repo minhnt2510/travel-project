@@ -8,6 +8,7 @@ export * as reviewsApi from "./reviews";
 export * as wishlistApi from "./wishlist";
 export * as usersApi from "./users";
 export * as notificationsApi from "./notifications";
+export * as chatApi from "./chat";
 export * as helpersApi from "./helpers";
 export { removeToken } from "./client";
 
@@ -20,6 +21,7 @@ import { reviewsApi } from "./reviews";
 import { wishlistApi } from "./wishlist";
 import { usersApi } from "./users";
 import { notificationsApi } from "./notifications";
+import { chatApi } from "./chat";
 import { helpersApi } from "./helpers";
 import { removeToken } from "./client";
 
@@ -79,6 +81,9 @@ export const api = {
   markNotificationRead: notificationsApi.markNotificationRead,
   markAllNotificationsRead: notificationsApi.markAllNotificationsRead,
   deleteNotification: notificationsApi.deleteNotification,
+
+  // Chat
+  sendChatMessage: chatApi.sendMessage,
 
   // Legacy/Helpers
   getDestinations: helpersApi.getDestinations,

@@ -14,6 +14,7 @@ import reviewRouter from "./routes/review";
 import wishlistRouter from "./routes/wishlist";
 import hotelRouter from "./routes/hotel";
 import notificationRouter from "./routes/notification";
+import chatRouter from "./routes/chat";
 
 const app = express();
 const httpServer = createServer(app);
@@ -43,6 +44,7 @@ app.use("/", reviewRouter);
 app.use("/", wishlistRouter);
 app.use("/", notificationRouter);
 app.use("/", hotelRouter);
+app.use("/", chatRouter);
 
 const port = Number(process.env.PORT || 4000);
 

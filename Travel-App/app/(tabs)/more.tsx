@@ -75,6 +75,13 @@ export default function MoreScreen() {
       title: "Hỗ trợ",
       items: [
         {
+          icon: "sparkles",
+          label: "AI Trợ lý",
+          description: "Chat với trợ lý du lịch",
+          route: "/screens/chat/Chat",
+          color: ['#667eea', '#764ba2'],
+        },
+        {
           icon: "help-circle",
           label: "Trợ giúp",
           description: "Câu hỏi thường gặp",
