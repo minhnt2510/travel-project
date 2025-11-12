@@ -16,6 +16,7 @@ import { api } from "@/services/api";
 import { useUser } from "@/app/_layout";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 interface ChatMessage {
   id: string;
@@ -30,7 +31,8 @@ export default function Chat() {
     {
       id: "1",
       sender: "bot",
-      message: "Xin chào! Tôi là trợ lý du lịch của bạn. Tôi có thể giúp bạn tìm tour, kiểm tra booking, và trả lời các câu hỏi. Bạn cần hỗ trợ gì?",
+      message:
+        "Xin chào! Tôi là trợ lý du lịch của bạn. Tôi có thể giúp bạn tìm tour, kiểm tra booking, và trả lời các câu hỏi. Bạn cần hỗ trợ gì?",
       time: new Date(),
     },
   ]);
@@ -103,7 +105,9 @@ export default function Chat() {
           onPress={() => router.push("/(auth)/login")}
           className="mt-6 bg-blue-600 px-6 py-3 rounded-full"
         >
-          <ThemedText className="text-white font-semibold">Đăng nhập</ThemedText>
+          <ThemedText className="text-white font-semibold">
+            Đăng nhập
+          </ThemedText>
         </TouchableOpacity>
       </ThemedView>
     );
@@ -122,7 +126,11 @@ export default function Chat() {
           </TouchableOpacity>
           <View className="flex-row items-center ml-4 flex-1">
             <View className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md items-center justify-center">
-              <IconSymbol name="sparkles" size={24} color="#FFF" />
+              <MaterialCommunityIcons
+                name="robot-excited-outline"
+                size={24}
+                color="white"
+              />
             </View>
             <View className="ml-3 flex-1">
               <ThemedText className="text-white text-lg font-extrabold">
@@ -157,7 +165,11 @@ export default function Chat() {
             >
               {message.sender === "bot" && (
                 <View className="w-8 h-8 rounded-full bg-purple-100 items-center justify-center mr-2 self-end">
-                  <IconSymbol name="sparkles" size={16} color="#667eea" />
+                  <MaterialCommunityIcons
+                    name="robot-excited-outline"
+                    size={24}
+                    color="white"
+                  />
                 </View>
               )}
               <View
@@ -197,7 +209,11 @@ export default function Chat() {
           {isLoading && (
             <View className="mb-4 flex-row items-center">
               <View className="w-8 h-8 rounded-full bg-purple-100 items-center justify-center mr-2">
-                <IconSymbol name="sparkles" size={16} color="#667eea" />
+                <MaterialCommunityIcons
+                  name="robot-excited-outline"
+                  size={24}
+                  color="white"
+                />
               </View>
               <View className="bg-white px-4 py-3 rounded-2xl rounded-tl-sm shadow-sm">
                 <ActivityIndicator size="small" color="#667eea" />
@@ -227,9 +243,7 @@ export default function Chat() {
                 onPress={handleSend}
                 disabled={!inputText.trim() || isLoading}
                 className={`ml-2 p-2 rounded-full ${
-                  inputText.trim() && !isLoading
-                    ? "bg-blue-600"
-                    : "bg-gray-300"
+                  inputText.trim() && !isLoading ? "bg-blue-600" : "bg-gray-300"
                 }`}
               >
                 {isLoading ? (

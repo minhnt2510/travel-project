@@ -27,6 +27,7 @@ import FilterModal, {
   type FilterState,
 } from "@/app/components/common/FilterModal";
 import UserMenu from "@/app/components/common/UserMenu";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 const TOP_DESTINATIONS = [
   { id: "1", name: "Đà Lạt", image: IMAGES.dalat, count: "150+ địa điểm" },
@@ -497,7 +498,7 @@ export default function HomeScreen() {
               </LinearGradient>
             </TouchableOpacity>
           )}
-          
+
           {/* Chatbot Button */}
           <TouchableOpacity
             onPress={() => router.push("/screens/chat/Chat")}
@@ -513,7 +514,7 @@ export default function HomeScreen() {
               colors={["#667eea", "#764ba2"]}
               className="w-16 h-16 rounded-full items-center justify-center"
             >
-              <IconSymbol name="sparkles" size={28} color="#FFF" />
+              <FontAwesome5 name="robot" size={24} color="white" />
             </LinearGradient>
           </TouchableOpacity>
         </View>

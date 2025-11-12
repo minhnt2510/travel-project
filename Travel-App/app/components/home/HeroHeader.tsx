@@ -17,24 +17,25 @@ export default function HeroHeader({
   onMenuPress,
 }: HeroHeaderProps) {
   const { user } = useUser();
-  
+
   return (
     <LinearGradient
-      colors={['#667eea', '#764ba2', '#f093fb']}
+      colors={["#667eea", "#764ba2", "#f093fb"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       className="px-4 pt-16 pb-8 rounded-b-3xl"
     >
-      <Animated.View 
+      <Animated.View
         entering={FadeInDown.duration(600).delay(100)}
         className="flex-row items-center mb-4"
       >
         <View className="flex-1">
           <View className="flex-row items-center mb-2">
             <ThemedText className="text-white text-3xl font-extrabold">
-              {user?.name ? `Chào ${user.name.split(" ")[0]}!` : "Chào mừng!"} 👋
+              {user?.name ? `Chào ${user.name.split(" ")[0]}!` : "Chào mừng!"}{" "}
+              👋
             </ThemedText>
-            {user?.role && (
+            {/* {user?.role && (
               <View
                 className={`ml-3 px-2.5 py-1 rounded-full ${
                   user.role === "admin"
@@ -59,8 +60,8 @@ export default function HeroHeader({
                     ? "💼 STAFF"
                     : "👤 CLIENT"}
                 </ThemedText>
-              </View>
-            )}
+              </View> */}
+            {/* )} */}
           </View>
           <ThemedText className="text-white/90 text-base font-medium">
             {user?.role === "admin"
@@ -103,24 +104,35 @@ export default function HeroHeader({
       </Animated.View>
 
       {/* Quick stats */}
-      <Animated.View 
+      <Animated.View
         entering={FadeInDown.duration(600).delay(300)}
         className="flex-row justify-around mt-6 pt-6 border-t border-white/20"
       >
         <View className="items-center">
-          <ThemedText className="text-white text-2xl font-bold">500+</ThemedText>
-          <ThemedText className="text-white/80 text-xs mt-1">Điểm đến</ThemedText>
+          <ThemedText className="text-white text-2xl font-bold">
+            500+
+          </ThemedText>
+          <ThemedText className="text-white/80 text-xs mt-1">
+            Điểm đến
+          </ThemedText>
         </View>
         <View className="items-center">
-          <ThemedText className="text-white text-2xl font-bold">10k+</ThemedText>
-          <ThemedText className="text-white/80 text-xs mt-1">Khách hàng</ThemedText>
+          <ThemedText className="text-white text-2xl font-bold">
+            10k+
+          </ThemedText>
+          <ThemedText className="text-white/80 text-xs mt-1">
+            Khách hàng
+          </ThemedText>
         </View>
         <View className="items-center">
-          <ThemedText className="text-white text-2xl font-bold">4.8★</ThemedText>
-          <ThemedText className="text-white/80 text-xs mt-1">Đánh giá</ThemedText>
+          <ThemedText className="text-white text-2xl font-bold">
+            4.8★
+          </ThemedText>
+          <ThemedText className="text-white/80 text-xs mt-1">
+            Đánh giá
+          </ThemedText>
         </View>
       </Animated.View>
     </LinearGradient>
   );
 }
-
