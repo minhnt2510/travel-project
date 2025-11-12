@@ -22,6 +22,7 @@ const bookingSchema = new mongoose.Schema({
     idCard: { type: String }
   }],
   contactInfo: {
+    fullName: { type: String },
     phone: { type: String },
     email: { type: String }
   },

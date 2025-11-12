@@ -188,6 +188,7 @@ export default function BookingFlow({
           : new Date().toISOString().split("T")[0],
         travelers: travelers,
         contactInfo: {
+          fullName: contactInfo.fullName,
           phone: contactInfo.phone,
           email: contactInfo.email,
         },
@@ -344,7 +345,7 @@ export default function BookingFlow({
           </View>
 
           <View className="mb-3">
-            <ThemedText className="text-sm text-gray-600 mb-2">Email *</ThemedText>
+            <ThemedText className="text-sm text-gray-600 mb-2">Email nhận tour *</ThemedText>
             <TextInput
               className="border border-gray-200 rounded-lg p-3 bg-gray-50"
               placeholder="Nhập email"

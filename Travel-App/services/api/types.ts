@@ -61,6 +61,7 @@ export interface Booking {
     idCard?: string;
   }>;
   contactInfo: {
+    fullName?: string;
     phone: string;
     email: string;
   };

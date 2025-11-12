@@ -10,6 +10,11 @@ export interface Booking {
   paymentStatus?: string
   createdAt?: string
   updatedAt?: string
+  contactInfo?: {
+    fullName?: string
+    email?: string
+    phone?: string
+  }
   tour?: {
     _id?: string
     title?: string
@@ -40,6 +45,13 @@ const normalizeBooking = (raw: any): Booking => {
 
   return {
     ...raw,
+    contactInfo: raw.contactInfo
+      ? {
+          fullName: raw.contactInfo.fullName,
+          email: raw.contactInfo.email,
+          phone: raw.contactInfo.phone,
+        }
+      : undefined,
     totalPrice: normalizeNumber(raw.totalPrice),
     guests: raw.guests ?? raw.quantity ?? raw.travelers?.length,
     tour: tourSource && typeof tourSource === 'object'

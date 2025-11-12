@@ -137,6 +137,8 @@ export const helpersApi = {
     // Get current user info for contact details
     let userEmail = "";
     let userPhone = "";
+    let userName = "Khách hàng";
+
     try {
       const currentUser = await usersApi.getCurrentUser();
       if (!currentUser.email) {
@@ -144,6 +146,9 @@ export const helpersApi = {
       }
       userEmail = currentUser.email;
       userPhone = currentUser.phone || "";
+      if (currentUser.name) {
+        userName = currentUser.name;
+      }
     } catch (error: any) {
       throw new Error(
         error.message || "Không thể lấy thông tin người dùng. Vui lòng đăng nhập lại."
@@ -157,9 +162,10 @@ export const helpersApi = {
       travelers: Array(tripData.travelers)
         .fill(0)
         .map((_, i) => ({ name: `Traveler ${i + 1}`, age: 25 })),
-      contactInfo: { 
-        phone: userPhone || "0000000000", 
-        email: userEmail 
+      contactInfo: {
+        fullName: userName,
+        phone: userPhone || "0000000000",
+        email: userEmail,
       },
     };
     const booking = await bookingsApi.createBooking(bookingData);

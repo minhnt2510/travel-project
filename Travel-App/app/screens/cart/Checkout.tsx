@@ -373,7 +373,7 @@ export default function Checkout() {
               />
             </View>
             <View>
-              <ThemedText className="mb-2">Email</ThemedText>
+              <ThemedText className="mb-2">Email nhận tour</ThemedText>
               <TextInput
                 className="border border-gray-200 rounded-lg p-3 bg-gray-50"
                 placeholder="Nhập email"

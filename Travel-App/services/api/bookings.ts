@@ -12,7 +12,7 @@ export const bookingsApi = {
     quantity: number;
     travelDate: string;
     travelers: Array<{ name: string; age: number; idCard?: string }>;
-    contactInfo: { phone: string; email: string };
+    contactInfo: { phone: string; email: string; fullName?: string };
     specialRequests?: string;
   }): Promise<Booking> => {
     return await apiRequest("/bookings", {

@@ -291,6 +291,14 @@ export default function BookingDetail() {
                     Thông tin liên hệ:
                   </ThemedText>
                   <View className="space-y-2">
+                    {booking.contactInfo.fullName && (
+                      <View className="flex-row items-center">
+                        <IconSymbol name="user" size={16} color={isDark ? "#94a3b8" : "#6b7280"} />
+                        <ThemedText className={`ml-2 ${isDark ? "text-gray-300" : "text-gray-600"}`}>
+                          {booking.contactInfo.fullName}
+                        </ThemedText>
+                      </View>
+                    )}
                     <View className="flex-row items-center">
                       <IconSymbol name="mail" size={16} color={isDark ? "#94a3b8" : "#6b7280"} />
                       <ThemedText className={`ml-2 ${isDark ? "text-gray-300" : "text-gray-600"}`}>

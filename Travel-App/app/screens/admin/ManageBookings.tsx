@@ -232,7 +232,11 @@ export default function ManageBookings() {
                         {tour?.title || "Tour"}
                       </ThemedText>
                       <ThemedText className={`text-sm mt-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
-                        Khách hàng: {user?.name || booking.contactInfo?.email || "N/A"}
+                        Khách hàng:{" "}
+                        {booking.contactInfo?.fullName ||
+                          user?.name ||
+                          booking.contactInfo?.email ||
+                          "N/A"}
                       </ThemedText>
                     </View>
                     <View
@@ -277,10 +281,15 @@ export default function ManageBookings() {
                       <ThemedText className={`text-sm font-semibold mb-1 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
                         Liên hệ:
                       </ThemedText>
-                      <ThemedText className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                      {booking.contactInfo.fullName && (
+                        <ThemedText className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                          👤 {booking.contactInfo.fullName}
+                        </ThemedText>
+                      )}
+                      <ThemedText className={`text-sm mt-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
                         📧 {booking.contactInfo.email}
                       </ThemedText>
-                      <ThemedText className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>
+                      <ThemedText className={`text-sm mt-1 ${isDark ? "text-gray-400" : "text-gray-600"}`}>
                         📞 {booking.contactInfo.phone}
                       </ThemedText>
                     </View>

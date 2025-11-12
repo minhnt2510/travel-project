@@ -5,6 +5,7 @@ import { Booking } from "../models/Booking";
 import { Tour } from "../models/Tour";
 import { Notification } from "../models/Notification";
 import { emitNotification, emitToAdmins } from "../socket";
+import { sendBookingConfirmationEmail } from "../services/email";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ const createBookingSchema = z.object({
     })
   ),
   contactInfo: z.object({
+    fullName: z.string().optional(),
     phone: z.string(),
     email: z.string().email(),
   }),
@@ -151,6 +153,32 @@ router.post("/bookings", requireAuth, async (req: AuthRequest, res) => {
     contactInfo,
     specialRequests,
   });
+
+  if (contactInfo.email) {
+    try {
+      await sendBookingConfirmationEmail({
+        to: contactInfo.email,
+        booking: {
+          id: booking._id.toString(),
+          totalPrice,
+          quantity,
+          travelDate,
+          contactName: contactInfo.fullName,
+          paymentStatus: booking.paymentStatus,
+          specialRequests,
+        },
+        tour: {
+          title: tour.title,
+          destination: tour.location,
+          duration: tour.duration,
+          price: tour.price,
+        },
+        appUrl: process.env.APP_PORTAL_URL,
+      });
+    } catch (error) {
+      console.error("[email] Error sending booking confirmation:", error);
+    }
+  }
 
   // Create notification in DB
   const notification = await Notification.create({
