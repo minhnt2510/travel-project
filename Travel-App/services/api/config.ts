@@ -11,14 +11,9 @@ const getApiUrl = () => {
     return process.env.EXPO_PUBLIC_API_URL;
   }
 
-  // Default fallback - change this to your backend IP
-  // Using your computer's local IP for better compatibility with iOS Simulator
-  // For Android physical device: use your computer's IP
-  // For iOS physical device: use your computer's IP
-  // For iOS Simulator: use your computer's IP (works better than localhost)
-  // For Android Emulator: use 10.0.2.2
-  // Your IP detected: 192.168.137.150
-  return "http://192.168.1.5:4000";
+  // Default fallback - production API hosted on Render
+  // Change this if you deploy backend somewhere else
+  return "https://travel-project-b5d3.onrender.com";
 };
 
 export const API_URL = getApiUrl();
