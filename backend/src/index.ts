@@ -54,7 +54,7 @@ connectDB()
     initializeSocket(httpServer);
 
     httpServer.listen(port, () => {
-      console.log(`🚀 API listening on http://192.168.137.150:${port}`);
+      console.log(`🚀 API listening on http://192.168.1.5:${port}`);
       console.log(`📡 Socket.IO server initialized`);
     });
   })

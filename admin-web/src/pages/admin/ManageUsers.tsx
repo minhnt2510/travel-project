@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import AdminLayout from '../../components/layouts/AdminLayout'
-import { usersApi, User } from '../../lib/api/users'
+import { usersApi } from '../../lib/api/users'
+import type { User } from '../../lib/api/types'
 
 export default function ManageUsers() {
   const queryClient = useQueryClient()

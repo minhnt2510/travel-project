@@ -13,12 +13,21 @@ export default function StaffDashboard() {
 
   const isLoading = bookingsLoading
 
+  const getDate = (value?: string | null) => {
+    try {
+      return value ? new Date(value) : null
+    } catch {
+      return null
+    }
+  }
+
   // Calculate stats
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
   const todayOrders = bookings.filter((b) => {
-    const bookingDate = new Date(b.createdAt)
+    const bookingDate = getDate(b.createdAt)
+    if (!bookingDate) return false
     bookingDate.setHours(0, 0, 0, 0)
     return bookingDate.getTime() === today.getTime()
   }).length
@@ -27,7 +36,8 @@ export default function StaffDashboard() {
   const confirmedBookings = bookings.filter((b) => b.status === 'confirmed' || b.status === 'in_progress').length
   const cancellationsToday = bookings.filter((b) => {
     if (b.status !== 'cancelled') return false
-    const d = new Date(b.updatedAt || b.createdAt)
+    const d = getDate(b.updatedAt || b.createdAt)
+    if (!d) return false
     d.setHours(0, 0, 0, 0)
     return d.getTime() === today.getTime()
   }).length
@@ -35,7 +45,8 @@ export default function StaffDashboard() {
   const recentPending = bookings.filter((b) => b.status === 'pending').slice(0, 5)
   const recentCancellations = bookings.filter((b) => {
     if (b.status !== 'cancelled') return false
-    const d = new Date(b.updatedAt || b.createdAt)
+    const d = getDate(b.updatedAt || b.createdAt)
+    if (!d) return false
     d.setHours(0, 0, 0, 0)
     return d.getTime() === today.getTime()
   }).slice(0, 5)
@@ -125,7 +136,8 @@ export default function StaffDashboard() {
                           {b.tour?.title || 'Đơn hàng'}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {b.user?.name || 'Khách'} • {new Date(b.createdAt).toLocaleString('vi-VN')}
+                          {b.user?.name || 'Khách'} •{' '}
+                          {getDate(b.createdAt)?.toLocaleString('vi-VN') ?? 'Chưa rõ thời gian'}
                         </div>
                       </div>
                       <div className="text-sm font-bold text-gray-900">
@@ -148,7 +160,8 @@ export default function StaffDashboard() {
                           {b.tour?.title || 'Đơn hàng'}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {b.user?.name || 'Khách'} • {new Date(b.updatedAt || b.createdAt).toLocaleString('vi-VN')}
+                          {b.user?.name || 'Khách'} •{' '}
+                          {getDate(b.updatedAt || b.createdAt)?.toLocaleString('vi-VN') ?? 'Chưa rõ thời gian'}
                         </div>
                       </div>
                       <div className="text-sm font-bold text-red-600">

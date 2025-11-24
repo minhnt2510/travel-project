@@ -56,7 +56,8 @@ export default function ProfileScreen() {
 
   const requestImagePickerPermission = async () => {
     if (Platform.OS !== "web") {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
           "Cần quyền truy cập",
@@ -87,22 +88,22 @@ export default function ProfileScreen() {
     try {
       setLoading(true);
       const userData = await api.getUser();
-      
+
       // Update local form state
       setName(userData.name);
       setEmail(userData.email);
       setPhone(userData.phone || "");
       setAvatar(userData.avatar || "");
       setAvatarUri(null); // Reset picked image
-      
+
       // Update user context (for display in header)
       const updatedUserData = {
         ...userData,
         role: (userData.role || "client") as "client" | "staff" | "admin",
       };
-      
+
       // Load user data
-      
+
       // Update both local state and context
       setUser(updatedUserData);
     } catch (error) {
@@ -122,7 +123,8 @@ export default function ProfileScreen() {
   const handlePickImage = async () => {
     try {
       // Request permission first
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
           "Cần quyền truy cập",
@@ -132,56 +134,52 @@ export default function ProfileScreen() {
       }
 
       // Show action sheet for camera or library
-      Alert.alert(
-        "Chọn ảnh đại diện",
-        "Bạn muốn chọn ảnh từ đâu?",
-        [
-          {
-            text: "Thư viện ảnh",
-            onPress: async () => {
-              const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 0.5, // Reduce quality to decrease file size
-                allowsMultipleSelection: false,
-              });
+      Alert.alert("Chọn ảnh đại diện", "Bạn muốn chọn ảnh từ đâu?", [
+        {
+          text: "Thư viện ảnh",
+          onPress: async () => {
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.5, // Reduce quality to decrease file size
+              allowsMultipleSelection: false,
+            });
 
-              if (!result.canceled && result.assets[0]) {
-                setAvatarUri(result.assets[0].uri);
-              }
-            },
+            if (!result.canceled && result.assets[0]) {
+              setAvatarUri(result.assets[0].uri);
+            }
           },
-          {
-            text: "Camera",
-            onPress: async () => {
-              const { status: cameraStatus } =
-                await ImagePicker.requestCameraPermissionsAsync();
-              if (cameraStatus !== "granted") {
-                Alert.alert(
-                  "Cần quyền truy cập",
-                  "Cần quyền truy cập camera để chụp ảnh!"
-                );
-                return;
-              }
+        },
+        {
+          text: "Camera",
+          onPress: async () => {
+            const { status: cameraStatus } =
+              await ImagePicker.requestCameraPermissionsAsync();
+            if (cameraStatus !== "granted") {
+              Alert.alert(
+                "Cần quyền truy cập",
+                "Cần quyền truy cập camera để chụp ảnh!"
+              );
+              return;
+            }
 
-              const result = await ImagePicker.launchCameraAsync({
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 0.5, // Reduce quality to decrease file size
-              });
+            const result = await ImagePicker.launchCameraAsync({
+              allowsEditing: true,
+              aspect: [1, 1],
+              quality: 0.5, // Reduce quality to decrease file size
+            });
 
-              if (!result.canceled && result.assets[0]) {
-                setAvatarUri(result.assets[0].uri);
-              }
-            },
+            if (!result.canceled && result.assets[0]) {
+              setAvatarUri(result.assets[0].uri);
+            }
           },
-          {
-            text: "Hủy",
-            style: "cancel",
-          },
-        ]
-      );
+        },
+        {
+          text: "Hủy",
+          style: "cancel",
+        },
+      ]);
     } catch (error: any) {
       console.error("Error picking image:", error);
       Alert.alert("Lỗi", "Không thể mở image picker");
@@ -191,7 +189,7 @@ export default function ProfileScreen() {
   const convertImageToBase64 = async (uri: string): Promise<string> => {
     try {
       // Convert image to base64
-      
+
       // Use fetch + FileReader for both web and React Native
       // This approach works reliably across platforms
       try {
@@ -203,7 +201,7 @@ export default function ProfileScreen() {
             const base64 = await FileSystem.readAsStringAsync(uri, {
               encoding: "base64" as any, // Use string literal to avoid type errors
             });
-            
+
             // Get file extension from URI or default to jpeg
             let mimeType = "image/jpeg";
             if (uri.includes(".png")) {
@@ -211,7 +209,7 @@ export default function ProfileScreen() {
             } else if (uri.includes(".gif")) {
               mimeType = "image/gif";
             }
-            
+
             const dataUri = `data:${mimeType};base64,${base64}`;
             // Image converted via FileSystem
             return dataUri;
@@ -220,13 +218,13 @@ export default function ProfileScreen() {
             // Fall through to fetch method
           }
         }
-        
+
         // Use fetch + FileReader (works for both web and React Native)
         const response = await fetch(uri);
         if (!response.ok) {
           throw new Error(`Failed to fetch image: ${response.status}`);
         }
-        
+
         const blob = await response.blob();
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
@@ -247,12 +245,16 @@ export default function ProfileScreen() {
         });
       } catch (fetchError: any) {
         console.error("Error converting image:", fetchError);
-        throw new Error(`Không thể xử lý ảnh: ${fetchError.message || "Lỗi không xác định"}`);
+        throw new Error(
+          `Không thể xử lý ảnh: ${fetchError.message || "Lỗi không xác định"}`
+        );
       }
     } catch (error: any) {
       console.error("Error converting image to base64:", error);
       console.error("Error details:", error.message, error.stack);
-      throw new Error(`Không thể xử lý ảnh: ${error.message || "Lỗi không xác định"}`);
+      throw new Error(
+        `Không thể xử lý ảnh: ${error.message || "Lỗi không xác định"}`
+      );
     }
   };
 
@@ -273,30 +275,34 @@ export default function ProfileScreen() {
         try {
           // Convert image to base64
           const base64 = await convertImageToBase64(avatarUri);
-          
+
           if (!base64 || base64.length === 0) {
             throw new Error("Không thể convert ảnh thành base64");
           }
-          
+
           // Limit size if too large (MongoDB String has 16MB limit, but we should keep it reasonable)
           // Express body parser limit is now 50MB, but we'll limit to 5MB for safety
-          if (base64.length > 5000000) { // ~5MB limit for base64
+          if (base64.length > 5000000) {
+            // ~5MB limit for base64
             Alert.alert(
               "Cảnh báo",
-              "Ảnh quá lớn (" + Math.round(base64.length / 1024 / 1024 * 100) / 100 + "MB). Vui lòng chọn ảnh nhỏ hơn hoặc chất lượng thấp hơn."
+              "Ảnh quá lớn (" +
+                Math.round((base64.length / 1024 / 1024) * 100) / 100 +
+                "MB). Vui lòng chọn ảnh nhỏ hơn hoặc chất lượng thấp hơn."
             );
             setUploadingAvatar(false);
             setIsUpdating(false);
             return;
           }
-          
+
           avatarUrl = base64; // Use base64 data URI
           // Note: In production, you should upload to server and get URL back
           // Example: avatarUrl = await uploadImageToServer(base64);
         } catch (error: any) {
           Alert.alert(
-            "Lỗi xử lý ảnh", 
-            error.message || "Không thể xử lý ảnh. Vui lòng thử lại hoặc chọn ảnh khác."
+            "Lỗi xử lý ảnh",
+            error.message ||
+              "Không thể xử lý ảnh. Vui lòng thử lại hoặc chọn ảnh khác."
           );
           setUploadingAvatar(false);
           setIsUpdating(false);
@@ -310,34 +316,35 @@ export default function ProfileScreen() {
         email: email.trim(),
         phone: phone.trim(),
       };
-      
+
       // Only include avatar if we have one (either from picker or manual URL)
       if (avatarUrl) {
         updateData.avatar = avatarUrl;
       } else if (avatar.trim()) {
         updateData.avatar = avatar.trim();
       }
-      
+
       const updatedUser = await api.updateUser(updateData);
-      
+
       // Update all states - prioritize returned avatar from server
-      const finalAvatar = updatedUser.avatar || avatarUrl || avatar.trim() || "";
-      
+      const finalAvatar =
+        updatedUser.avatar || avatarUrl || avatar.trim() || "";
+
       setAvatar(finalAvatar);
       setAvatarUri(null); // Clear picked image
-      
+
       // Update user context with the final avatar IMMEDIATELY
       const updatedUserData = {
         ...updatedUser,
         avatar: finalAvatar, // Use the final avatar
         role: (updatedUser.role || "client") as "client" | "staff" | "admin",
       };
-      
+
       setUser(updatedUserData);
-      
+
       setIsEditMode(false);
       setIsModalVisible(false);
-      
+
       // Reload user after a short delay to get fresh data from server
       setTimeout(async () => {
         try {
@@ -346,12 +353,12 @@ export default function ProfileScreen() {
           // Silent error
         }
       }, 500);
-      
+
       Alert.alert("Thành công", "Đã cập nhật thông tin thành công!");
     } catch (error: any) {
       console.error("Error updating profile:", error);
       Alert.alert(
-        "Lỗi", 
+        "Lỗi",
         error.message || "Không thể cập nhật thông tin. Vui lòng thử lại."
       );
     } finally {
@@ -390,7 +397,8 @@ export default function ProfileScreen() {
     } catch (error: any) {
       Alert.alert(
         "Lỗi",
-        error.message || "Không thể đổi mật khẩu. Vui lòng kiểm tra mật khẩu hiện tại."
+        error.message ||
+          "Không thể đổi mật khẩu. Vui lòng kiểm tra mật khẩu hiện tại."
       );
     } finally {
       setChangingPassword(false);
@@ -417,9 +425,9 @@ export default function ProfileScreen() {
     { label: "Điểm thưởng", value: "2,450" },
   ];
 
-  const menuItems: { 
-    icon: string; 
-    label: string; 
+  const menuItems: {
+    icon: string;
+    label: string;
     href?: string;
     onPress?: () => void;
   }[] = [
@@ -481,7 +489,7 @@ export default function ProfileScreen() {
         {/* Header hồ sơ với gradient đẹp */}
         <Animated.View style={[fadeAnimatedStyle]}>
           <LinearGradient
-            colors={['#667eea', '#764ba2', '#f093fb']}
+            colors={["#667eea", "#764ba2", "#f093fb"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             className="p-6 pt-16 rounded-b-3xl"
@@ -491,9 +499,13 @@ export default function ProfileScreen() {
                 <Image
                   source={{
                     uri:
-                      (avatarUri && !isUpdating) ? avatarUri : // Show picked image only if not saving
-                      (user.avatar && user.avatar.length > 0) ? user.avatar : // Show saved avatar
-                      "https://ui-avatars.com/api/?name=" + encodeURIComponent(user.name) + "&background=667eea&color=fff&size=128",
+                      avatarUri && !isUpdating
+                        ? avatarUri // Show picked image only if not saving
+                        : user.avatar && user.avatar.length > 0
+                        ? user.avatar // Show saved avatar
+                        : "https://ui-avatars.com/api/?name=" +
+                          encodeURIComponent(user.name) +
+                          "&background=667eea&color=fff&size=128",
                   }}
                   className="w-28 h-28 rounded-full border-4 border-white shadow-2xl"
                   cachePolicy="memory"
@@ -503,35 +515,10 @@ export default function ProfileScreen() {
                 <ThemedText className="text-white text-2xl font-extrabold">
                   {user.name}
                 </ThemedText>
-                {user.role && (
-                  <View
-                    className={`ml-3 px-3 py-1 rounded-full ${
-                      user.role === "admin"
-                        ? "bg-purple-500/30 border border-purple-300/50"
-                        : user.role === "staff"
-                        ? "bg-green-500/30 border border-green-300/50"
-                        : "bg-blue-500/30 border border-blue-300/50"
-                    }`}
-                  >
-                    <ThemedText
-                      className={`text-xs font-bold ${
-                        user.role === "admin"
-                          ? "text-purple-100"
-                          : user.role === "staff"
-                          ? "text-green-100"
-                          : "text-blue-100"
-                      }`}
-                    >
-                      {user.role === "admin"
-                        ? "🛡️ ADMIN"
-                        : user.role === "staff"
-                        ? "💼 STAFF"
-                        : "👤 CLIENT"}
-                    </ThemedText>
-                  </View>
-                )}
               </View>
-              <ThemedText className="text-white/90 mt-1">{user.email}</ThemedText>
+              <ThemedText className="text-white/90 mt-1">
+                {user.email}
+              </ThemedText>
               {user.phone && (
                 <View className="flex-row items-center mt-2">
                   <IconSymbol name="phone" size={14} color="#FFF" />
@@ -540,7 +527,7 @@ export default function ProfileScreen() {
                   </ThemedText>
                 </View>
               )}
-              
+
               {/* Quick Actions for Staff/Admin */}
               {(user.role === "staff" || user.role === "admin") && (
                 <View className="flex-row gap-2 mt-4">
@@ -555,7 +542,9 @@ export default function ProfileScreen() {
                     className="flex-1 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/30"
                   >
                     <ThemedText className="text-white text-xs font-bold text-center">
-                      {user.role === "admin" ? "🛡️ Admin Dashboard" : "💼 Staff Dashboard"}
+                      {user.role === "admin"
+                        ? "🛡️ Admin Dashboard"
+                        : "💼 Staff Dashboard"}
                     </ThemedText>
                   </TouchableOpacity>
                   {user.role === "admin" && (
@@ -592,7 +581,7 @@ export default function ProfileScreen() {
         <View className="px-4 py-4">
           {menuItems.map((item, idx) => {
             const content = (
-              <TouchableOpacity 
+              <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={item.onPress}
                 className="flex-row items-center py-4 px-3 mb-2 bg-white rounded-2xl shadow-sm border border-gray-100"
@@ -600,7 +589,9 @@ export default function ProfileScreen() {
                 <View className="w-10 h-10 rounded-xl bg-purple-50 items-center justify-center mr-3">
                   <IconSymbol name={item.icon} size={20} color="#667eea" />
                 </View>
-                <ThemedText className="flex-1 font-semibold text-gray-900">{item.label}</ThemedText>
+                <ThemedText className="flex-1 font-semibold text-gray-900">
+                  {item.label}
+                </ThemedText>
                 <IconSymbol name="chevron-right" size={20} color="#9CA3AF" />
               </TouchableOpacity>
             );
@@ -625,7 +616,7 @@ export default function ProfileScreen() {
             onPress={handleLogout}
           >
             <LinearGradient
-              colors={['#ef4444', '#dc2626']}
+              colors={["#ef4444", "#dc2626"]}
               className="flex-row items-center justify-center py-4"
             >
               <IconSymbol name="log-out" size={20} color="#FFF" />
@@ -644,10 +635,7 @@ export default function ProfileScreen() {
         presentationStyle="pageSheet"
       >
         <ThemedView className="flex-1">
-          <LinearGradient
-            colors={['#667eea', '#764ba2']}
-            className="p-6 pt-12"
-          >
+          <LinearGradient colors={["#667eea", "#764ba2"]} className="p-6 pt-12">
             <View className="flex-row justify-between items-center">
               <ThemedText className="text-2xl font-extrabold text-white">
                 Chỉnh sửa thông tin
@@ -709,7 +697,7 @@ export default function ProfileScreen() {
               <ThemedText className="text-lg font-semibold mb-3">
                 Ảnh đại diện
               </ThemedText>
-              
+
               {/* Preview picked image */}
               {avatarUri && (
                 <View className="mb-4 items-center">
@@ -774,7 +762,7 @@ export default function ProfileScreen() {
               }}
             >
               <LinearGradient
-                colors={['#667eea', '#764ba2'] as [string, string, ...string[]]}
+                colors={["#667eea", "#764ba2"] as [string, string, ...string[]]}
                 className="py-4 items-center"
               >
                 {isUpdating || uploadingAvatar ? (

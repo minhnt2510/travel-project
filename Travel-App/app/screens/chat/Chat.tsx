@@ -17,6 +17,7 @@ import { useUser } from "@/app/_layout";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ChatMessage {
   id: string;
@@ -24,6 +25,15 @@ interface ChatMessage {
   message: string;
   time: Date;
 }
+
+interface ChatMessageStorage {
+  id: string;
+  sender: "user" | "bot";
+  message: string;
+  time: string; // ISO string for storage
+}
+
+const CHAT_HISTORY_KEY = "chat_history";
 
 export default function Chat() {
   const { user } = useUser();
@@ -38,7 +48,60 @@ export default function Chat() {
   ]);
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // Load chat history on mount
+  useEffect(() => {
+    const loadChatHistory = async () => {
+      if (!user) {
+        setIsLoadingHistory(false);
+        return;
+      }
+
+      try {
+        const historyKey = `${CHAT_HISTORY_KEY}_${user._id}`;
+        const storedHistory = await AsyncStorage.getItem(historyKey);
+        
+        if (storedHistory) {
+          const parsedHistory: ChatMessageStorage[] = JSON.parse(storedHistory);
+          const restoredMessages: ChatMessage[] = parsedHistory.map((msg) => ({
+            ...msg,
+            time: new Date(msg.time),
+          }));
+          setMessages(restoredMessages);
+        }
+      } catch (error) {
+        console.error("Error loading chat history:", error);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadChatHistory();
+  }, [user]);
+
+  // Save chat history whenever messages change
+  useEffect(() => {
+    const saveChatHistory = async () => {
+      if (!user || isLoadingHistory || messages.length <= 1) return;
+
+      try {
+        const historyKey = `${CHAT_HISTORY_KEY}_${user._id}`;
+        const messagesToSave: ChatMessageStorage[] = messages.map((msg) => ({
+          id: msg.id,
+          sender: msg.sender,
+          message: msg.message,
+          time: msg.time.toISOString(),
+        }));
+        await AsyncStorage.setItem(historyKey, JSON.stringify(messagesToSave));
+      } catch (error) {
+        console.error("Error saving chat history:", error);
+      }
+    };
+
+    saveChatHistory();
+  }, [messages, user, isLoadingHistory]);
 
   useEffect(() => {
     // Scroll to bottom when new message arrives
@@ -94,6 +157,28 @@ export default function Chat() {
     });
   };
 
+  const clearChatHistory = async () => {
+    if (!user) return;
+
+    try {
+      const historyKey = `${CHAT_HISTORY_KEY}_${user._id}`;
+      await AsyncStorage.removeItem(historyKey);
+      
+      // Reset to initial welcome message
+      setMessages([
+        {
+          id: "1",
+          sender: "bot",
+          message:
+            "Xin chào! Tôi là trợ lý du lịch của bạn. Tôi có thể giúp bạn tìm tour, kiểm tra booking, và trả lời các câu hỏi. Bạn cần hỗ trợ gì?",
+          time: new Date(),
+        },
+      ]);
+    } catch (error) {
+      console.error("Error clearing chat history:", error);
+    }
+  };
+
   if (!user) {
     return (
       <ThemedView className="flex-1 justify-center items-center bg-gray-50 px-6">
@@ -141,6 +226,14 @@ export default function Chat() {
               </ThemedText>
             </View>
           </View>
+          {messages.length > 1 && (
+            <TouchableOpacity
+              onPress={clearChatHistory}
+              className="ml-2 p-2 rounded-full bg-white/20 backdrop-blur-md"
+            >
+              <IconSymbol name="trash" size={20} color="#FFF" />
+            </TouchableOpacity>
+          )}
         </View>
       </LinearGradient>
 
@@ -155,7 +248,15 @@ export default function Chat() {
           className="flex-1 px-4 pt-4"
           showsVerticalScrollIndicator={false}
         >
-          {messages.map((message, idx) => (
+          {isLoadingHistory ? (
+            <View className="flex-1 justify-center items-center py-20">
+              <ActivityIndicator size="large" color="#667eea" />
+              <ThemedText className="text-gray-500 mt-4">
+                Đang tải lịch sử chat...
+              </ThemedText>
+            </View>
+          ) : (
+            messages.map((message, idx) => (
             <Animated.View
               key={message.id}
               entering={FadeInDown.delay(idx * 50).duration(300)}
@@ -204,7 +305,8 @@ export default function Chat() {
                 </View>
               )}
             </Animated.View>
-          ))}
+          ))
+          )}
 
           {isLoading && (
             <View className="mb-4 flex-row items-center">

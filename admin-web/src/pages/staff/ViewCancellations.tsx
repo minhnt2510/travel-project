@@ -8,6 +8,14 @@ export default function ViewCancellations() {
     queryFn: () => bookingsApi.getAll(),
   })
 
+  const getDate = (value?: string | null) => {
+    try {
+      return value ? new Date(value) : null
+    } catch {
+      return null
+    }
+  }
+
   const cancellations = bookings.filter((b) => b.status === 'cancelled')
 
   if (isLoading) {
@@ -73,7 +81,7 @@ export default function ViewCancellations() {
                         {booking.totalPrice?.toLocaleString('vi-VN')}đ
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(booking.updatedAt || booking.createdAt).toLocaleString('vi-VN')}
+                        {getDate(booking.updatedAt || booking.createdAt)?.toLocaleString('vi-VN') ?? 'Chưa rõ thời gian'}
                       </td>
                     </tr>
                   ))
