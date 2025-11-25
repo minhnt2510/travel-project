@@ -11,9 +11,18 @@ const getApiUrl = () => {
     return process.env.EXPO_PUBLIC_API_URL;
   }
 
-  // Default fallback - production API hosted on Render
-  // Change this if you deploy backend somewhere else
-  return "https://travel-project-b5d3.onrender.com";
+  // In development mode, use localhost by default
+  // Set EXPO_PUBLIC_API_URL in .env file to override
+  if (__DEV__) {
+    // For iOS simulator or same machine
+    // For Android emulator, change to "http://10.0.2.2:4000"
+    // For physical device, use your computer's IP (e.g., "http://172.16.100.234:4000")
+    return "http://localhost:4000";
+  }
+
+  // Production: Set EXPO_PUBLIC_API_URL environment variable
+  // or update this fallback to your production backend URL
+  return "http://localhost:4000"; // Default to localhost - update when deploying
 };
 
 export const API_URL = getApiUrl();

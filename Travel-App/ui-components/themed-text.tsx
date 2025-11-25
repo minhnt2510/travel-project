@@ -19,7 +19,7 @@ export function ThemedText(props: TextProps) {
         ${type === "title" ? "text-2xl font-bold text-gray-900" : ""}
         ${type === "link" ? "text-base text-blue-600 underline" : ""}
       `}
-      style={style}
+      style={[{ fontFamily: "System" }, style]}
       {...otherProps}
     />
   );

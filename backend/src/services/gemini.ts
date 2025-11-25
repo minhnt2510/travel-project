@@ -34,7 +34,8 @@ Hãy trả lời câu hỏi của người dùng một cách hữu ích và chuy
 
 export const getGeminiResponse = async (
   userMessage: string,
-  userId?: string
+  userId?: string,
+  context?: string // Context về tours, hotels từ database
 ): Promise<string | null> => {
   try {
     const genAI = getGeminiClient();
@@ -45,18 +46,24 @@ export const getGeminiResponse = async (
     // Try different models in order of preference
     const modelsToTry = [
       "gemini-1.5-flash-latest",
-      "gemini-1.5-pro-latest", 
+      "gemini-1.5-pro-latest",
       "gemini-pro",
-      "gemini-1.0-pro"
+      "gemini-1.0-pro",
     ];
 
     let lastError: any = null;
-    
+
     for (const modelName of modelsToTry) {
       try {
         const model = genAI.getGenerativeModel({ model: modelName });
-        const prompt = `${SYSTEM_PROMPT}\n\nNgười dùng hỏi: ${userMessage}\n\nHãy trả lời:`;
-        
+
+        // Build prompt with context if available
+        let prompt = SYSTEM_PROMPT;
+        if (context) {
+          prompt += `\n\n**Dữ liệu thực tế từ hệ thống:**\n${context}`;
+        }
+        prompt += `\n\nNgười dùng hỏi: ${userMessage}\n\nHãy trả lời dựa trên dữ liệu thực tế bên trên (nếu có):`;
+
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text();
@@ -77,4 +84,3 @@ export const getGeminiResponse = async (
     return null; // Fallback to rule-based on error
   }
 };
-

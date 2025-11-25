@@ -1,7 +1,12 @@
 import { Router } from "express";
 import { Tour } from "../models/Tour";
 import { User } from "../models/User";
-import { requireStaff, requireAdmin, requireAuth, type AuthRequest } from "../middleware/auth";
+import {
+  requireStaff,
+  requireAdmin,
+  requireAuth,
+  type AuthRequest,
+} from "../middleware/auth";
 
 const router = Router();
 
@@ -91,7 +96,7 @@ router.get("/tours", async (req, res) => {
     offset = 0,
     status, // For staff/admin to filter by status
   } = req.query as any;
-  
+
   // Check if user is authenticated and get role
   let userRole: string | null = null;
   try {
@@ -108,9 +113,9 @@ router.get("/tours", async (req, res) => {
   } catch (error) {
     // Not authenticated or invalid token - treat as client
   }
-  
+
   const filter: any = {};
-  
+
   // Clients only see approved tours, Staff/Admin can see all (unless filtered)
   if (userRole !== "staff" && userRole !== "admin") {
     filter.status = "approved";
@@ -118,7 +123,7 @@ router.get("/tours", async (req, res) => {
     // Staff/Admin can filter by status if provided
     filter.status = status;
   }
-  
+
   if (categories) {
     const list = String(categories)
       .split(",")
@@ -163,9 +168,9 @@ router.get("/tours", async (req, res) => {
     .limit(Number(limit))
     .skip(Number(offset))
     .sort({ createdAt: -1 });
-  
+
   const total = await Tour.countDocuments(filter);
-  
+
   res.json({ tours, total, limit: Number(limit), offset: Number(offset) });
 });
 
@@ -203,14 +208,14 @@ router.get("/tours/featured", async (req, res) => {
   } catch (error) {
     // Not authenticated or invalid token - treat as client
   }
-  
+
   const filter: any = { featured: true };
-  
+
   // Clients only see approved tours
   if (userRole !== "staff" && userRole !== "admin") {
     filter.status = "approved";
   }
-  
+
   const tours = await Tour.find(filter)
     .limit(10)
     .sort({ rating: -1, createdAt: -1 });
@@ -258,17 +263,17 @@ router.get("/tours/pending", requireAdmin, async (req: AuthRequest, res) => {
 router.get("/tours/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Validate ObjectId format
     if (!id || !id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({ message: "Invalid tour ID format" });
     }
-    
+
     const tour = await Tour.findById(id);
     if (!tour) {
       return res.status(404).json({ message: "Tour not found" });
     }
-    
+
     res.json(tour);
   } catch (error: any) {
     console.error("Error fetching tour:", error);
@@ -340,15 +345,42 @@ router.put("/tours/:id", requireStaff, async (req: AuthRequest, res) => {
  *     responses:
  *       200:
  *         description: Tour deleted
+ *       403:
+ *         description: Không có quyền xóa tour này
  *       404:
  *         description: Tour not found
  */
-// Delete tour (Staff + Admin only)
+// Delete tour (Staff can only delete their own, Admin can delete all)
 router.delete("/tours/:id", requireStaff, async (req: AuthRequest, res) => {
-  const { id } = req.params;
-  const tour = await Tour.findByIdAndDelete(id);
-  if (!tour) return res.status(404).json({ message: "Not found" });
-  res.json({ success: true });
+  try {
+    const { id } = req.params;
+
+    // Get user info
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Find tour
+    const tour = await Tour.findById(id);
+    if (!tour) {
+      return res.status(404).json({ message: "Tour not found" });
+    }
+
+    // Check permission: Admin can delete all, Staff can only delete their own
+    if (user.role !== "admin" && tour.createdBy?.toString() !== req.userId) {
+      return res.status(403).json({
+        message:
+          "Bạn không có quyền xóa tour này. Chỉ có thể xóa tour do bạn tạo.",
+      });
+    }
+
+    // Delete tour
+    await Tour.findByIdAndDelete(id);
+    res.json({ success: true, message: "Xóa tour thành công" });
+  } catch (err: any) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // Approve/Reject tour (Admin only)
@@ -356,21 +388,17 @@ router.put("/tours/:id/status", requireAdmin, async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    
+
     if (!["pending", "approved", "rejected"].includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
-    
-    const tour = await Tour.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
-    
+
+    const tour = await Tour.findByIdAndUpdate(id, { status }, { new: true });
+
     if (!tour) {
       return res.status(404).json({ message: "Tour not found" });
     }
-    
+
     res.json(tour);
   } catch (err: any) {
     res.status(400).json({ message: err.message });

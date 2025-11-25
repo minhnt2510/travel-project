@@ -176,7 +176,7 @@ export default function StaffDashboard() {
     {
       icon: "map",
       label: "Quản lý Tours",
-      route: "/screens/tours/AllTours",
+      route: "/screens/staff/ManageTours",
       color: ["#667eea", "#764ba2"],
     },
     {
@@ -290,7 +290,7 @@ export default function StaffDashboard() {
                   <View className="flex-row items-center">
                     <IconSymbol name="x-circle" size={18} color="#dc2626" />
                     <ThemedText className="ml-2 text-red-800 font-extrabold">
-                      Đơn hủy hôm nay
+                      Đơn hủy 
                     </ThemedText>
                   </View>
                   <ThemedText className="text-red-900 font-extrabold">
@@ -330,7 +330,7 @@ export default function StaffDashboard() {
               {recentCancellations.length > 0 && (
                 <>
                   <ThemedText className="text-gray-900 font-extrabold mb-2">
-                    Đơn hủy hôm nay
+                    Đơn hủy 
                   </ThemedText>
                   <View>
                     {recentCancellations.map((b: any, idx: number) => (

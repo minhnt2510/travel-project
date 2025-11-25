@@ -34,6 +34,8 @@ export interface Tour {
   duration: number;
   startDate: string;
   endDate: string;
+  status?: "pending" | "approved" | "rejected";
+  createdBy?: string;
   coordinates?: {
     latitude: number;
     longitude: number;
@@ -71,9 +73,13 @@ export interface Booking {
 
 export interface Review {
   _id: string;
-  tourId: string | { _id: string; title: string; imageUrl?: string; location?: string };
+  tourId:
+    | string
+    | { _id: string; title: string; imageUrl?: string; location?: string };
   bookingId?: string | { _id: string; travelDate?: string; quantity?: number };
-  userId: string | { _id?: string; name: string; avatar?: string; email?: string };
+  userId:
+    | string
+    | { _id?: string; name: string; avatar?: string; email?: string };
   rating: number;
   comment?: string;
   images?: string[];
@@ -145,4 +151,3 @@ export interface Hotel {
   createdAt?: string;
   updatedAt?: string;
 }
-
